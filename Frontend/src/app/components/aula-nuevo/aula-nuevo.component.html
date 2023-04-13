@@ -1,0 +1,66 @@
+<div class="center">
+    <section id="content-info">
+
+        <h2 class="subheader">{{page_title}}</h2>
+        <div>
+            <button class="btnback" (click)="redirectAula()"><mat-icon class="icono" id="keyboard_backspace"
+                    aria-hidden="false" aria-label="keyboard_backspace"
+                    fontIcon="keyboard_backspace"></mat-icon>Regresar</button>
+        </div>
+        <form class="mid-form" #aulaForm="ngForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label for="nombreAula">Nombre del Aula: </label>
+                <input type="text" name="nombreAula" #nombreAula="ngModel" [(ngModel)]="aula.nombre" required />
+                <small *ngIf="!nombreAula.valid && nombreAula.touched">
+                    El nombre no es valido
+                </small>
+            </div>
+            <div class="form-group">
+                <label for="ubicacion">Ubicacion: </label>
+                <input type="text" name="ubicacion" #ubicacion="ngModel" [(ngModel)]="aula.ubicacion"  required />
+                <small *ngIf="!ubicacion.valid && ubicacion.touched">
+                    La ubicacion no es valido
+                </small>
+            </div>
+            <div class="form-group">
+                <label for="abreviatura">Abreviatura: </label>
+                <input type="text" name="abreviatura" #abreviatura="ngModel" [(ngModel)]="aula.abreviatura" required />
+                <small *ngIf="!abreviatura.valid && abreviatura.touched">
+                    La abreviatura no es valido
+                </small>
+            </div>
+            
+            <div class="form-group" >
+                <label for="compartida">Aula compartida: </label>
+                <div class="custom-checkbox">
+                    <input type="checkbox" id="compartida" name="compartida"  #compartido="ngModel" [(ngModel)]="isChecked">
+                    <label class="custom-checkbox-label" for="compartida"></label>
+                    
+                </div>
+            </div>
+            <!-- <div class="form-group" *ngIf="is_edit">
+                <label for="compartido">Aula compartida: </label>
+                <div class="custom-checkbox">
+                    <input type="checkbox" id="compartida" name="compartida"  #compartido="ngModel" [(ngModel)]="aula.compartida">
+                    <label class="custom-checkbox-label" for="compartida"></label>
+                    
+                </div>
+            </div> -->
+            
+            <div class="form-group">
+                <label for="color">Color: </label>
+                <input type="color" name="color" #color="ngModel" [(ngModel)]="aula.color" required />
+                <small *ngIf="!color.valid && color.touched">
+                    El color no es valido
+                </small>
+            </div>
+
+            <div class="clearfix"></div>
+
+            <input type="submit" value="Enviar" class="btn btn-success" [disabled]="aulaForm.invalid" />
+        </form>
+    </section>
+
+</div>
+
+<div class="clearfix"></div>

@@ -1,0 +1,17 @@
+<div class="center">
+    <section id="content">
+        <h2 class="subheader">Principal</h2>
+        <app-submenu></app-submenu>
+        <app-horario [asignaturas]="asignaturas" *ngIf="is_horario"></app-horario>
+        <div class="center" *ngIf="!is_horario">
+            <section id="content">
+                <h2 class="Subheader">Bienvenido al Sistema de creacion y distributivos de horarios</h2>
+                <p>Sistema creado por JORDAN CHANGO & CRISTHIAN BARROS</p>
+            </section>
+        </div>
+    </section>
+</div>
+
+
+
+<div class="clearfix"></div>

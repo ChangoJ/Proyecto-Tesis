@@ -1,0 +1,28 @@
+<app-sidebar></app-sidebar>
+<p *ngIf="is_searchTodo"><strong>Estas buscando:</strong> La carrera {{searchCarrera}} y el semestre {{searchSemestre}}</p>
+<p *ngIf="is_searchCarrera"><strong>Estas buscando:</strong> La carrera {{searchActual}} </p>
+<p *ngIf="is_searchSemestre"><strong>Estas buscando:</strong> El semestre {{searchActual}} </p>
+<h2 id="sub-subheader">Busqueda de asignaturas: </h2>
+<div class="boxcontent">
+
+    <div class="box">
+        <select name="carrera" #semestre="ngModel" [(ngModel)]="opcionSeleccionada1">
+            <option [ngValue]="null" [disabled]="true" >Selecciona la carrera</option>
+            <option *ngFor="let c of carreras" name="carrera" value="{{c}}">
+                {{c}}</option>
+        </select>
+    </div>
+
+    <div class="box">
+        <select name="semestre" #semestre="ngModel" [(ngModel)]="opcionSeleccionada2">
+            <option [ngValue]="null" [disabled]="true" >Selecciona el semestre</option>
+            <option *ngFor="let s of semestres" name="semestre" value="{{s}}">
+                {{s}}</option>
+        </select>
+    </div>
+    <button  class="buttonBusqueda" (click)="search()">Buscar</button>
+    <button  class="buttonBusqueda" (click)="searchTodo()">Mostrar Todo</button>
+</div>
+<section id="content-sub">
+    <app-items-asignatura [asignaturas]="asignaturas"></app-items-asignatura>
+</section>

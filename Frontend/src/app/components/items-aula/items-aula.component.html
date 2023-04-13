@@ -1,0 +1,28 @@
+<div id="articlesAula" class="loading" *ngIf="!aulas">
+    cargando...
+</div>
+
+<div id="articlesAula" class="loading" *ngIf="aulas && aulas.length == 0">
+    No hay articulos para mostrar, intentalo mas tarde
+</div>
+
+
+<div id="articlesAula" *ngIf="aulas">
+    <article id="{{aula._id}}" class="article-item" *ngFor="let aula of aulas">
+        <h2>{{aula.nombre}}</h2>
+        <span>
+            <p><strong>Ubicacion:</strong> {{aula.ubicacion }}</p>
+            <p><strong>Aula Compartida:</strong> {{aula.compartida }}</p>
+        </span>
+        <p><strong>Identificador: </strong>{{aula.abreviatura}} </p>
+        <div>
+            <p><strong>Color:</strong> </p>
+            <p class="color-square" style="background-color: {{aula.color}};">  </p>
+        </div>
+        <div class="action-button">
+            <a  class="btn btn-warning" [routerLink]="['/especificacion/aulas/editarAula', aula._id]">Editar</a>
+            <button  class="btn btn-danger" (click)="delete(aula._id)">Eliminar</button>
+        </div>
+    </article>
+    
+</div>

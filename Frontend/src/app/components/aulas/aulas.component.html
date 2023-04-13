@@ -1,0 +1,17 @@
+<!--  <div class="loading" *ngIf="!aulas">
+    cargando...
+</div>
+
+<div class="loading">
+    No hay articulos para mostrar, intentalo mas tarde
+</div> -->
+
+<div class="center">
+    
+    <p *ngIf="is_search"><strong>Estas buscando:</strong>  {{searchActual}} </p>
+    <h2 *ngIf="is_search" id="sub-subheader">Busqueda de aulas: {{searchActual}}</h2>
+    <app-sidebar></app-sidebar>
+    <section id="content-sub">
+        <app-items-aula [aulas]="aulas"></app-items-aula>
+    </section>
+</div>

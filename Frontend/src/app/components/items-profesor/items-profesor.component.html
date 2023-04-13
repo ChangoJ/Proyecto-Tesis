@@ -1,0 +1,23 @@
+<div id="articlesProfesores" class="loading" *ngIf="!profesores">
+    cargando...
+</div>
+
+<div id="articlesProfesores" class="loading" *ngIf="profesores && profesores.length == 0">
+    No hay articulos para mostrar, intentalo mas tarde
+</div>
+
+
+<div id="articlesProfesores" *ngIf="profesores">
+    <article id="{{profesor._id}}" class="article-item" *ngFor="let profesor of profesores">
+        <h2>{{profesor.nombre}} </h2>
+        <span>
+            <p><strong>Contrato:</strong> {{profesor.contrato }}</p>
+            <p><strong>Cargo:</strong> {{profesor.cargo }}</p>
+        </span>
+        <p><strong>Area: </strong>{{profesor.area}} </p>
+        <div class="action-button">
+            <a class="btn btn-warning" [routerLink]="['/especificacion/profesores/editarProfesor', profesor._id]">Editar</a>
+            <button class="btn btn-danger" (click)="delete(profesor._id)">Eliminar</button>
+        </div>
+    </article>
+</div>

@@ -1,0 +1,176 @@
+<div class="center">
+    <section id="content-info">
+
+        <h2 class="subheader">{{page_title}}</h2>
+        <div>
+            <button class="btnback" (click)="redirectAsignatura()"><mat-icon class="icono" id="keyboard_backspace"
+                    aria-hidden="false" aria-label="keyboard_backspace"
+                    fontIcon="keyboard_backspace"></mat-icon>Regresar</button>
+        </div>
+        <form class="mid-form" #asignaturaForm="ngForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label for="nombre">Nombre de la Asignatura: </label>
+                <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="asignatura.nombre" required />
+                <small *ngIf="!nombre.valid && nombre.touched">
+                    El nombre no es valido
+                </small>
+            </div>
+
+
+
+            <!-- <div class="form-group">
+                <label for="area">Area: </label>
+                <input type="text" name="area" #area="ngModel" [(ngModel)]="asignatura.area" required />
+                <small *ngIf="!area.valid && area.touched">
+                    El area no es valido
+                </small>
+            </div> -->
+
+            <div class="form-group" *ngIf="!is_edit">
+
+                <label for="area">Carreras: </label>
+                <ng-multiselect-dropdown 
+                [placeholder]="'Selecciona las Carreras'" 
+                
+                [settings]="dropdownCarreras"
+                [data]="carreras"
+                [(ngModel)]="selectedCarreras"
+                
+                [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
+            </div>
+
+            <div class="form-group" *ngIf="is_edit">
+
+                <label for="area">Carreras: </label>
+                <ng-multiselect-dropdown 
+                [placeholder]="'Selecciona las Carreras'" 
+                
+                [settings]="dropdownCarreras"
+                [data]="carreras"
+                    
+                [(ngModel)]="asignatura.carrera"
+                
+                (ngModelChange)="onItemCarreraSelect($event)"
+                
+                [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
+            </div>
+
+            
+
+          
+
+           <!--  <div class="form-group">
+                <label for="area">Areas: </label>
+                <select name="area" id="inputselect" #semestre="ngModel" [(ngModel)]="asignatura.area">
+
+                    <option [ngValue]="''" [disabled]="true">Selecciona las areas</option>
+                    <option *ngFor="let c of carreras" name="area" [ngValue]="c">{{ c }}</option>
+                </select>
+            </div> -->
+            <!-- <div class="form-group">
+                <label for="semestre">Semestre: </label>
+                <input type="text" name="semestre" min="1" max="12" #semestre="ngModel" [(ngModel)]="asignatura.semestre" required />
+                <small *ngIf="!semestre.valid && semestre.touched">
+                    El semestre no es valido
+                </small>
+            </div>  -->
+            <!-- <div class="form-group">
+                <label for="semestre">Semestre: </label>
+                <select name="semestre" id="inputselect" #semestre="ngModel" [(ngModel)]="asignatura.semestre">
+
+                    <option [ngValue]="''" [disabled]="true">Selecciona el semestre</option>
+                    <option *ngFor="let s of semestres" name="semestre" [ngValue]="s">{{ s }}</option>
+                </select>
+            </div> -->
+
+            <div class="form-group" *ngIf="!is_edit">
+
+                <label for="area">Semestres: </label>
+                <ng-multiselect-dropdown 
+                [placeholder]="'Selecciona los semestres'" 
+                
+                [settings]="dropdownSemestres"
+                [data]="semestres"
+                    
+                [(ngModel)]="selectedSemestres"
+                
+                [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
+            </div>
+
+            <div class="form-group" *ngIf="is_edit">
+
+                <label for="area">Semestres: </label>
+                <ng-multiselect-dropdown 
+                [placeholder]="'Selecciona los semestres'" 
+                
+                [settings]="dropdownSemestres"
+                [data]="semestres"
+                    
+                [(ngModel)]="asignatura.semestre"
+                (ngModelChange)="onItemSemestreSelect($event)"
+                
+                [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
+            </div>
+
+            <div class="form-group" *ngIf="is_edit">
+
+                <label for="area">Profesores: </label>
+                <ng-multiselect-dropdown 
+                [placeholder]="'Selecciona los Profesor'" 
+                
+                [settings]="dropdownProfesores"
+                [data]="profesores"
+                    
+                [(ngModel)]="asignatura.profesor"
+                
+                (ngModelChange)="onItemProfesoresSelect($event)"
+                
+                [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
+            </div>
+
+            <div class="form-group" *ngIf="!is_edit">
+
+                <label for="area">Profesores: </label>
+                <ng-multiselect-dropdown 
+                [placeholder]="'Selecciona los Profesores'" 
+                
+                [settings]="dropdownProfesores"
+                [data]="profesores"
+                [(ngModel)]="selectedProfesores"
+                
+                [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
+            </div>
+
+
+
+            <div class="form-group">
+                <label for="abreviatura">Abreviatura: </label>
+                <input type="text" name="abreviatura" #abreviatura="ngModel" [(ngModel)]="asignatura.abreviatura"
+                    required />
+                <small *ngIf="!abreviatura.valid && abreviatura.touched">
+                    La abreviatura no es valido
+                </small>
+            </div>
+            <div class="form-group">
+                <label for="color">Color: </label>
+                <input type="color" name="color" #color="ngModel" [(ngModel)]="asignatura.color" required />
+                <small *ngIf="!color.valid && color.touched">
+                    El color no es valido
+                </small>
+            </div>
+
+            <div class="clearfix"></div>
+
+            <input type="submit" value="Enviar" class="btn btn-success" [disabled]="asignaturaForm.invalid" />
+        </form>
+    </section>
+
+</div>
+
+<div class="clearfix"></div>

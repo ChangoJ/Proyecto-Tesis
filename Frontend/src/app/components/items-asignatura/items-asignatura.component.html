@@ -1,0 +1,30 @@
+<div id="articlesAsignatura" class="loading" *ngIf="!asignaturas">
+    cargando...
+</div>
+
+<div id="articlesAsignatura" class="loading" *ngIf="asignaturas && asignaturas.length == 0">
+    No hay articulos para mostrar, intentalo mas tarde
+</div>
+
+
+<div id="articlesAsignatura" *ngIf="asignaturas">
+    <article id="{{asignatura._id}}" class="article-item" *ngFor="let asignatura of asignaturas">
+        <h2>{{asignatura.nombre}}</h2>
+        <span>
+            <p><strong>Carreras:</strong> {{asignatura.carrera.length > 3 ? asignatura.carrera.slice(0,3)+ '...': asignatura.carrera }}</p>
+            <p><strong>Semestres:</strong> {{asignatura.semestre.length > 3 ? asignatura.semestre.slice(0,3)+ '...': asignatura.semestre }}</p>
+        </span>
+        <p><strong>Identificador: </strong>{{asignatura.abreviatura}} </p>
+        <div>
+            <p><strong>Color:</strong> </p>
+            <p class="color-square" style="background-color: {{asignatura.color}};">  </p>
+        </div>
+        <div class="action-button">
+            <a  class="btn btn-warning" [routerLink]="['/especificacion/asignaturas/editarAsignatura', asignatura._id]">Editar</a>
+            <button  class="btn btn-danger" (click)="delete(asignatura._id)">Eliminar</button>
+        </div>
+    </article>
+    
+</div>
+
+

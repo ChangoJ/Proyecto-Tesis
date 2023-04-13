@@ -1,0 +1,48 @@
+<aside id="sidebar" *ngIf="asignatura">
+  <div id="nav-blog" class="sidebar-item">
+    <h3>Crear Asignatura</h3>
+    <a [routerLink]="['/especificacion/asignaturas/crearAsignatura']" class="btn btn-success">Crear Asignatura</a>
+    <form class="buscardorForm" #searchForm="ngForm" (ngSubmit)="goSearchAsignaturas()">
+      <h3 class="labelBuscador">Buscador</h3>
+      <input type="text" name="search" [(ngModel)]="searchString" />
+      <div class="action-buttonSearch">
+        <input type="submit" name="submit" value="Buscar" class="btn btn-buscar" />
+        <input type="button" name="submit" value="Mostrar todo" class="btn btn-buscarTodo" (click)="allAsignaturas()"/>
+      </div>
+    </form>
+  </div>
+
+</aside>
+
+<aside id="sidebar" *ngIf="aula">
+  <div id="nav-blog" class="sidebar-item">
+    <h3>Crear Aula</h3>
+    <a [routerLink]="['/especificacion/aulas/crearAula']" class="btn btn-success">Crear Aula</a>
+
+    <form class="buscardorForm" #searchForm="ngForm" (ngSubmit)="goSearchAulas()">
+      <h3 class="labelBuscador">Buscador</h3>
+      <input type="text" name="search" [(ngModel)]="searchString" />
+      <div class="action-buttonSearch">
+        <input type="submit" name="submit" value="Buscar" class="btn btn-buscar" />
+        <input type="button" name="submit" value="Mostrar todo" class="btn btn-buscarTodo" (click)="allAulas()"/>
+      </div>
+
+    </form>
+  </div>
+</aside>
+
+<aside id="sidebar" *ngIf="profesor">
+  <div id="nav-blog" class="sidebar-item">
+    <h3>Crear Profesor</h3>
+    <a [routerLink]="['/especificacion/profesores/crearProfesor']" class="btn btn-success">Crear Profesor</a>
+    <form class="buscardorForm" #searchForm="ngForm" (ngSubmit)="goSearchProfesores()">
+      <h3 class="labelBuscador">Buscador</h3>
+      <input type="text" name="search" [(ngModel)]="searchString" />
+      <div class="action-buttonSearch">
+        <input type="submit" name="submit" value="Buscar" class="btn btn-buscar" />
+        <input type="button" name="submit" value="Mostrar todo" class="btn btn-buscarTodo" (click)="allProfesores()"/>
+      </div>
+    </form>
+  </div>
+
+</aside>

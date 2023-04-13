@@ -1,0 +1,92 @@
+<nav id="submenu" *ngIf="home">
+    <ul>
+        <li>
+            <div class="center-icon">
+                <mat-icon id="create_new_folder" aria-hidden="false" aria-label="create_new_folder"
+                    fontIcon="create_new_folder"></mat-icon>
+            <a  mat-raised-button  (click)="openHorarioDialog()" >Nuevo</a>
+            </div>
+        </li>
+        <li>
+            <div class="center-icon">
+                <mat-icon id="folder_open" aria-hidden="folder_open" aria-label="folder_open"
+                    fontIcon="folder_open"></mat-icon>
+            <a mat-raised-button [routerLink]="['guardar']" [routerLinkActive]="['active']">Abrir</a>
+            </div>
+        </li>
+       
+    </ul>
+</nav>
+
+
+
+
+<nav class="center" id="submenu" *ngIf="especificacion">
+    <ul>
+        <li>
+            <div class="center-icon">
+                <mat-icon id="book" aria-hidden="false" aria-label="book"
+                    fontIcon="book"></mat-icon>
+            <a [routerLink]="['asignaturas']" [routerLinkActive]="['active']">Asignaturas</a>
+            </div>
+        </li>
+        <li>
+            <div class="center-icon">
+                <mat-icon id="meeting_room" aria-hidden="meeting_room" aria-label="meeting_room"
+                    fontIcon="meeting_room"></mat-icon>
+            <a [routerLink]="['aulas']" [routerLinkActive]="['active']">Aulas</a>
+            </div>
+        </li>
+        <li>
+            <div class="center-icon">
+                <mat-icon id="person" aria-hidden="false" aria-label="person"
+                    fontIcon="person"></mat-icon>
+            <a [routerLink]="['profesores']" [routerLinkActive]="['active']">Profesores</a>
+            </div>
+        </li>
+    </ul>
+    
+</nav>
+
+
+
+
+<nav id="submenu" *ngIf="horario">
+    <ul>
+        <li>
+            <div class="center-icon">
+                <mat-icon id="create_new_folder" aria-hidden="false" aria-label="create_new_folder"
+                    fontIcon="create_new_folder"></mat-icon>
+            <a [routerLink]="['nuevo']" [routerLinkActive]="['active']">Ver</a>
+            </div>
+        </li>
+        <li>
+            <div class="center-icon">
+                <mat-icon id="folder_open" aria-hidden="folder_open" aria-label="folder_open"
+                    fontIcon="folder_open"></mat-icon>
+            <a [routerLink]="['guardar']" [routerLinkActive]="['active']">Modificar</a>
+            </div>
+        </li>
+        <li>
+            <div class="center-icon">
+                <mat-icon id="save" aria-hidden="false" aria-label="save"
+                    fontIcon="save"></mat-icon>
+            <a [routerLink]="['Imprimir']" [routerLinkActive]="['active']">Eliminar</a>
+            </div>
+        </li>
+        <li>
+            <div class="center-icon">
+                <mat-icon id="local_printshop" aria-hidden="false" aria-label="local_printshop"
+                    fontIcon="local_printshop"></mat-icon>
+            <a [routerLink]="['Salir']" [routerLinkActive]="['active']">Imprimir</a>
+            </div>
+        </li>
+    </ul>
+    
+</nav>
+<div class="center">
+
+    <router-outlet></router-outlet>
+</div>
+
+<div class="clearfix"></div>

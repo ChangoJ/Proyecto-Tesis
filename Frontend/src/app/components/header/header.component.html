@@ -1,0 +1,45 @@
+<header id="header">
+    <div class="center">
+        <!---Logo-->
+        <div id="logo">
+            <img src="assets/images/logo.png" class="app-logo" alt="Logotipo" />
+            <span id="brand">
+                <strong>UNIB.E</strong>
+            </span>
+        </div>
+        <!--MENU-->
+        <nav id="menu">
+            <ul>
+                <li>
+                    <div class="center-icon">
+                        <mat-icon id="home" aria-hidden="false" aria-label="Example home icon"
+                            fontIcon="home"></mat-icon>
+
+                        <a [routerLink]="['home']" [routerLinkActive]="['active']">
+                            Principal</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="center-icon">
+                        <mat-icon id="assignment" aria-hidden="false" aria-label="assignment" fontIcon="assignment"></mat-icon>
+                        <a [routerLink]="['especificacion/asignaturas']"
+                            [routerLinkActive]="['active']">Especificación</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="center-icon">
+                        <mat-icon id="calendar_today" aria-hidden="false" aria-label="calendar_today"
+                            fontIcon="calendar_today"></mat-icon>
+                        <a [routerLink]="['horarios']" [routerLinkActive]="['active']">Horarios</a>
+                    </div>
+                </li>
+            </ul>
+
+        </nav>
+        <div>
+
+        </div>
+        <!--Limpiar flotados-->
+        <div class="clearfix"></div>
+    </div>
+</header>
