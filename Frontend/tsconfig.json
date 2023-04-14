@@ -17,7 +17,7 @@
     "moduleResolution": "node",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "ES2022",
+    "module": "commonjs", // Cambio de ES2022 a commonjs
     "useDefineForClassFields": false,
     "lib": [
       "ES2022",

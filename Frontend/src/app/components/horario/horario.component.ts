@@ -1,4 +1,3 @@
-import { Profesor } from './../models/profesor';
 import { Component, Input } from '@angular/core';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Asignatura } from '../models/asignatura';
@@ -6,9 +5,7 @@ import { AsignaturaService } from '../services/asignatura.service';
 import { AulaService } from '../services/aula.service';
 import { Aula } from '../models/aula';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HorarioDialogComponent } from '../horario-dialog/horario-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { CarrerasDialogComponent } from '../carreras-dialog/carreras-dialog.component';
 
 
 
@@ -111,7 +108,7 @@ export class HorarioComponent {
         response => {
           if (response.asignaturas) {
             this.asignaturas = response.asignaturas;
-
+            console.log(this.asignaturas)
           }
         },
         error => {
@@ -142,6 +139,11 @@ export class HorarioComponent {
 
 
 
+  obtenerIdProfesor(idProfesor: number) {
+    console.log("ID del profesor: " + idProfesor);
+  }
+
+
   drop(event: CdkDragDrop<any[]>) {
     /* if (event.container.id.startsWith('0-') ||
       event.container.id.startsWith('1-') ||
@@ -163,10 +165,14 @@ export class HorarioComponent {
       const dayName = daysOfWeek[day];
       let identificador = Number(idParts[0]) + '' + '' + Number(idParts[3]);
 
+      console.log(item)
+      const idProfesor = event.item.element.nativeElement.getAttribute('data-idProfesor');
+      console.log('ID del profesor:', idProfesor);
       // listasignatura id
       const idPartsAsignatura: string[] = event.item.element.nativeElement.id.split('-');
       let elementoType: string = (idPartsAsignatura[0]);
-      console.log(item)
+      
+
       if (item.ubicacion) {
         elementoType = "aula"
         identificador = identificador + 'aula'
@@ -206,8 +212,6 @@ export class HorarioComponent {
       }
 
 
-
-
       if (!event.container.id.startsWith('0-')
         && !event.container.id.startsWith('1-')
         && !event.container.id.startsWith('2-')
@@ -223,8 +227,6 @@ export class HorarioComponent {
         }
       }
 
-      console.log(elementoType)
-
       // Permitir transferencia si ya se encuentra en la lista de horarios
       if (event.previousContainer.id.startsWith('0-')
         || event.previousContainer.id.startsWith('1-')
@@ -232,33 +234,19 @@ export class HorarioComponent {
         || event.previousContainer.id.startsWith('3-')
         || event.previousContainer.id.startsWith('4-')
         || event.previousContainer.id.startsWith('5-')) {
-        console.log(event.container.id)
-        console.log(event.previousContainer.id)
+
         // Permitir transferencia a lista de asignatura (cdk-drop-0)
         console.log(elementoType)
         if (!(elementoType === "aula" && event.container.id.includes('cdk-drop-list-1'))
-        && !(elementoType === "asignatura" && event.container.id.includes('cdk-drop-list-0'))
-        && !event.container.id.startsWith('0-')
-        && !event.container.id.startsWith('1-')
-        && !event.container.id.startsWith('2-')
-        && !event.container.id.startsWith('3-')
-        && !event.container.id.startsWith('4-')
-        && !event.container.id.startsWith('5-')) {
-        return; // Permitir transferencia
-      }
-
-
-
-
-        /* // Permitir transferencia a lista de aulas (cdk-drop-1)
-        if ((event.previousContainer.id.startsWith('0-')
-        || event.previousContainer.id.startsWith('1-')
-        ||  event.previousContainer.id.startsWith('2-')
-        ||  event.previousContainer.id.startsWith('3-')
-        ||  event.previousContainer.id.startsWith('4-')
-        ||  event.previousContainer.id.startsWith('5-')) && event.container.id.includes('cdk-drop-list-1')) {
+          && !(elementoType === "asignatura" && event.container.id.includes('cdk-drop-list-0'))
+          && !event.container.id.startsWith('0-')
+          && !event.container.id.startsWith('1-')
+          && !event.container.id.startsWith('2-')
+          && !event.container.id.startsWith('3-')
+          && !event.container.id.startsWith('4-')
+          && !event.container.id.startsWith('5-')) {
           return; // Permitir transferencia
-        } */
+        }
       }
 
 
