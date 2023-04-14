@@ -157,7 +157,9 @@ export class HorarioComponent {
         const hourStart: string = idParts[1];
         const hourEnd: string = idParts[2];
         const dayName = daysOfWeek[day]; 
+        const identificador = Number(idParts[0]) +''+''+ Number(idParts[3]);
 
+       console.log(identificador)
         // Verificar si ya hay un elemento en la celda
         let existingItem: any = null;
         switch (day) {
@@ -189,40 +191,65 @@ export class HorarioComponent {
         //Eliminar origen del array
         const prevIdParts: string[] = event.previousContainer.id.split('-');
         const prevDay: number = Number(prevIdParts[0]);
-        const prevIndex: number = event.previousIndex;
-
-
+        const preIdentificador = Number(prevIdParts[0]) +''+''+ Number(prevIdParts[3]);
         switch (prevDay) {
           case 0:
-            
-          console.log( this.monday.splice(prevIndex, 1))
-            this.monday.splice(prevIndex, 1);
+            for (let i = 0; i < this.monday.length; i++) {
+              if (this.monday[i].identificador === preIdentificador) {
+                this.monday.splice(i, 1);
+                break;
+              }
+            }  
             break;
           case 1:
-            
-          console.log( this.tuesday.splice(prevIndex, 1))
-            this.tuesday.splice(prevIndex, 1);
+            for (let i = 0; i < this.tuesday.length; i++) {
+              if (this.tuesday[i].identificador === preIdentificador) {
+                this.tuesday.splice(i, 1);
+                break;
+              }
+            }  
             break;
           case 2:
-            this.wednesday.splice(prevIndex, 1);
+            for (let i = 0; i < this.wednesday.length; i++) {
+              if (this.wednesday[i].identificador === preIdentificador) {
+                this.wednesday.splice(i, 1);
+                break;
+              }
+            }  
             break;
           case 3:
-            this.thursday.splice(prevIndex, 1);
+            for (let i = 0; i < this.thursday.length; i++) {
+              if (this.thursday[i].identificador === preIdentificador) {
+                this.thursday.splice(i, 1);
+                break; 
+              }
+            }  
             break;
           case 4:
-            this.friday.splice(prevIndex, 1);
+            for (let i = 0; i < this.friday.length; i++) {
+              if (this.friday[i].identificador === preIdentificador) {
+                this.friday.splice(i, 1);
+                break; 
+              }
+            }  
             break;
           case 5:
-            this.saturday.splice(prevIndex, 1);
+            for (let i = 0; i < this.saturday.length; i++) {
+              if (this.saturday[i].identificador === preIdentificador) {
+                this.saturday.splice(i, 1);
+                break;
+              }
+            }  
             break;
 
         }
 
-        const newItem = { dayName, hourStart, hourEnd, item: { ...item } };
+        const newItem = { identificador, dayName, hourStart, hourEnd, item: { ...item } };
         console.log(newItem)
         switch (day) {
           case 0:
             this.monday.push(newItem);
+            console.log(this.monday)
             break;
           case 1:
             this.tuesday.push(newItem);

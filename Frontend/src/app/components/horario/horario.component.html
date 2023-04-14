@@ -209,31 +209,31 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let hour of hours" class="mat-row">
+              <tr *ngFor="let hour of hours ; let i=index" class="mat-row">
                 <td class="mat-cell">{{ hour.split('-')[0] }} - {{hour.split('-')[1]}}</td>
                 <td cdkDropList [cdkDropListData]="getDayData(0, hour)" (cdkDropListDropped)="drop($event)"
-                  id="0-{{ hour }}" class="mat-cell cdk-drop-list">
+                  id="0-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div style="background-color: {{item.color}};" class="cdk-drag-box mat-elevation-z1"
                     *ngFor="let item of getDayData(0, hour); let i=index" cdkDrag>{{ item.nombre }} 
                   </div>
                 </td>
                 <td cdkDropList [cdkDropListData]="getDayData(1, hour)" (cdkDropListDropped)="drop($event)"
-                  id="1-{{ hour }}" class="mat-cell cdk-drop-list">
+                  id="1-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div style="background-color: {{item.color}};" class="cdk-drag-box mat-elevation-z1"
-                    *ngFor="let item of getDayData(1, hour); let i=index" cdkDrag>{{ item.nombre }}</div>
+                    *ngFor="let item of getDayData(1, hour); let i=index" id="{{ 'hour-'+ i }}" cdkDrag>{{ item.nombre }}</div>
                 </td>
                 <td cdkDropList [cdkDropListData]="getDayData(2, hour)" (cdkDropListDropped)="drop($event)"
-                  id="2-{{ hour }}" class="mat-cell cdk-drop-list">
+                  id="2-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div style="background-color: {{item.color}};" class="cdk-drag-box mat-elevation-z1"
                     *ngFor="let item of getDayData(2, hour); let i=index" cdkDrag>{{ item.nombre }} </div>
                 </td>
                 <td cdkDropList [cdkDropListData]="getDayData(3, hour)" (cdkDropListDropped)="drop($event)"
-                  id="3-{{ hour }}" class="mat-cell cdk-drop-list">
+                  id="3-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div style="background-color: {{item.color}};" class="cdk-drag-box mat-elevation-z1"
                     *ngFor="let item of getDayData(3, hour); let i=index" cdkDrag>{{ item.nombre }}</div>
                 </td>
                 <td cdkDropList [cdkDropListData]="getDayData(4, hour)" (cdkDropListDropped)="drop($event)"
-                  id="4-{{ hour }}" class="mat-cell cdk-drop-list">
+                  id="4-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div style="background-color: {{item.color}};" class="cdk-drag-box mat-elevation-z1"
                     *ngFor="let item of getDayData(4, hour); let i=index" cdkDrag>{{ item.nombre }}</div>
                 </td>
