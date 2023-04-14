@@ -519,6 +519,25 @@ input[type='submit'] {
     color: black !important
 }
 
+.cdk-drop-listAsignaturas {
+    border: solid 1px #ccc;
+    min-height: 200px;
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+    display: block;
+  }
+
+  .cdk-drop-listAulas {
+    border: solid 1px #ccc;
+    min-height: 30px;
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+    display: block;
+  }
+
+
 
 
 

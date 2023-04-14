@@ -169,12 +169,12 @@
     <mat-grid-list cols="10" rowHeight="2:10" class="CajaHorario">
       <mat-grid-tile class="mat-grid-tile-materias listaMaterias" rowspan="2">
         <h2 class="h2Materias">Asignaturas</h2>
-        <div cdkDropList [cdkDropListData]="asignaturas" class="cdk-drop-list" (cdkDropListDropped)="drop($event)">
+        <div cdkDropList [cdkDropListData]="asignaturas" class="cdk-drop-listAsignaturas" (cdkDropListDropped)="drop($event)" >
           <ng-container *ngFor="let asignatura of asignaturas; let i=index ">
             <ng-container *ngFor="let profesor of asignatura.profesor; let j=index">
-              <div style="background-color: {{asignatura.color}};" id="{{'materia-' + i + '-' + j}}"
+              <div style="background-color: {{asignatura.color}};" id="{{'asignatura-' + i + '-' + j}}"
                 class="cdk-drag-box mat-elevation-z1 listArrastre" cdkDrag>
-                {{asignatura.nombre}} <br>
+                {{asignatura?.nombre}} <br>
                 <strong>Profesor: </strong> {{ profesor.nombre }}
               </div>
             </ng-container>
@@ -183,7 +183,7 @@
       </mat-grid-tile>
       <mat-grid-tile class="mat-grid-tile-materias listaAulas" rowspan="2">
         <h2 class="h2Materias">Aulas</h2>
-        <div cdkDropList [cdkDropListData]="aulas" class="cdk-drop-list" (cdkDropListDropped)="drop($event)">
+        <div cdkDropList [cdkDropListData]="aulas" class="cdk-drop-listAulas" (cdkDropListDropped)="drop($event)" >
           <ng-container *ngFor="let aula of aulas; let i=index ">
             <div style="background-color: {{aula.color}};" id="{{'aula-' + i }}"
               class="cdk-drag-box mat-elevation-z1 listArrastre" cdkDrag>

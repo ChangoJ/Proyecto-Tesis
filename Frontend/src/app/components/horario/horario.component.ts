@@ -28,6 +28,7 @@ export class HorarioComponent {
   public is_Diurno!: Boolean
 
 
+
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
@@ -35,6 +36,7 @@ export class HorarioComponent {
     private _aulasService: AulaService,
     private dialog: MatDialog
   ) {
+
 
   }
 
@@ -109,7 +111,6 @@ export class HorarioComponent {
         response => {
           if (response.asignaturas) {
             this.asignaturas = response.asignaturas;
-            console.log(this.asignaturas)
 
           }
         },
@@ -142,140 +143,226 @@ export class HorarioComponent {
 
 
   drop(event: CdkDragDrop<any[]>) {
-    if (event.container.id.startsWith('0-') ||
+    /* if (event.container.id.startsWith('0-') ||
       event.container.id.startsWith('1-') ||
       event.container.id.startsWith('2-') ||
       event.container.id.startsWith('3-') ||
-      event.container.id.startsWith('4-')) {
-      if (event.previousContainer === event.container) {
-        moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-      } else {
-        const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-        const item: any = event.previousContainer.data[event.previousIndex];
-        const idParts: string[] = event.container.id.split('-');
-        const day: number = Number(idParts[0]);
-        const hourStart: string = idParts[1];
-        const hourEnd: string = idParts[2];
-        const dayName = daysOfWeek[day]; 
-        const identificador = Number(idParts[0]) +''+''+ Number(idParts[3]);
+      event.container.id.startsWith('4-')) { */
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
 
-       console.log(identificador)
-        // Verificar si ya hay un elemento en la celda
-        let existingItem: any = null;
-        switch (day) {
-          case 0:
-            existingItem = this.monday.find(item => item.hourStart === hourStart && item.hourEnd === hourEnd);
-            break;
-          case 1:
-            existingItem = this.tuesday.find(item => item.hourStart === hourStart && item.hourEnd === hourEnd);
-            break;
-          case 2:
-            existingItem = this.wednesday.find(item => item.hourStart === hourStart && item.hourEnd === hourEnd);
-            break;
-          case 3:
-            existingItem = this.thursday.find(item => item.hourStart === hourStart && item.hourEnd === hourEnd);
-            break;
-          case 4:
-            existingItem = this.friday.find(item => item.hourStart === hourStart && item.hourEnd === hourEnd);
-            break;
-          case 5:
-            existingItem = this.saturday.find(item => item.hourStart === hourStart && item.hourEnd === hourEnd);
-            break;
-        }
+    } else {
 
-        if (existingItem) {
+      //
+      const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const item: any = event.previousContainer.data[event.previousIndex];
+      const idParts: string[] = event.container.id.split('-');
+      const day: number = Number(idParts[0]);
+      const hourStart: string = idParts[1];
+      const hourEnd: string = idParts[2];
+      const dayName = daysOfWeek[day];
+      let identificador = Number(idParts[0]) + '' + '' + Number(idParts[3]);
+
+      // listasignatura id
+      const idPartsAsignatura: string[] = event.item.element.nativeElement.id.split('-');
+      let elementoType: string = (idPartsAsignatura[0]);
+      console.log(item)
+      if (item.ubicacion) {
+        elementoType = "aula"
+        identificador = identificador + 'aula'
+      } else if (!item.ubicacion) {
+        elementoType = "asignatura"
+        identificador = identificador + 'asignatura'
+      }
+
+      // Verificar si ya hay un elemento en la celda
+      let existingItem: any = null;
+      switch (day) {
+        case 0:
+
+          existingItem = this.monday.find(item => (item.elementoType === elementoType) && (item.elementoType === item.elementoType) && item.hourStart === hourStart && item.hourEnd === hourEnd);
+
+          break;
+        case 1:
+          existingItem = this.tuesday.find(item => item.elementoType === elementoType && item.hourStart === hourStart && item.hourEnd === hourEnd);
+          break;
+        case 2:
+          existingItem = this.wednesday.find(item => item.elementoType === elementoType && item.hourStart === hourStart && item.hourEnd === hourEnd);
+          break;
+        case 3:
+          existingItem = this.thursday.find(item => item.elementoType === elementoType && item.hourStart === hourStart && item.hourEnd === hourEnd);
+          break;
+        case 4:
+          existingItem = this.friday.find(item => item.elementoType === elementoType && item.hourStart === hourStart && item.hourEnd === hourEnd);
+          break;
+        case 5:
+          existingItem = this.saturday.find(item => item.elementoType === elementoType && item.hourStart === hourStart && item.hourEnd === hourEnd);
+          break;
+      }
+
+
+      if (existingItem) {
+        return
+      }
+
+
+
+
+      if (!event.container.id.startsWith('0-')
+        && !event.container.id.startsWith('1-')
+        && !event.container.id.startsWith('2-')
+        && !event.container.id.startsWith('3-')
+        && !event.container.id.startsWith('4-')
+        && !event.container.id.startsWith('5-')) {
+        if (event.container.id.includes('cdk-drop-list-0') && event.previousContainer.id.includes('cdk-drop-list-1')) {
           return;
         }
 
-     
-        //Eliminar origen del array
-        const prevIdParts: string[] = event.previousContainer.id.split('-');
-        const prevDay: number = Number(prevIdParts[0]);
-        const preIdentificador = Number(prevIdParts[0]) +''+''+ Number(prevIdParts[3]);
-        switch (prevDay) {
-          case 0:
-            for (let i = 0; i < this.monday.length; i++) {
-              if (this.monday[i].identificador === preIdentificador) {
-                this.monday.splice(i, 1);
-                break;
-              }
-            }  
-            break;
-          case 1:
-            for (let i = 0; i < this.tuesday.length; i++) {
-              if (this.tuesday[i].identificador === preIdentificador) {
-                this.tuesday.splice(i, 1);
-                break;
-              }
-            }  
-            break;
-          case 2:
-            for (let i = 0; i < this.wednesday.length; i++) {
-              if (this.wednesday[i].identificador === preIdentificador) {
-                this.wednesday.splice(i, 1);
-                break;
-              }
-            }  
-            break;
-          case 3:
-            for (let i = 0; i < this.thursday.length; i++) {
-              if (this.thursday[i].identificador === preIdentificador) {
-                this.thursday.splice(i, 1);
-                break; 
-              }
-            }  
-            break;
-          case 4:
-            for (let i = 0; i < this.friday.length; i++) {
-              if (this.friday[i].identificador === preIdentificador) {
-                this.friday.splice(i, 1);
-                break; 
-              }
-            }  
-            break;
-          case 5:
-            for (let i = 0; i < this.saturday.length; i++) {
-              if (this.saturday[i].identificador === preIdentificador) {
-                this.saturday.splice(i, 1);
-                break;
-              }
-            }  
-            break;
-
+        if (event.container.id.includes('cdk-drop-list-1') && event.previousContainer.id.includes('cdk-drop-list-0')) {
+          return;
         }
-
-        const newItem = { identificador, dayName, hourStart, hourEnd, item: { ...item } };
-        console.log(newItem)
-        switch (day) {
-          case 0:
-            this.monday.push(newItem);
-            console.log(this.monday)
-            break;
-          case 1:
-            this.tuesday.push(newItem);
-            break;
-          case 2:
-            this.wednesday.push(newItem);
-            break;
-          case 3:
-            this.thursday.push(newItem);
-            break;
-          case 4:
-            this.friday.push(newItem);
-            break;
-          case 5:
-            this.saturday.push(newItem);
-            break;
-        }
-
-        transferArrayItem(
-          event.previousContainer.data,
-          event.container.data,
-          event.previousIndex,
-          event.currentIndex,
-        )
       }
+
+      console.log(elementoType)
+
+      // Permitir transferencia si ya se encuentra en la lista de horarios
+      if (event.previousContainer.id.startsWith('0-')
+        || event.previousContainer.id.startsWith('1-')
+        || event.previousContainer.id.startsWith('2-')
+        || event.previousContainer.id.startsWith('3-')
+        || event.previousContainer.id.startsWith('4-')
+        || event.previousContainer.id.startsWith('5-')) {
+        console.log(event.container.id)
+        console.log(event.previousContainer.id)
+        // Permitir transferencia a lista de asignatura (cdk-drop-0)
+        console.log(elementoType)
+        if (!(elementoType === "aula" && event.container.id.includes('cdk-drop-list-1'))
+        && !(elementoType === "asignatura" && event.container.id.includes('cdk-drop-list-0'))
+        && !event.container.id.startsWith('0-')
+        && !event.container.id.startsWith('1-')
+        && !event.container.id.startsWith('2-')
+        && !event.container.id.startsWith('3-')
+        && !event.container.id.startsWith('4-')
+        && !event.container.id.startsWith('5-')) {
+        return; // Permitir transferencia
+      }
+
+
+
+
+        /* // Permitir transferencia a lista de aulas (cdk-drop-1)
+        if ((event.previousContainer.id.startsWith('0-')
+        || event.previousContainer.id.startsWith('1-')
+        ||  event.previousContainer.id.startsWith('2-')
+        ||  event.previousContainer.id.startsWith('3-')
+        ||  event.previousContainer.id.startsWith('4-')
+        ||  event.previousContainer.id.startsWith('5-')) && event.container.id.includes('cdk-drop-list-1')) {
+          return; // Permitir transferencia
+        } */
+      }
+
+
+      //Eliminar origen del array
+      const prevIdParts: string[] = event.previousContainer.id.split('-');
+      const prevDay: number = Number(prevIdParts[0]);
+      let preIdentificador = Number(prevIdParts[0]) + '' + '' + Number(prevIdParts[3]);
+      if (item.ubicacion) {
+        preIdentificador = preIdentificador + 'aula'
+      } else if (!item.ubicacion) {
+        preIdentificador = preIdentificador + 'asignatura'
+      }
+      switch (prevDay) {
+        case 0:
+          for (let i = 0; i < this.monday.length; i++) {
+            if (this.monday[i].identificador === preIdentificador) {
+              this.monday.splice(i, 1);
+              break;
+            }
+          }
+          break;
+        case 1:
+          for (let i = 0; i < this.tuesday.length; i++) {
+            if (this.tuesday[i].identificador === preIdentificador) {
+              this.tuesday.splice(i, 1);
+              break;
+            }
+          }
+          break;
+        case 2:
+          for (let i = 0; i < this.wednesday.length; i++) {
+            if (this.wednesday[i].identificador === preIdentificador) {
+              this.wednesday.splice(i, 1);
+              break;
+            }
+          }
+          break;
+        case 3:
+          for (let i = 0; i < this.thursday.length; i++) {
+            if (this.thursday[i].identificador === preIdentificador) {
+              this.thursday.splice(i, 1);
+              break;
+            }
+          }
+          break;
+        case 4:
+          for (let i = 0; i < this.friday.length; i++) {
+            if (this.friday[i].identificador === preIdentificador) {
+              this.friday.splice(i, 1);
+              break;
+            }
+          }
+          break;
+        case 5:
+          for (let i = 0; i < this.saturday.length; i++) {
+            if (this.saturday[i].identificador === preIdentificador) {
+              this.saturday.splice(i, 1);
+              break;
+            }
+          }
+          break;
+
+      }
+
+
+      const newItem = { identificador, elementoType, dayName, hourStart, hourEnd, item: { ...item } };
+
+      if (item.ubicacion) {
+        newItem.elementoType = "aula"
+      } else if (!item.ubicacion) {
+        newItem.elementoType = "asignatura"
+      }
+
+      switch (day) {
+        case 0:
+          this.monday.push(newItem);
+          break;
+        case 1:
+          this.tuesday.push(newItem);
+          break;
+        case 2:
+          this.wednesday.push(newItem);
+          break;
+        case 3:
+          this.thursday.push(newItem);
+          break;
+        case 4:
+          this.friday.push(newItem);
+          break;
+        case 5:
+          this.saturday.push(newItem);
+          break;
+      }
+
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex,
+      )
+
+
     }
+
 
 
   }
