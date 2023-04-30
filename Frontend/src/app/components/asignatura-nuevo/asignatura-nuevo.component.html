@@ -16,16 +16,6 @@
                 </small>
             </div>
 
-
-
-            <!-- <div class="form-group">
-                <label for="area">Area: </label>
-                <input type="text" name="area" #area="ngModel" [(ngModel)]="asignatura.area" required />
-                <small *ngIf="!area.valid && area.touched">
-                    El area no es valido
-                </small>
-            </div> -->
-
             <div class="form-group" *ngIf="!is_edit">
 
                 <label for="area">Carreras: </label>
@@ -57,34 +47,7 @@
                 </ng-multiselect-dropdown>
             </div>
 
-            
-
-          
-
-           <!--  <div class="form-group">
-                <label for="area">Areas: </label>
-                <select name="area" id="inputselect" #semestre="ngModel" [(ngModel)]="asignatura.area">
-
-                    <option [ngValue]="''" [disabled]="true">Selecciona las areas</option>
-                    <option *ngFor="let c of carreras" name="area" [ngValue]="c">{{ c }}</option>
-                </select>
-            </div> -->
-            <!-- <div class="form-group">
-                <label for="semestre">Semestre: </label>
-                <input type="text" name="semestre" min="1" max="12" #semestre="ngModel" [(ngModel)]="asignatura.semestre" required />
-                <small *ngIf="!semestre.valid && semestre.touched">
-                    El semestre no es valido
-                </small>
-            </div>  -->
-            <!-- <div class="form-group">
-                <label for="semestre">Semestre: </label>
-                <select name="semestre" id="inputselect" #semestre="ngModel" [(ngModel)]="asignatura.semestre">
-
-                    <option [ngValue]="''" [disabled]="true">Selecciona el semestre</option>
-                    <option *ngFor="let s of semestres" name="semestre" [ngValue]="s">{{ s }}</option>
-                </select>
-            </div> -->
-
+        
             <div class="form-group" *ngIf="!is_edit">
 
                 <label for="area">Semestres: </label>
@@ -148,13 +111,20 @@
             </div>
 
 
-
+            <div class="form-group">
+                <label for="creditos">Creditos: </label>
+                <input type="number" name="creditos" #creditos="ngModel" [(ngModel)]="asignatura.creditos"
+                required min="1" max="10" step="1" />
+                <small *ngIf="!creditos.valid && creditos.touched">
+                    Los creditos no es valido (Ingrese un valor entre el 1 al 10)
+                </small>
+            </div>
             <div class="form-group">
                 <label for="abreviatura">Abreviatura: </label>
                 <input type="text" name="abreviatura" #abreviatura="ngModel" [(ngModel)]="asignatura.abreviatura"
                     required />
                 <small *ngIf="!abreviatura.valid && abreviatura.touched">
-                    La abreviatura no es valido
+                    La abreviatura no es valido 
                 </small>
             </div>
             <div class="form-group">

@@ -14,13 +14,35 @@ import Swal from 'sweetalert2';
 export class ItemsProfesorComponent {
   public colorCuadro = document.querySelector(".color-square")
   public url: string
+  public profesoresFiltrados: any[] = [];
+  public terminoBusquedaProfesor: string = '';
 
   @Input() profesores!: Profesor[]
+  columnas = ['N°','Nombre', 'Contrato', 'Cargo', 'Area', 'Acciones'];
+  profesoresObtenidos: any[] = [];
   
   constructor(  private _profesorService: ProfesorService,
     private _route: ActivatedRoute,
     private _router: Router){
     this.url = Global.url
+    this.profesoresFiltrados = []
+    
+  }
+
+ngOnInit() {
+ this._profesorService.getProfesores().subscribe(
+      response => {
+        if (response.profesores) {
+          this.profesoresObtenidos = response.profesores
+          this.profesoresFiltrados =  this.profesoresObtenidos;
+          console.log(this.profesoresFiltrados)
+        }
+      },
+      error => {
+        console.log(error)
+      }
+    )  
+    
   }
 
   delete(id: string) {
@@ -54,6 +76,24 @@ export class ItemsProfesorComponent {
     });
   
     
+  }
+
+  filtrarProfesores() {
+    const terminosBusqueda = this.terminoBusquedaProfesor.split(' ').join('|');
+    console.log(terminosBusqueda)
+    const regexBusqueda = new RegExp(terminosBusqueda, 'gi');
+    this.profesoresFiltrados = this.profesoresObtenidos.filter(profesor => 
+        profesor.nombre.toLowerCase().match(regexBusqueda) ||
+        profesor.cargo.toLowerCase().match(regexBusqueda) ||
+        profesor.area.toLowerCase().match(regexBusqueda)||
+        profesor.contrato.toLowerCase().match(regexBusqueda)
+    );
+    console.log(this.profesoresFiltrados)
+}
+
+  allProfesores(){
+    this._router.navigate(['/especificacion/profesores'])
+    location.reload();
   }
 
   redirectEdit(id:any){

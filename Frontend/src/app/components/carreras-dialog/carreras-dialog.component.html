@@ -10,6 +10,14 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
+    <mat-form-field>
+      <mat-label>Semestre</mat-label>
+      <mat-select [(value)]="selectedSemestre" >
+        <mat-option *ngFor="let semestre of semestres" [value]="semestre.textField">
+          {{ semestre.textField }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
     <div class="btn-container">
       <button class="btnOption mat-raised-button" mat-raised-button mat-dialog-close (click)="onCarreraSelected()">Enviar</button>
     </div>

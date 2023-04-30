@@ -1,11 +1,16 @@
 <div class="center">
     <section id="content-info">
+       
 
         <h2 class="subheader">{{page_title}}</h2>
+
+        
         <div>
             <button class="btnback" (click)="redirectProfesor()"><mat-icon class="icono" id="keyboard_backspace" aria-hidden="false"
                     aria-label="keyboard_backspace" fontIcon="keyboard_backspace"></mat-icon>Regresar</button>
         </div>
+
+    
         <form class="mid-form" #profesorForm="ngForm" (ngSubmit)="onSubmit()">
             <div class="form-group">
                 <label for="nombre">Nombres y Apellidos: </label>

@@ -70,7 +70,7 @@ export class AsignaturaNuevoComponent {
     private _profesorService: ProfesorService,
     private _router: Router
   ) {
-    this.asignatura = new Asignatura('', '', [], [], [], '', '#000000')
+    this.asignatura = new Asignatura('', '', [], [], [],0, '', '#000000')
     this.page_title = "Crear Asignatura"
     this.is_edit = false;
     this.url = Global.url
@@ -156,7 +156,7 @@ export class AsignaturaNuevoComponent {
     for (const semestre of this.selectedSemestres) {
       this.asignatura.semestre.push(semestre.textField);
     }
-
+    
     this._asignaturaService.create(this.asignatura).subscribe(
       response => {
         console.log(response.asignatura)

@@ -14,15 +14,20 @@ import { HorarioComponent } from './components/horario/horario.component';
 import { HomeComponent } from './components/home/home.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { ItemsHorarioComponent } from './components/items-horario/items-horario.component';
+import { HorarioEditComponent } from './components/horario-edit/horario-edit.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   {
     path: 'home', component: HomeComponent
   },
-
+  
   {
-    path: 'home/creacion/:opcion1/:opcion2',
+    path: 'horarios', component: ItemsHorarioComponent
+  },
+  {
+    path: 'home/creacion/:opcion1/:opcion2/:opcion3',
     component: HomeComponent,
   },
 
@@ -72,7 +77,7 @@ const routes: Routes = [
   { path: 'especificacion/aulas/editarAula/:id', component: AulaEditComponent },
   { path: 'especificacion/profesores/crearProfesor', component: ProfesorNuevoComponent },
   { path: 'especificacion/profesores/editarProfesor/:id', component: ProfesorEditComponent },
-  { path: 'horarios', component: HomeComponent },
+  { path: 'horarios/editarHorario/:id', component: HorarioComponent },
   { path: '**', component: ErrorComponent }
 ];
 

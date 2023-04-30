@@ -42,6 +42,27 @@ export class SubmenuComponent {
     this._router.navigate(['asignaturas'], { relativeTo: this._route });
   }
 
+  irCrearHorario() {
+    this._router.navigate(['/home']);
+    setTimeout(() => {
+      this.openHorarioDialog()
+    }, 300);
+  }
+
+  verHorarios() {
+    this._router.navigate(['/horarios']);
+
+    if (!this.rutaActual.includes("editarHorarios")) {
+
+      this._router.navigate(['/horarios']);
+    }
+    console.log(this.rutaActual)
+    if (this.rutaActual === "/horarios") {
+      location.reload();
+    }
+
+  }
+
   openHorarioDialog(): void {
     const dialogRef = this.dialog.open(HorarioDialogComponent, {
       width: '500px'
@@ -62,7 +83,7 @@ export class SubmenuComponent {
     dialogRef.componentInstance.datoRecibido = valor;
   }
 
-  openGuardarDialog(){
+  openGuardarDialog() {
     const dialogRef = this.dialog.open(HorarioDialogComponent, {
       width: '500px'
     });

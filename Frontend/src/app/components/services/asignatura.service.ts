@@ -41,7 +41,8 @@ export class AsignaturaService {
     create(asignatura:Asignatura):Observable<any>{
         let params = JSON.stringify(asignatura);
         let headers = new HttpHeaders().set('Content-Type', 'application/json')
-        return this._http.post(this.url+'save',asignatura,{headers: headers})
+        console.log(params)
+        return this._http.post(this.url+'save-for-profesor',params,{headers: headers})
     }
 
     update(id: string, asignatura: Asignatura):Observable<any>{

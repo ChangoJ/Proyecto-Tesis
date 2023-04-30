@@ -8,7 +8,7 @@
 
 
 <div id="articlesAula" *ngIf="aulas">
-    <article id="{{aula._id}}" class="article-item" *ngFor="let aula of aulas">
+    <!-- <article id="{{aula._id}}" class="article-item" *ngFor="let aula of aulas">
         <h2>{{aula.nombre}}</h2>
         <span>
             <p><strong>Ubicacion:</strong> {{aula.ubicacion }}</p>
@@ -23,6 +23,72 @@
             <a  class="btn btn-warning" [routerLink]="['/especificacion/aulas/editarAula', aula._id]">Editar</a>
             <button  class="btn btn-danger" (click)="delete(aula._id)">Eliminar</button>
         </div>
-    </article>
-    
+    </article> -->
+    <nav id="submenu" >
+        <ul>
+            <li>
+                <div class="center-icon">
+                    <mat-icon>add_home</mat-icon>
+                <a  mat-raised-button  [routerLink]="['/especificacion/aulas/crearAula']">Nueva Aula</a>
+                </div>
+            </li>
+            <li>
+                <div class="center-icon">
+                    <mat-icon>location_city</mat-icon>
+                <a mat-raised-button (click)="allAulas()">Mostrar todo</a>
+                </div>
+            </li>
+           
+        </ul>
+    </nav>
+    <h2 class="Subheader" id="listasTitulo">Lista de aulas</h2>
+    <div id="busquedaHorario">
+        <h2 sty>Buscador</h2>
+        <input id="buscadorHorario" [(ngModel)]="terminoBusquedaAula" type="text"
+            placeholder="Buscar por nombre, ubicación, abreviatura..." (input)="filtrarAulas()">
+    </div>
+    <table mat-table [dataSource]="aulasFiltrados">
+
+        <ng-container matColumnDef="N°">
+            <th mat-header-cell *matHeaderCellDef>N°</th>
+            <td mat-cell *matCellDef="let item; let i = index">{{i + 1}}</td>
+          </ng-container>
+
+        <ng-container matColumnDef="Nombre">
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let item">{{item.nombre}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="Ubicacion">
+            <th mat-header-cell *matHeaderCellDef>Ubicacion</th>
+            <td mat-cell *matCellDef="let item">{{item.ubicacion}}</td>
+        </ng-container>
+        <ng-container matColumnDef="Abreviatura">
+            <th mat-header-cell *matHeaderCellDef>Abreviatura</th>
+            <td mat-cell *matCellDef="let item">{{item.abreviatura}}</td>
+        </ng-container>
+        <ng-container matColumnDef="Compartida">
+            <th mat-header-cell *matHeaderCellDef>Compartida</th>
+            <td mat-cell *matCellDef="let item">{{item.compartida}}</td>
+        </ng-container>
+        <ng-container matColumnDef="Color">
+            <th mat-header-cell *matHeaderCellDef>Color</th>
+            <td mat-cell *matCellDef="let item" style="background-color: {{item.color}};">{{item.color}}</td>
+        </ng-container>
+
+
+        <ng-container matColumnDef="Acciones">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let item">
+                <button mat-icon-button color="warn" (click)="delete(item._id)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+                <a mat-icon-button color="primary" [routerLink]="['/especificacion/aulas/editarAula', item._id]">
+                    <mat-icon>edit</mat-icon>
+                </a>
+            </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+    </table>
 </div>

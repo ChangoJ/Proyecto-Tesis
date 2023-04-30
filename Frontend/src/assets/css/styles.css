@@ -157,7 +157,11 @@ li a:hover:not(.active) {
     width: 100%;
     float: right;
     font-size: 18px;
+    
+    margin-bottom: -28px;
 }
+
+
 
 
 #submenu ul {
@@ -277,6 +281,11 @@ li a:hover:not(.active) {
     width: 98% !important;
 }
 
+input[type='text']#buscadorHorarioA {
+
+    width: 91% !important;
+}
+
 #inputselect,
 input[type='text'],
 input[type='color'],
@@ -344,9 +353,52 @@ input[type='submit'] {
 }
 
 
+/* Tabla lista horarios0 */
 
+.mat-mdc-table {
+    border-bottom: 2px solid #e0e0e0 !important;
+    
+    margin-bottom: 43px !important;
+  }
 
+#busquedaHorario{
+    float: left;
+    text-align: left;
+}
+
+#busquedaAsignatura{
+    float: left;
+    text-align: left;
+}
+
+#busquedaHorario #buscadorHorario{
+    width: 163%;
+    
+    margin-top: -21px;
+    margin-bottom: 17px;
+}
+
+#busquedaAsignatura #buscadorAsignatura{
+    width: 89%;
+    
+    margin-top: -21px;
+    margin-bottom: 17px;
+}
+
+ 
 /* ARTICLEIMTE */
+
+#matselectBusquedaAsignatura{
+    display: inline;
+}
+mat-form-field#matselectSemestre{
+    margin-left: 10px;
+    width: 54%;
+
+}
+
+
+
 
 
 .article-item {
@@ -380,6 +432,11 @@ input[type='submit'] {
 
 }
 
+h2#listasTitulo.Subheader {
+    border-bottom: 1px solid #d4d2d2;
+
+}
+
 
 
 
@@ -387,6 +444,7 @@ input[type='submit'] {
 #sidebar {
     width: 25%;
     float: right;
+    margin-top: -33px;
 }
 
 
@@ -482,33 +540,52 @@ input[type='submit'] {
     box-shadow: none;
 }
 
+.mat-grid-list.CajaHorario {
+    padding-bottom: calc(2 * ((21% - 0.9px) * 1) + 0px + 1px) !important;
+}
 
+.mat-cell {
+    white-space: nowrap !important;
+}
 
 .mat-grid-tile-content {
     display: block !important;
+
 }
 
+.mat-grid-tile-content {
+    top: unset !important;
+}
+
+
+.mat-grid-tile.listaMaterias {
+    padding-top: calc(2 * ((20% - 0.9px) * 1) + 0px + 1px) !important;
+}
+
+.mat-grid-tile.listaAulas {
+    padding-top: calc(2 * ((20% - 0.9px) * 1) + 0px + 1px) !important;
+}
 
 .mat-grid-tile.tablaHorario {
     left: calc((37% - 0.5px + 1px) * 1) !important;
     width: calc((63% - 0.5px) * 1 + 0px) !important;
     margin-top: 0px;
-    padding-top: calc((50% - 0.5px) * 1 + 0px);
+    padding-top: calc((42% - 0.5px) * 1 + 0px) !important;
 }
 
 
 
 .listaMaterias {
-    width: 179px !important;
+    width: 209px !important;
     color: white;
     display: flex !important;
 }
 
 .listaAulas {
-    width: 179px !important;
+    width: 209px !important;
     color: white;
-    
-    margin-left: 80px !important;
+
+    margin-left: 100px !important;
 }
 
 .cdk-drag-box {
@@ -526,16 +603,46 @@ input[type='submit'] {
     border-radius: 4px;
     overflow: hidden;
     display: block;
-  }
+}
 
-  .cdk-drop-listAulas {
+.contenedor-listas {
+    max-height: 393px;
+    /* Puedes ajustar esta altura máxima según tus necesidades */
+    overflow-y: auto;
+    padding: 7px;
+
+    border-radius: 5px;
+}
+
+
+
+.contenedor-listas::-webkit-scrollbar {
+    width: 10px;
+    /* Ancho del scroll */
+    background-color: #F0F8FF;
+    /* Color de fondo del scroll (azul cielo) */
+}
+
+.contenedor-listas::-webkit-scrollbar-thumb {
+    background-color: #187ef3;
+    /* Color del thumb (azul cielo) */
+    border-radius: 5px;
+    /* Aplica un borde redondeado al thumb */
+}
+
+.contenedor-listas::-webkit-scrollbar-thumb:hover {
+    background-color: #0065fdfb;
+    /* Color del thumb al pasar el cursor sobre él (azul más oscuro) */
+}
+
+.cdk-drop-listAulas {
     border: solid 1px #ccc;
     min-height: 30px;
     background: white;
     border-radius: 4px;
     overflow: hidden;
     display: block;
-  }
+}
 
 
 

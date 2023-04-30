@@ -1,8 +1,8 @@
 <div class="center">
     <section id="content">
-        <h2 class="subheader">Principal</h2>
+        <h2 class="subheader">Horario</h2>
         <app-submenu></app-submenu>
-        <app-horario [asignaturas]="asignaturas" *ngIf="is_horario"></app-horario>
+        <app-horario-nuevo [asignaturas]="asignaturas" *ngIf="is_horario"></app-horario-nuevo>
         <div class="center" *ngIf="!is_horario">
             <section id="content">
                 <h2 class="Subheader">Bienvenido al Sistema de creacion y distributivos de horarios</h2>

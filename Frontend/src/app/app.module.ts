@@ -39,8 +39,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
 import {MatTableModule} from '@angular/material/table';
 import {MatGridListModule} from '@angular/material/grid-list';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { CarrerasDialogComponent } from './components/carreras-dialog/carreras-dialog.component';
+import { ItemsHorarioComponent } from './components/items-horario/items-horario.component';
 
 
 @NgModule({
@@ -69,7 +71,8 @@ import { CarrerasDialogComponent } from './components/carreras-dialog/carreras-d
     ItemsProfesorComponent,
     ItemsAsignaturaComponent,
     HorarioDialogComponent,
-    CarrerasDialogComponent
+    CarrerasDialogComponent,
+    ItemsHorarioComponent
   ],
   imports: [
     BrowserModule,
@@ -87,7 +90,8 @@ import { CarrerasDialogComponent } from './components/carreras-dialog/carreras-d
     MatSelectModule,
     MatDialogModule,
     MatTableModule,
-    MatGridListModule 
+    MatGridListModule,
+    MatTooltipModule
   ],
   providers: [],
   bootstrap: [AppComponent]

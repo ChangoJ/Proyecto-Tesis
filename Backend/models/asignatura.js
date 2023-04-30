@@ -10,6 +10,7 @@ var AsignaturaScheme = Schema({
     carrera: Array,
     semestre: Array,
     profesor: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Profesor', autopopulate: true }],
+    creditos: Number,
     abreviatura: String,
     color: String
 });

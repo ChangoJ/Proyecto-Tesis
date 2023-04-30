@@ -1,16 +1,5 @@
-<!-- <div class="loading" *ngIf="!aulas">
-    cargando...
-</div>
- -->
-<!--  <div class="loading" *ngIf="aulas && aulas.length == 0">
-    No hay articulos para mostrar, intentalo mas tarde
-</div>
- -->
 <div class="center">
-    <p *ngIf="is_search"><strong>Estas buscando:</strong>  {{searchActual}} </p>
-    <h2 *ngIf="is_search" id="sub-subheader">Busqueda de profesores: {{searchActual}}</h2>
-    <app-sidebar></app-sidebar>
-    <section id="content-sub">
+    <section >
         <app-items-profesor [profesores]="profesores"></app-items-profesor>
     </section>
 </div>

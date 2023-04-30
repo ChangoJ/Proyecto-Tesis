@@ -8,7 +8,7 @@
 
 
 <div id="articlesProfesores" *ngIf="profesores">
-    <article id="{{profesor._id}}" class="article-item" *ngFor="let profesor of profesores">
+   <!--  <article id="{{profesor._id}}" class="article-item" *ngFor="let profesor of profesores">
         <h2>{{profesor.nombre}} </h2>
         <span>
             <p><strong>Contrato:</strong> {{profesor.contrato }}</p>
@@ -19,5 +19,70 @@
             <a class="btn btn-warning" [routerLink]="['/especificacion/profesores/editarProfesor', profesor._id]">Editar</a>
             <button class="btn btn-danger" (click)="delete(profesor._id)">Eliminar</button>
         </div>
-    </article>
+    </article> -->
+
+    <nav id="submenu" >
+        <ul>
+            <li>
+                <div class="center-icon">
+                    <mat-icon>person_add</mat-icon>
+                <a  mat-raised-button  [routerLink]="['/especificacion/profesores/crearProfesor']" >Nuevo Profesor</a>
+                </div>
+            </li>
+            <li>
+                <div class="center-icon">
+                    <mat-icon id="people icon" aria-hidden="people icon" aria-label="people icon"
+                        fontIcon="people icon"></mat-icon>
+                <a mat-raised-button (click)="allProfesores()">Mostrar todo</a>
+                </div>
+            </li>
+           
+        </ul>
+    </nav>
+    <h2 class="Subheader" id="listasTitulo">Lista de profesores</h2>
+    <div id="busquedaHorario">
+        <h2 sty>Buscador</h2>
+        <input id="buscadorHorario" [(ngModel)]="terminoBusquedaProfesor" type="text"
+            placeholder="Buscar por nombre, contrato, cargo, o area" (input)="filtrarProfesores()">
+    </div>
+    <table mat-table [dataSource]="profesoresFiltrados">
+
+        <ng-container matColumnDef="N°">
+            <th mat-header-cell *matHeaderCellDef>N°</th>
+            <td mat-cell *matCellDef="let item; let i = index">{{i + 1}}</td>
+          </ng-container>
+
+        <ng-container matColumnDef="Nombre">
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let item">{{item.nombre}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="Contrato">
+            <th mat-header-cell *matHeaderCellDef>Contrato</th>
+            <td mat-cell *matCellDef="let item">{{item.contrato}}</td>
+        </ng-container>
+        <ng-container matColumnDef="Cargo">
+            <th mat-header-cell *matHeaderCellDef>Cargo</th>
+            <td mat-cell *matCellDef="let item">{{item.cargo}}</td>
+        </ng-container>
+        <ng-container matColumnDef="Area">
+            <th mat-header-cell *matHeaderCellDef>Area</th>
+            <td mat-cell *matCellDef="let item">{{item.area}}</td>
+        </ng-container>
+
+
+        <ng-container matColumnDef="Acciones">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let item">
+                <button mat-icon-button color="warn" (click)="delete(item._id)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+                <a mat-icon-button color="primary" [routerLink]="['/especificacion/profesores/editarProfesor', item._id]">
+                    <mat-icon>edit</mat-icon>
+                </a>
+            </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+    </table>
 </div>

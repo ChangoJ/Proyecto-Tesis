@@ -30,7 +30,7 @@ var controller = {
         console.log(params.carrera.length)
         console.log(params.semestre.length)
 
-        if (validate_nombre && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0  && validate_abreviatura && validate_color) {
+        if (validate_nombre && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color) {
 
 
             //Crear el objeto a guardar
@@ -66,6 +66,82 @@ var controller = {
             });
 
 
+
+        } else {
+            return res.status(200).send({
+                status: 'error',
+                message: 'Los datos no son validos'
+            });
+        }
+    },
+
+    saveForProfesor: (req, res) => {
+        // Recoger parametros por post
+        var params = req.body;
+
+        // Validar datos (validator)
+        try {
+            var validate_nombre = !validator.isEmpty(params.nombre); /* 
+            var validate_carrera = !validator.isEmpty(params.carrera);   */
+            /* var validate_semestre = !validator.isEmpty(params.semestre); */
+            var validate_abreviatura = !validator.isEmpty(params.abreviatura);
+            var validate_color = !validator.isEmpty(params.color);
+
+
+        } catch (err) {
+            return res.status(200).send({
+                status: 'error',
+                message: 'Faltan datos por enviar'
+            });
+        }
+
+        console.log(params.creditos)
+
+        if (validate_nombre && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color && (params.creditos !== null && params.creditos !== undefined && Number.isInteger(params.creditos) && params.creditos !== 0 && params.creditos < 10)) {
+
+            var promises = params.profesor.map((profesor) => {
+                return new Promise((resolve, reject) => {
+                    //Crear el objeto a guardar
+                    var asignatura1 = new asignatura();
+
+                    //asignar valores
+                    asignatura1.nombre = params.nombre;
+                    asignatura1.carrera = params.carrera;
+                    asignatura1.semestre = params.semestre;
+                    asignatura1.profesor = profesor;
+                    asignatura1.creditos = params.creditos;
+                    asignatura1.abreviatura = params.abreviatura;
+                    asignatura1.color = params.color;
+
+
+
+                    //guardar el articulo
+                    asignatura1.save().then((asignaturaStored) => {
+                        if (!asignaturaStored) {
+                            reject('La asignatura no se ha guardado.');
+                        }
+                        resolve(asignaturaStored);
+                    });
+
+                });
+            });
+
+            // Ejecutar todas las promesas y esperar a que se completen
+            Promise.all(promises)
+                .then((asignaturasStored) => {
+                    // Devolver respuesta exitosa al cliente
+                    return res.status(200).send({
+                        status: 'success',
+                        asignaturas: asignaturasStored
+                    });
+                })
+                .catch((error) => {
+                    // Devolver respuesta de error al cliente
+                    return res.status(404).send({
+                        status: 'error',
+                        message: error
+                    });
+                });
 
         } else {
             return res.status(200).send({

@@ -11,13 +11,32 @@
             <div class="center-icon">
                 <mat-icon id="folder_open" aria-hidden="folder_open" aria-label="folder_open"
                     fontIcon="folder_open"></mat-icon>
-            <a mat-raised-button [routerLink]="['guardar']" [routerLinkActive]="['active']">Abrir</a>
+            <a mat-raised-button (click)="verHorarios()">Ver horarios</a>
             </div>
         </li>
        
     </ul>
 </nav>
 
+<nav id="submenu" *ngIf="horario">
+    <ul>
+        <li>
+            <div class="center-icon">
+                <mat-icon id="create_new_folder" aria-hidden="false" aria-label="create_new_folder"
+                    fontIcon="create_new_folder"></mat-icon>
+            <a  mat-raised-button  (click)="irCrearHorario()" >Nuevo Horario</a>
+            </div>
+        </li>
+        <li>
+            <div class="center-icon">
+                <mat-icon id="folder_open" aria-hidden="folder_open" aria-label="folder_open"
+                    fontIcon="folder_open"></mat-icon>
+            <a mat-raised-button (click)="verHorarios()">Mostrar todo</a>
+            </div>
+        </li>
+       
+    </ul>
+</nav>
 
 
 
@@ -49,41 +68,6 @@
 </nav>
 
 
-
-
-<nav id="submenu" *ngIf="horario">
-    <ul>
-        <li>
-            <div class="center-icon">
-                <mat-icon id="create_new_folder" aria-hidden="false" aria-label="create_new_folder"
-                    fontIcon="create_new_folder"></mat-icon>
-            <a [routerLink]="['nuevo']" [routerLinkActive]="['active']">Ver</a>
-            </div>
-        </li>
-        <li>
-            <div class="center-icon">
-                <mat-icon id="folder_open" aria-hidden="folder_open" aria-label="folder_open"
-                    fontIcon="folder_open"></mat-icon>
-            <a [routerLink]="['guardar']" [routerLinkActive]="['active']">Modificar</a>
-            </div>
-        </li>
-        <li>
-            <div class="center-icon">
-                <mat-icon id="save" aria-hidden="false" aria-label="save"
-                    fontIcon="save"></mat-icon>
-            <a [routerLink]="['Imprimir']" [routerLinkActive]="['active']">Eliminar</a>
-            </div>
-        </li>
-        <li>
-            <div class="center-icon">
-                <mat-icon id="local_printshop" aria-hidden="false" aria-label="local_printshop"
-                    fontIcon="local_printshop"></mat-icon>
-            <a [routerLink]="['Salir']" [routerLinkActive]="['active']">Imprimir</a>
-            </div>
-        </li>
-    </ul>
-    
-</nav>
 <div class="center">
 
     <router-outlet></router-outlet>

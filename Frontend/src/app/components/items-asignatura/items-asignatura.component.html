@@ -8,12 +8,14 @@
 
 
 <div id="articlesAsignatura" *ngIf="asignaturas">
-    <article id="{{asignatura._id}}" class="article-item" *ngFor="let asignatura of asignaturas">
+    <!-- <article id="{{asignatura._id}}" class="article-item" *ngFor="let asignatura of asignaturas;let i=index">
         <h2>{{asignatura.nombre}}</h2>
         <span>
             <p><strong>Carreras:</strong> {{asignatura.carrera.length > 3 ? asignatura.carrera.slice(0,3)+ '...': asignatura.carrera }}</p>
             <p><strong>Semestres:</strong> {{asignatura.semestre.length > 3 ? asignatura.semestre.slice(0,3)+ '...': asignatura.semestre }}</p>
         </span>
+        <p><strong>Profesor: </strong>{{asignatura.profesor[0].nombre}} </p>
+        <p><strong>Creditos: </strong>{{asignatura.creditos}} </p>
         <p><strong>Identificador: </strong>{{asignatura.abreviatura}} </p>
         <div>
             <p><strong>Color:</strong> </p>
@@ -24,7 +26,101 @@
             <button  class="btn btn-danger" (click)="delete(asignatura._id)">Eliminar</button>
         </div>
     </article>
-    
+     -->
+
+    <nav id="submenu">
+        <ul>
+            <li>
+                <div class="center-icon">
+                    <mat-icon>library_add</mat-icon>
+                    <a mat-raised-button [routerLink]="['/especificacion/asignaturas/crearAsignatura']">Nueva
+                        Asignatura</a>
+                </div>
+            </li>
+            <li>
+                <div class="center-icon">
+                    <mat-icon>collections_bookmark</mat-icon>
+
+                    <a mat-raised-button (click)="allAsignaturas()">Mostrar todo</a>
+                </div>
+            </li>
+
+        </ul>
+    </nav>
+    <h2 class="Subheader" id="listasTitulo">Lista de Asignaturas</h2>
+    <div id="busquedaAsignatura">
+        <h2 sty>Buscador</h2>
+        <input id="buscadorAsignatura" [(ngModel)]="terminoBusquedaAsignatura" type="text"
+            placeholder="Buscar por nombre, profesor o creditos" (input)="filtrarAsignaturas()">
+            <div id="matselectBusquedaAsignatura">
+                <mat-form-field>
+                  <mat-label>Seleccionar Carrera</mat-label>
+                  <mat-select [(ngModel)]="selectedCarrera" (selectionChange)="filtrarAsignaturas()">
+                    <mat-option [value]="'Todas'">Todas</mat-option>
+                    <mat-option *ngFor="let carrera of carreras" [value]="carrera">{{ carrera }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              
+                <mat-form-field id="matselectSemestre">
+                  <mat-label>Seleccionar Semestre</mat-label>
+                  <mat-select [(ngModel)]="selectedSemestre" (selectionChange)="filtrarAsignaturas()">
+                    <mat-option [value]="'Todas'">Todas</mat-option>
+                    <mat-option *ngFor="let semestre of semestres" [value]="semestre">{{ semestre }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+    </div>
+    <table mat-table [dataSource]="asignaturasFiltrados">
+
+        <ng-container matColumnDef="N°">
+            <th mat-header-cell *matHeaderCellDef>N°</th>
+            <td mat-cell *matCellDef="let item; let i = index">{{i + 1}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="Nombre">
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let item">{{item.nombre}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="Carrera">
+            <th mat-header-cell *matHeaderCellDef>Carrera</th>
+            <td [matTooltip]="item.carrera" mat-cell *matCellDef="let item"> {{item.carrera.length > 1 ?
+                item.carrera.slice(0,1)+ '...(' + (item.carrera.length)+ ')' : item.carrera }}</td>
+        </ng-container>
+        <ng-container matColumnDef="Semestre">
+            <th mat-header-cell *matHeaderCellDef>Semestre</th>
+            <td [matTooltip]="item.semestre" mat-cell *matCellDef="let item">{{item.semestre.length > 1 ?
+                item.semestre.slice(0,1)+ '...(' + (item.semestre.length)+ ')' : item.semestre }}</td>
+        </ng-container>
+        <ng-container matColumnDef="Profesor">
+            <th mat-header-cell *matHeaderCellDef>Profesor</th>
+            <td mat-cell *matCellDef="let item">{{item.profesor[0].nombre}}</td>
+        </ng-container>
+        <ng-container matColumnDef="Creditos">
+            <th mat-header-cell *matHeaderCellDef>Creditos</th>
+            <td mat-cell *matCellDef="let item">{{item.creditos}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="Color">
+            <th mat-header-cell *matHeaderCellDef>Color</th>
+            <td mat-cell *matCellDef="let item" style="background-color: {{item.color}};">{{item.color}}</td>
+        </ng-container>
+
+
+        <ng-container matColumnDef="Acciones">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let item">
+                <button mat-icon-button color="warn" (click)="delete(item._id)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+                <a mat-icon-button color="primary"
+                    [routerLink]="['/especificacion/asignaturas/editarAsignatura', item._id]">
+                    <mat-icon>edit</mat-icon>
+                </a>
+            </td>
+
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+    </table>
 </div>
-
-

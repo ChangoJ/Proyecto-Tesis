@@ -61,7 +61,7 @@ export class AsignaturaEditComponent {
   selectedCarreras: any[] = [];
   itemCarreraEdit: any[] = [];
   itemSemestreEdit: any[] = [];
-  itemProfesores: any[] = []
+  itemProfesoresEdit: any[] = []
   selectedSemestres: any[] = [];
   selectedProfesores: any[] = [];
   dropdownCarreras: IDropdownSettings = {};
@@ -75,7 +75,7 @@ export class AsignaturaEditComponent {
     private _profesorService: ProfesorService,
     private _router: Router
   ) {
-    this.asignatura = new Asignatura('', '', [], [],[], '', '#000000')
+    this.asignatura = new Asignatura('', '', [], [],[],0, '', '#000000')
     this.page_title = "Editar Asignatura"
     this.is_edit = true;
     this.url = Global.url
@@ -103,7 +103,7 @@ export class AsignaturaEditComponent {
     };
 
     this.dropdownProfesores = {
-      singleSelection: false,
+      singleSelection: true,
       idField: '_id',
       textField: 'nombre',
       selectAllText: 'Seleccionar todo',
@@ -241,7 +241,7 @@ export class AsignaturaEditComponent {
 
 
   onItemProfesoresSelect(item: any) {
-    this.itemSemestreEdit = item
+    this.itemProfesoresEdit = item
   }
 
 

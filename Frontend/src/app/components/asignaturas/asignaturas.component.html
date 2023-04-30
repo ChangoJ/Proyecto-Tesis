@@ -1,9 +1,4 @@
-<app-sidebar></app-sidebar>
-<p *ngIf="is_searchTodo"><strong>Estas buscando:</strong> La carrera {{searchCarrera}} y el semestre {{searchSemestre}}</p>
-<p *ngIf="is_searchCarrera"><strong>Estas buscando:</strong> La carrera {{searchActual}} </p>
-<p *ngIf="is_searchSemestre"><strong>Estas buscando:</strong> El semestre {{searchActual}} </p>
-<h2 id="sub-subheader">Busqueda de asignaturas: </h2>
-<div class="boxcontent">
+<!-- <div class="boxcontent">
 
     <div class="box">
         <select name="carrera" #semestre="ngModel" [(ngModel)]="opcionSeleccionada1">
@@ -22,7 +17,9 @@
     </div>
     <button  class="buttonBusqueda" (click)="search()">Buscar</button>
     <button  class="buttonBusqueda" (click)="searchTodo()">Mostrar Todo</button>
-</div>
-<section id="content-sub">
+</div> -->
+<div class="center"></div>
+<section >
     <app-items-asignatura [asignaturas]="asignaturas"></app-items-asignatura>
 </section>
+<div></div>

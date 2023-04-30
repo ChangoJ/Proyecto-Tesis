@@ -14,14 +14,36 @@ import { Component, Input } from '@angular/core';
 export class ItemsAulaComponent {
   public colorCuadro = document.querySelector(".color-square")
   public url: string
+  public aulasFiltrados: any[] = [];
+  public terminoBusquedaAula: string = '';
+  public aulasObtenidos: any[] = [];
 
   @Input() aulas!: Aula[]
+  
+  columnas = ['N°','Nombre', 'Ubicacion', 'Abreviatura', 'Compartida', 'Color','Acciones'];
   
   constructor(  private _aulaService: AulaService,
     private _route: ActivatedRoute,
     private _router: Router){
     this.url = Global.url
+    this.aulasFiltrados = []
   }
+
+  ngOnInit() {
+    this._aulaService.getAulas().subscribe(
+         response => {
+           if (response.aulas) {
+             this.aulasObtenidos = response.aulas
+             this.aulasFiltrados =  this.aulasObtenidos;
+           }
+         },
+         error => {
+           console.log(error)
+         }
+       )  
+       
+     }
+   
 
   delete(id: string) {
 
@@ -54,6 +76,34 @@ export class ItemsAulaComponent {
     });
   
     
+  }
+
+  filtrarAulas() {
+    const terminosBusqueda = this.terminoBusquedaAula.trim().toLowerCase();
+    let regexBusqueda = new RegExp(`\\b${terminosBusqueda}\\b`, 'gi');
+    this.aulasFiltrados = this.aulasObtenidos.filter(aula => 
+      aula.nombre.toLowerCase().match(regexBusqueda) ||
+      aula.ubicacion.toLowerCase().match(regexBusqueda) ||
+      aula.compartida.toLowerCase().match(regexBusqueda) ||
+      aula.abreviatura.toLowerCase().match(regexBusqueda) ||
+      aula.color.toLowerCase().match(regexBusqueda)
+    );
+    if (this.aulasFiltrados.length === 0) {
+      const terminosBusquedaSeparados = terminosBusqueda.split(' ');
+      regexBusqueda = new RegExp(`(${terminosBusquedaSeparados.join('|')})`, 'gi');
+      this.aulasFiltrados = this.aulasObtenidos.filter(aula => 
+        aula.nombre.toLowerCase().match(regexBusqueda) ||
+        aula.ubicacion.toLowerCase().match(regexBusqueda) ||
+        aula.compartida.toLowerCase().match(regexBusqueda) ||
+        aula.abreviatura.toLowerCase().match(regexBusqueda) ||
+        aula.color.toLowerCase().match(regexBusqueda)
+      );
+    }
+}
+
+  allAulas(){
+    this._router.navigate(['/especificacion/aulas'])
+    location.reload();
   }
 
   redirectEdit(id:any){
