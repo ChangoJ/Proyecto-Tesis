@@ -40,8 +40,6 @@ export class AulaEditComponent {
     }
     this._aulaService.update(this.aula._id, this.aula).subscribe(
       response => {
-
-        console.log(response.aula)
         if (response.status == 'success') {
           this.status = 'success'
           this.aula = response.aula
@@ -79,17 +77,14 @@ export class AulaEditComponent {
   getAula() {
     this._route.params.subscribe(params => {
       let id = params['id'];
-      console.log(id)
       this._aulaService.getAula(id).subscribe(
         response => {
           if (response.aula) {
             this.aula = response.aula
             if (this.aula.compartida === "No") {
-              console.log(this.aula.compartida)
               this.isChecked = false
             } else {
               
-              console.log("fuck"+this.aula.compartida)
               this.isChecked = true
             }
           } else {

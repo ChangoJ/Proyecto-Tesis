@@ -8,8 +8,9 @@
                 <p>Sistema creado por JORDAN CHANGO & CRISTHIAN BARROS</p>
             </section>
         </div>
-        <div *ngIf="is_horario">
-            <h2 class="Subheader">Lista de horarios</h2>
+    <div class="center">
+        <div *ngIf="is_horario" class="center">
+            <h2 class="Subheader" id="listasTitulo">Lista de horarios</h2>
             <div id="busquedaHorario">
                 <h2>Buscador</h2>
                 <input id="buscadorHorario" [(ngModel)]="terminoBusquedaHorario" type="text"
@@ -51,6 +52,7 @@
                 <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
             </table>
         </div>
+    </div>
     </section>
 </div>
 

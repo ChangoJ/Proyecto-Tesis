@@ -42,7 +42,6 @@ export class AulasComponent {
 
       this.searchActual = search1
       this.is_search = true
-      console.log(this.searchActual)
       this._aulaService.searchAula(search1).subscribe(
         response => {
           if (response.aulas) {

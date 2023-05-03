@@ -35,7 +35,6 @@ ngOnInit() {
         if (response.profesores) {
           this.profesoresObtenidos = response.profesores
           this.profesoresFiltrados =  this.profesoresObtenidos;
-          console.log(this.profesoresFiltrados)
         }
       },
       error => {
@@ -80,7 +79,6 @@ ngOnInit() {
 
   filtrarProfesores() {
     const terminosBusqueda = this.terminoBusquedaProfesor.split(' ').join('|');
-    console.log(terminosBusqueda)
     const regexBusqueda = new RegExp(terminosBusqueda, 'gi');
     this.profesoresFiltrados = this.profesoresObtenidos.filter(profesor => 
         profesor.nombre.toLowerCase().match(regexBusqueda) ||
@@ -88,7 +86,6 @@ ngOnInit() {
         profesor.area.toLowerCase().match(regexBusqueda)||
         profesor.contrato.toLowerCase().match(regexBusqueda)
     );
-    console.log(this.profesoresFiltrados)
 }
 
   allProfesores(){

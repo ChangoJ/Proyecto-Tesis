@@ -37,7 +37,6 @@ export class ProfesorNuevoComponent {
    this._profesorService.create(this.profesor).subscribe(
       response => {
 
-        console.log(response.profesor)
         if (response.status == 'success') {
           this.status = 'success'
           this.profesor = response.profesor

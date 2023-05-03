@@ -31,7 +31,6 @@ export class AulaService {
     }
 
     searchAula(searchString:any):Observable<any>{
-        console.log(searchString)
         return this._http.get(this.url+'searchAula/'+searchString)
     }
 
@@ -39,14 +38,12 @@ export class AulaService {
     create(aula:Aula):Observable<any>{
         let params = JSON.stringify(aula);
         let headers = new HttpHeaders().set('Content-Type', 'application/json')
-        console.log(params)
         return this._http.post(this.url+'save-aula',aula,{headers: headers})
     }
 
     update(id: string, aula: Aula):Observable<any>{
         let params = JSON.stringify(aula);
         let headers = new HttpHeaders().set('Content-Type', 'application/json');
-        console.log(params)
         return this._http.put(this.url+'aula/'+id, params, {headers: headers});
     }
 

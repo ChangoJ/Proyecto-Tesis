@@ -156,7 +156,6 @@ export class AsignaturaEditComponent {
     this._asignaturaService.update(this.asignatura._id, this.asignatura).subscribe(
       response => {
 
-        console.log(response.asignatura)
         if (response.status == 'success') {
           this.status = 'success'
           this.asignatura = response.asignatura

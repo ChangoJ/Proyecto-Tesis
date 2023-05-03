@@ -40,12 +40,10 @@ export class AsignaturasComponent {
 
   seleccionarCarrera(event: any) {
     this.opcionSeleccionada1 = event.target.value;
-    console.log(this.opcionSeleccionada1)
   }
 
   seleccionarSemestre(event: any) {
     this.opcionSeleccionada2 = event.target.value;
-    console.log(this.opcionSeleccionada2)
   }
 
   searchTodo() {
@@ -125,7 +123,6 @@ export class AsignaturasComponent {
             response => {
               if (response.asignaturas) {
                 this.asignaturas = response.asignaturas;
-                console.log(this.asignaturas)
               } else {
                 this.asignaturas = []
               }

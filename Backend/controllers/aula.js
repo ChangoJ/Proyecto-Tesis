@@ -11,7 +11,7 @@ var controller = {
     save: (req, res) => {
         // Recoger parametros por post
         var params = req.body;
-        console.log("FUKK")
+     
 
         // Validar datos (validator)
         try {
@@ -107,7 +107,7 @@ var controller = {
         //recoger el id de la url
 
         var aulaId = req.params.id
-        console.log(aulaId);
+      
         var aulaIdValid = mongoose.Types.ObjectId.isValid(aulaId);
         //comprobar que existe
         if(aulaIdValid){

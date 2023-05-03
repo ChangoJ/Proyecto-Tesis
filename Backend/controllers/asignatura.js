@@ -27,9 +27,6 @@ var controller = {
                 message: 'Faltan datos por enviar'
             });
         }
-        console.log(params.carrera.length)
-        console.log(params.semestre.length)
-
         if (validate_nombre && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color) {
 
 
@@ -95,7 +92,7 @@ var controller = {
             });
         }
 
-        console.log(params.creditos)
+     
 
         if (validate_nombre && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color && (params.creditos !== null && params.creditos !== undefined && Number.isInteger(params.creditos) && params.creditos !== 0 && params.creditos < 10)) {
 
@@ -186,7 +183,6 @@ var controller = {
 
         var asignaturaId = req.params.id
         var asignaturaIdValid = mongoose.Types.ObjectId.isValid(asignaturaId);
-        console.log(asignaturaIdValid);
         //comprobar que existe
         if (asignaturaIdValid) {
             if (!asignaturaId || asignatura == null) {
@@ -294,7 +290,6 @@ var controller = {
 
         var searchString = req.params.search1;
         var search2Int = req.params.search2;
-        console.log(searchString)
         //find and 
 
         asignatura.find({

@@ -2,15 +2,29 @@
     <ul>
       <li>
         <div class="center-icon">
+          <mat-icon id="verified" aria-hidden="false" aria-label="verified"
+            fontIcon="verified"></mat-icon>
+          <a mat-raised-button  (click)="verificarHorario()">Verificar</a>
+        </div>
+      </li>
+      <li>
+        <div class="center-icon">
           <mat-icon id="save" aria-hidden="false" aria-label="save" fontIcon="save"></mat-icon>
-          <a mat-raised-button (click)="submit()">Guardar</a>
+          <a mat-raised-button [disabled]="!isActiveBtn" (click)="submit()">Guardar</a>
         </div>
       </li>
       <li>
         <div class="center-icon">
           <mat-icon id="local_printshop" aria-hidden="false" aria-label="local_printshop"
             fontIcon="local_printshop"></mat-icon>
-          <a mat-raised-button [routerLink]="['Salir']" [routerLinkActive]="['active']" clic>Imprimir</a>
+          <a mat-raised-button [disabled]="!isActiveBtn" (click)="exportarPDF()">Exportar PDF</a>
+        </div>
+      </li>
+      <li>
+        <div class="center-icon">
+          <mat-icon id="local_printshop" aria-hidden="false" aria-label="local_printshop"
+            fontIcon="local_printshop"></mat-icon>
+          <a mat-raised-button [disabled]="!isActiveBtn" (click)="exportarExcel()">Exportar Excel</a>
         </div>
       </li>
     </ul>
@@ -60,10 +74,10 @@
         <mat-grid-tile class="tablaHorario" colspan="1">
           <div class="box-table mat-elevation-z2">
             <h2>Horario Diurno</h2>
-            <table class="mat-table">
+            <table class="mat-table" id="table">
               <thead>
                 <tr class="mat-header-row">
-                  <th class="mat-header-cell">Horario</th>
+                  <th class="mat-header-cell">Horas</th>
                   <th class="mat-header-cell">Lunes</th>
                   <th class="mat-header-cell">Martes</th>
                   <th class="mat-header-cell">Miércoles</th>

@@ -43,14 +43,12 @@ export class HorarioService {
   create(horario: Horario): Observable<any> {
     let params = JSON.stringify(horario);
     let headers = new HttpHeaders().set('Content-Type', 'application/json')
-    console.log(params)
     return this._http.post(this.url + 'save-horario', horario, { headers: headers })
   }
 
   update(id: string, horario: Horario): Observable<any> {
     let params = JSON.stringify(horario);
     let headers = new HttpHeaders().set('Content-Type', 'application/json');
-    console.log(params)
     return this._http.put(this.url + 'horario/' + id, params, { headers: headers });
   }
 

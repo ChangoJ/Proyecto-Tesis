@@ -1,21 +1,35 @@
 
-    <nav id="submenuHorario">
-      <ul>
-        <li>
-          <div class="center-icon">
-            <mat-icon id="save" aria-hidden="false" aria-label="save" fontIcon="save"></mat-icon>
-            <a mat-raised-button (click)="submit()">Guardar</a>
-          </div>
-        </li>
-        <li>
-          <div class="center-icon">
-            <mat-icon id="local_printshop" aria-hidden="false" aria-label="local_printshop"
-              fontIcon="local_printshop"></mat-icon>
-            <a mat-raised-button [routerLink]="['Salir']" [routerLinkActive]="['active']" clic>Imprimir</a>
-          </div>
-        </li>
-      </ul>
-    </nav>
+<nav id="submenuHorario">
+  <ul>
+    <li>
+      <div class="center-icon">
+        <mat-icon id="verified" aria-hidden="false" aria-label="verified"
+          fontIcon="verified"></mat-icon>
+        <a mat-raised-button  (click)="verificarHorario()">Verificar</a>
+      </div>
+    </li>
+    <li>
+      <div class="center-icon">
+        <mat-icon id="save" aria-hidden="false" aria-label="save" fontIcon="save"></mat-icon>
+        <a mat-raised-button [disabled]="!isActiveBtn" (click)="submit()">Guardar</a>
+      </div>
+    </li>
+    <li>
+      <div class="center-icon">
+        <mat-icon id="local_printshop" aria-hidden="false" aria-label="local_printshop"
+          fontIcon="local_printshop"></mat-icon>
+        <a mat-raised-button [disabled]="!isActiveBtn" (click)="exportarPDF()">Exportar PDF</a>
+      </div>
+    </li>
+    <li>
+      <div class="center-icon">
+        <mat-icon id="local_printshop" aria-hidden="false" aria-label="local_printshop"
+          fontIcon="local_printshop"></mat-icon>
+        <a mat-raised-button [disabled]="!isActiveBtn" (click)="exportarExcel()">Exportar Excel</a>
+      </div>
+    </li>
+  </ul>
+</nav>
 
     <p *ngIf="is_Diurno">Estas editando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
       <strong>{{opcion3}}</strong> semestre
@@ -69,7 +83,7 @@
               <table class="mat-table">
                 <thead>
                   <tr class="mat-header-row">
-                    <th class="mat-header-cell">Horario</th>
+                    <th class="mat-header-cell">Horas</th>
                     <th class="mat-header-cell">Lunes</th>
                     <th class="mat-header-cell">Martes</th>
                     <th class="mat-header-cell">Miércoles</th>

@@ -244,7 +244,7 @@ li a:hover:not(.active) {
     text-align: center;
     width: 100%;
     float: left;
-    min-height: 650px;
+    min-height: 300px;
 }
 
 #content-sub {
@@ -432,9 +432,13 @@ mat-form-field#matselectSemestre{
 
 }
 
+.SubheaderPrincipal{
+      display: inline-block;
+      width: 55%;
+  } 
+
 h2#listasTitulo.Subheader {
     border-bottom: 1px solid #d4d2d2;
-
 }
 
 

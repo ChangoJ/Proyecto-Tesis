@@ -56,7 +56,6 @@ export class SubmenuComponent {
 
       this._router.navigate(['/horarios']);
     }
-    console.log(this.rutaActual)
     if (this.rutaActual === "/horarios") {
       location.reload();
     }

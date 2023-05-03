@@ -130,7 +130,6 @@ export class AsignaturaNuevoComponent {
       this._profesorService.getProfesor(id).subscribe(
         response => {
           if (response.profesor) {
-            console.log(response.profesor);
             this.asignatura.profesor.push(response.profesor);
           }
           resolve(); // Resuelve la promesa una vez que se completa la llamada a la API
@@ -159,7 +158,6 @@ export class AsignaturaNuevoComponent {
     
     this._asignaturaService.create(this.asignatura).subscribe(
       response => {
-        console.log(response.asignatura)
         if (response.status == 'success') {
           this.status = 'success'
           this.asignatura = response.asignatura

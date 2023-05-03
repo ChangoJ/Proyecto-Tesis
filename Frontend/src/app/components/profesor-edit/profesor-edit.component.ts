@@ -36,7 +36,6 @@ import Swal from 'sweetalert2';
     this._profesorService.update(this.profesor._id, this.profesor).subscribe(
       response => {
 
-        console.log(response.profesor)
         if (response.status == 'success') {
           this.status = 'success'
           this.profesor = response.profesor
@@ -74,7 +73,6 @@ import Swal from 'sweetalert2';
   getProfesor() {
     this._route.params.subscribe(params => {
       let id = params['id'];
-      console.log(id)
       this._profesorService.getProfesor(id).subscribe(
         response => {
           if (response.profesor) {

@@ -97,7 +97,6 @@ export class CarrerasDialogComponent {
       response => {
         if (response.horarios) {
           this.horarios = response.horarios;
-          console.log(this.horarios)
         }
       },
       error => {
@@ -111,7 +110,6 @@ export class CarrerasDialogComponent {
   onCarreraSelected() {
     let existHorarioCarrera: boolean = false
     for (const horario of this.horarios) {
-      console.log(horario.carrera)
       if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre) {
         existHorarioCarrera = true
       }

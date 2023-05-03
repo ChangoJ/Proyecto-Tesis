@@ -50,7 +50,6 @@ export class ItemsHorarioComponent {
           if (response.horarios) {
             this.horarios = response.horarios;
             this.horariosFiltrados = this.horarios
-            console.log(this.horariosFiltrados)
             this.is_horario = true
           }
         },

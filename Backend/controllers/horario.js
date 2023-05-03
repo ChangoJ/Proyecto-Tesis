@@ -9,7 +9,7 @@ var controller = {
     save: (req, res) => {
         // Recoger parametros por post
         var params = req.body;
-        console.log(params.item)
+       
         // Validar datos (validator)
         try {
             var validate_tipoHorario = !validator.isEmpty(params.tipoHorario);

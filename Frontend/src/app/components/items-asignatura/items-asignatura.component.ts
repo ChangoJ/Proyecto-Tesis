@@ -41,7 +41,6 @@ export class ItemsAsignaturaComponent {
         if (response.asignaturas) {
           this.asignaturasObtenidos = response.asignaturas
           this.asignaturasFiltrados = this.asignaturasObtenidos;
-          console.log(this.asignaturasObtenidos)
         }
       },
       error => {
@@ -128,7 +127,6 @@ export class ItemsAsignaturaComponent {
         );
       }
     }
-    console.log(asignaturasFiltrados);
     this.asignaturasFiltrados = asignaturasFiltrados;
   }
 

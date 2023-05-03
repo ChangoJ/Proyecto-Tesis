@@ -42,7 +42,6 @@ export class AulaNuevoComponent {
    this._aulaService.create(this.aula).subscribe(
       response => {
 
-        console.log(response.aula)
         if (response.status == 'success') {
           this.status = 'success'
           this.aula = response.aula
