@@ -2,7 +2,9 @@
     <div class="center">
         <!---Logo-->
         <div id="logo">
-            <img src="assets/images/logo.png" class="app-logo" alt="Logotipo" />
+            <a id="logoC" [routerLink]="['home']">
+                <img src="assets/images/logo.png" class="app-logo" alt="Logotipo" />
+            </a>
             <span id="brand">
                 <strong>UNIB.E</strong>
             </span>
@@ -21,9 +23,10 @@
                 </li>
                 <li>
                     <div class="center-icon">
-                        <mat-icon id="assignment" aria-hidden="false" aria-label="assignment" fontIcon="assignment"></mat-icon>
-                        <a [routerLink]="['especificacion']"
-                            [routerLinkActive]="['active']" (click)="especificacion()">Especificación</a>
+                        <mat-icon id="assignment" aria-hidden="false" aria-label="assignment"
+                            fontIcon="assignment"></mat-icon>
+                        <a [routerLink]="['especificacion']" [routerLinkActive]="['active']"
+                            (click)="especificacion()">Especificación</a>
                     </div>
                 </li>
                 <li>

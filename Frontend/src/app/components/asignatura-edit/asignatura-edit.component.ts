@@ -13,7 +13,7 @@ import { ProfesorService } from '../services/profesor.service';
   selector: 'app-asignatura-edit',
   templateUrl: '../asignatura-nuevo/asignatura-nuevo.component.html',
   styleUrls: ['./asignatura-edit.component.css'],
-  providers: [AsignaturaService,ProfesorService]
+  providers: [AsignaturaService, ProfesorService]
 })
 export class AsignaturaEditComponent {
   public asignatura!: Asignatura
@@ -58,15 +58,25 @@ export class AsignaturaEditComponent {
     { id: 11, textField: '11' },
     { id: 12, textField: '12' },
   ];
+
+  horariosType: any[] = [
+    { id: 1, textField: 'Diurno' },
+    { id: 2, textField: 'Nocturno' }
+  ];
+
   selectedCarreras: any[] = [];
   itemCarreraEdit: any[] = [];
   itemSemestreEdit: any[] = [];
-  itemProfesoresEdit: any[] = []
+  itemProfesoresEdit: any[] = [];
+  selectedHorarios: any[] = [];
+
+  itemHorarioEdit: any[] = []
   selectedSemestres: any[] = [];
   selectedProfesores: any[] = [];
   dropdownCarreras: IDropdownSettings = {};
   dropdownSemestres: IDropdownSettings = {};
-  dropdownProfesores:  IDropdownSettings = {};
+  dropdownHorarios: IDropdownSettings = {};
+  dropdownProfesores: IDropdownSettings = {};
 
 
   constructor(
@@ -75,12 +85,13 @@ export class AsignaturaEditComponent {
     private _profesorService: ProfesorService,
     private _router: Router
   ) {
-    this.asignatura = new Asignatura('', '', [], [],[],0, '', '#000000')
+    this.asignatura = new Asignatura('', '', [], [], [], '', 0, '', '#000000')
     this.page_title = "Editar Asignatura"
     this.is_edit = true;
     this.url = Global.url
     this.asignatura.carrera = []
     this.asignatura.semestre = []
+    this.selectedHorarios = []
 
     this.dropdownCarreras = {
       singleSelection: false,
@@ -112,10 +123,21 @@ export class AsignaturaEditComponent {
       allowSearchFilter: true
     };
 
+    this.dropdownHorarios = {
+      singleSelection: true,
+      idField: 'id',
+      textField: 'textField',
+      selectAllText: 'Seleccionar todo',
+      unSelectAllText: 'Deseleccionar todo',
+      itemsShowLimit: 2,
+      allowSearchFilter: false
+    };
+
   }
 
 
   onSubmit() {
+    console.log(this.selectedHorarios)
     let itemCarreraRecogida = this.itemCarreraEdit
     this.asignatura.carrera = []
     let itemCarreraDepu = []
@@ -150,9 +172,9 @@ export class AsignaturaEditComponent {
       this.asignatura.semestre.push(semestre);
     }
 
+    this.asignatura.horario = this.itemHorarioEdit[0].textField
 
-
-
+    console.log(this.asignatura.horario)
     this._asignaturaService.update(this.asignatura._id, this.asignatura).subscribe(
       response => {
 
@@ -186,6 +208,26 @@ export class AsignaturaEditComponent {
     )
   }
 
+  onKeyUp() {
+    this.asignatura.abreviatura = this.formatearTexto(this.asignatura.nombre);
+  }
+
+
+  formatearTexto(texto: string): string {
+    console.log(texto)
+    const palabras = texto.split(' ');
+    console.log(palabras)
+    const resultado = palabras.map(palabra => {
+      if (palabra.length > 1) {
+        return palabra.substring(0, 2).toUpperCase();
+      } else {
+        return palabra.toUpperCase();
+      }
+    });
+    return resultado.join('-');
+  }
+
+
   ngOnInit() {
     this.getAsignatura();
     this.getProfesores();
@@ -193,7 +235,7 @@ export class AsignaturaEditComponent {
   }
 
 
-  getProfesores(){
+  getProfesores() {
     this._profesorService.getProfesores().subscribe(
       response => {
         if (response.profesores) {
@@ -205,7 +247,7 @@ export class AsignaturaEditComponent {
       }
     )
   }
-  
+
 
   getAsignatura() {
     this._route.params.subscribe(params => {
@@ -214,6 +256,9 @@ export class AsignaturaEditComponent {
         response => {
           if (response.asignatura) {
             this.asignatura = response.asignatura
+            this.selectedHorarios = this.horariosType.filter(horario => horario.textField === this.asignatura.horario);
+           
+
           } else {
             this._router.navigate(['/especificacion/asignaturas'], { relativeTo: this._route });
           }
@@ -242,6 +287,11 @@ export class AsignaturaEditComponent {
   onItemProfesoresSelect(item: any) {
     this.itemProfesoresEdit = item
   }
+
+  onItemHorariosSelect(item: any) {
+    this.itemHorarioEdit = item
+  }
+
 
 
 }

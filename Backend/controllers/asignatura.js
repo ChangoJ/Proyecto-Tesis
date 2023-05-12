@@ -19,6 +19,7 @@ var controller = {
             /* var validate_semestre = !validator.isEmpty(params.semestre); */
             var validate_abreviatura = !validator.isEmpty(params.abreviatura);
             var validate_color = !validator.isEmpty(params.color);
+            var validate_horario = !validator.isEmpty(params.horario);
 
 
         } catch (err) {
@@ -27,7 +28,7 @@ var controller = {
                 message: 'Faltan datos por enviar'
             });
         }
-        if (validate_nombre && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color) {
+        if (validate_nombre && validate_horario && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color) {
 
 
             //Crear el objeto a guardar
@@ -39,6 +40,7 @@ var controller = {
             asignatura1.carrera = params.carrera;
             asignatura1.semestre = params.semestre;
             asignatura1.profesor = params.profesor;
+            asignatura1.horario = params.horario;
             asignatura1.abreviatura = params.abreviatura;
             asignatura1.color = params.color;
 
@@ -82,6 +84,7 @@ var controller = {
             var validate_carrera = !validator.isEmpty(params.carrera);   */
             /* var validate_semestre = !validator.isEmpty(params.semestre); */
             var validate_abreviatura = !validator.isEmpty(params.abreviatura);
+            var validate_horario = !validator.isEmpty(params.horario);
             var validate_color = !validator.isEmpty(params.color);
 
 
@@ -94,7 +97,7 @@ var controller = {
 
      
 
-        if (validate_nombre && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color && (params.creditos !== null && params.creditos !== undefined && Number.isInteger(params.creditos) && params.creditos !== 0 && params.creditos < 10)) {
+        if (validate_nombre && validate_horario && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color && (params.creditos !== null && params.creditos !== undefined && Number.isInteger(params.creditos) && params.creditos !== 0 && params.creditos < 10)) {
 
             var promises = params.profesor.map((profesor) => {
                 return new Promise((resolve, reject) => {
@@ -106,6 +109,7 @@ var controller = {
                     asignatura1.carrera = params.carrera;
                     asignatura1.semestre = params.semestre;
                     asignatura1.profesor = profesor;
+                    asignatura1.horario = params.horario;
                     asignatura1.creditos = params.creditos;
                     asignatura1.abreviatura = params.abreviatura;
                     asignatura1.color = params.color;
@@ -229,6 +233,7 @@ var controller = {
             /* var validate_carrera = !validator.isEmpty(params.carrera);
             var validate_semestre = !validator.isEmpty(params.semestre); */
             var validate_abreviatura = !validator.isEmpty(params.abreviatura);
+            var validate_horario = !validator.isEmpty(params.horario);
             var validate_color = !validator.isEmpty(params.color);
         } catch (err) {
             return res.status(200).send({
@@ -237,7 +242,7 @@ var controller = {
             });
         }
 
-        if (asignaturaId.match(/^[0-9a-fA-F]{24}$/) && validate_nombre && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color) {
+        if (asignaturaId.match(/^[0-9a-fA-F]{24}$/) && validate_nombre && validate_horario && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color) {
 
             asignatura.findOneAndUpdate({ _id: asignaturaId }, params, { new: true }).then((asignaturaUpdated) => {
 
@@ -338,6 +343,12 @@ var controller = {
                 },
                 {
                     "nombre": { "$regex": searchString, "$options": "i" }
+                },
+                {
+                    "horario": { "$regex": searchString, "$options": "i" }
+                },
+                {
+                    "creditos": { "$regex": searchString, "$options": "i" }
                 },
                 {
                     "abreviatura": { "$regex": searchString, "$options": "i" }

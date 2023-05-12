@@ -10,121 +10,95 @@
         <form class="mid-form" #asignaturaForm="ngForm" (ngSubmit)="onSubmit()">
             <div class="form-group">
                 <label for="nombre">Nombre de la Asignatura: </label>
-                <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="asignatura.nombre" required />
+                <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="asignatura.nombre" (keyup)="onKeyUp()"
+                    required />
                 <small *ngIf="!nombre.valid && nombre.touched">
                     El nombre no es valido
                 </small>
             </div>
 
             <div class="form-group" *ngIf="!is_edit">
-
-                <label for="area">Carreras: </label>
-                <ng-multiselect-dropdown 
-                [placeholder]="'Selecciona las Carreras'" 
-                
-                [settings]="dropdownCarreras"
-                [data]="carreras"
-                [(ngModel)]="selectedCarreras"
-                
-                [ngModelOptions]="{standalone: true}">
+                <label for="carrera">Carreras: </label>
+                <ng-multiselect-dropdown [placeholder]="'Selecciona las Carreras'" [settings]="dropdownCarreras"
+                    [data]="carreras" [(ngModel)]="selectedCarreras" [ngModelOptions]="{standalone: true}">
                 </ng-multiselect-dropdown>
             </div>
 
             <div class="form-group" *ngIf="is_edit">
 
-                <label for="area">Carreras: </label>
-                <ng-multiselect-dropdown 
-                [placeholder]="'Selecciona las Carreras'" 
-                
-                [settings]="dropdownCarreras"
-                [data]="carreras"
-                    
-                [(ngModel)]="asignatura.carrera"
-                
-                (ngModelChange)="onItemCarreraSelect($event)"
-                
-                [ngModelOptions]="{standalone: true}">
+                <label for="carrera">Carreras: </label>
+                <ng-multiselect-dropdown [placeholder]="'Selecciona las Carreras'" [settings]="dropdownCarreras"
+                    [data]="carreras" [(ngModel)]="asignatura.carrera" (ngModelChange)="onItemCarreraSelect($event)"
+                    [ngModelOptions]="{standalone: true}">
                 </ng-multiselect-dropdown>
             </div>
 
-        
+
             <div class="form-group" *ngIf="!is_edit">
 
-                <label for="area">Semestres: </label>
-                <ng-multiselect-dropdown 
-                [placeholder]="'Selecciona los semestres'" 
-                
-                [settings]="dropdownSemestres"
-                [data]="semestres"
-                    
-                [(ngModel)]="selectedSemestres"
-                
-                [ngModelOptions]="{standalone: true}">
+                <label for="semestre">Semestres: </label>
+                <ng-multiselect-dropdown [placeholder]="'Selecciona los semestres'" [settings]="dropdownSemestres"
+                    [data]="semestres" [(ngModel)]="selectedSemestres" [ngModelOptions]="{standalone: true}">
                 </ng-multiselect-dropdown>
             </div>
 
             <div class="form-group" *ngIf="is_edit">
 
-                <label for="area">Semestres: </label>
-                <ng-multiselect-dropdown 
-                [placeholder]="'Selecciona los semestres'" 
-                
-                [settings]="dropdownSemestres"
-                [data]="semestres"
-                    
-                [(ngModel)]="asignatura.semestre"
-                (ngModelChange)="onItemSemestreSelect($event)"
-                
-                [ngModelOptions]="{standalone: true}">
+                <label for="semestre">Semestres: </label>
+                <ng-multiselect-dropdown [placeholder]="'Selecciona los semestres'" [settings]="dropdownSemestres"
+                    [data]="semestres" [(ngModel)]="asignatura.semestre" (ngModelChange)="onItemSemestreSelect($event)"
+                    [ngModelOptions]="{standalone: true}">
                 </ng-multiselect-dropdown>
             </div>
 
             <div class="form-group" *ngIf="is_edit">
 
-                <label for="area">Profesores: </label>
-                <ng-multiselect-dropdown 
-                [placeholder]="'Selecciona los Profesor'" 
-                
-                [settings]="dropdownProfesores"
-                [data]="profesores"
-                    
-                [(ngModel)]="asignatura.profesor"
-                
-                (ngModelChange)="onItemProfesoresSelect($event)"
-                
-                [ngModelOptions]="{standalone: true}">
+                <label for="profesor">Profesores: </label>
+                <ng-multiselect-dropdown [placeholder]="'Selecciona los Profesor'" [settings]="dropdownProfesores"
+                    [data]="profesores" [(ngModel)]="asignatura.profesor"
+                    (ngModelChange)="onItemProfesoresSelect($event)" [ngModelOptions]="{standalone: true}">
                 </ng-multiselect-dropdown>
             </div>
 
             <div class="form-group" *ngIf="!is_edit">
 
-                <label for="area">Profesores: </label>
-                <ng-multiselect-dropdown 
-                [placeholder]="'Selecciona los Profesores'" 
-                
-                [settings]="dropdownProfesores"
-                [data]="profesores"
-                [(ngModel)]="selectedProfesores"
-                
-                [ngModelOptions]="{standalone: true}">
+                <label for="profesor">Profesores: </label>
+                <ng-multiselect-dropdown [placeholder]="'Selecciona los Profesores'" [settings]="dropdownProfesores"
+                    [data]="profesores" [(ngModel)]="selectedProfesores" [ngModelOptions]="{standalone: true}">
                 </ng-multiselect-dropdown>
             </div>
 
 
             <div class="form-group">
                 <label for="creditos">Creditos: </label>
-                <input type="number" name="creditos" #creditos="ngModel" [(ngModel)]="asignatura.creditos"
-                required min="1" max="10" step="1" />
+                <input type="number" name="creditos" #creditos="ngModel" [(ngModel)]="asignatura.creditos" required
+                    min="1" max="10" step="1" />
                 <small *ngIf="!creditos.valid && creditos.touched">
                     Los creditos no es valido (Ingrese un valor entre el 1 al 10)
                 </small>
+            </div>
+            <div class="form-group" *ngIf="!is_edit">
+
+                <label for="horario">Horario: </label>
+                <ng-multiselect-dropdown [placeholder]="'Seleccione el Horario'" [settings]="dropdownHorarios"
+                    [data]="horariosType" [(ngModel)]="selectedHorarios" [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
+            </div>
+
+            <div class="form-group" *ngIf="is_edit">
+
+                <label for="horario">Horario: </label>
+                <ng-multiselect-dropdown [placeholder]="'Seleccione el Horario'" [settings]="dropdownHorarios"
+                    [data]="horariosType" [(ngModel)]="selectedHorarios" (ngModelChange)="onItemHorariosSelect($event)"
+                    [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
             </div>
             <div class="form-group">
                 <label for="abreviatura">Abreviatura: </label>
                 <input type="text" name="abreviatura" #abreviatura="ngModel" [(ngModel)]="asignatura.abreviatura"
                     required />
                 <small *ngIf="!abreviatura.valid && abreviatura.touched">
-                    La abreviatura no es valido 
+                    La abreviatura no es valido
                 </small>
             </div>
             <div class="form-group">

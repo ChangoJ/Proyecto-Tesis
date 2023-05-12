@@ -55,12 +55,20 @@ export class AsignaturaNuevoComponent {
     { id: 11, textField: '11' },
     { id: 12, textField: '12' },
   ];
+
+  horariosType: any[] = [
+    { id: 1, textField: 'Diurno' },
+    { id: 2, textField: 'Nocturno' }
+  ];
+
   selectedCarreras: any[] = [];
   selectedSemestres: any[] = [];
   selectedProfesores: any[] = [];
+  
+  selectedHorarios: any[];
   dropdownCarreras: IDropdownSettings = {};
   dropdownSemestres: IDropdownSettings = {};
-
+  dropdownHorarios: IDropdownSettings = {};
   dropdownProfesores: IDropdownSettings = {};
 
 
@@ -70,13 +78,14 @@ export class AsignaturaNuevoComponent {
     private _profesorService: ProfesorService,
     private _router: Router
   ) {
-    this.asignatura = new Asignatura('', '', [], [], [],0, '', '#000000')
+    this.asignatura = new Asignatura('', '', [], [], [],'',0, '', '#000000')
     this.page_title = "Crear Asignatura"
     this.is_edit = false;
     this.url = Global.url
     this.asignatura.carrera = []
     this.asignatura.semestre = []
     this.asignatura.profesor = []
+    this.selectedHorarios = []
 
     this.dropdownCarreras = {
       singleSelection: false,
@@ -106,6 +115,16 @@ export class AsignaturaNuevoComponent {
       unSelectAllText: 'Deseleccionar todo',
       itemsShowLimit: 13,
       allowSearchFilter: true
+    };
+
+    this.dropdownHorarios = {
+      singleSelection: true,
+      idField: 'id',
+      textField: 'textField',
+      selectAllText: 'Seleccionar todo',
+      unSelectAllText: 'Deseleccionar todo',
+      itemsShowLimit: 2,
+      allowSearchFilter: false
     };
 
   }
@@ -155,6 +174,12 @@ export class AsignaturaNuevoComponent {
     for (const semestre of this.selectedSemestres) {
       this.asignatura.semestre.push(semestre.textField);
     }
+
+   /*  for (const horario of this.selectedHorarios) {
+      this.asignatura.horario = horario.textField
+    } */
+    this.asignatura.horario = this.selectedHorarios[0].textField
+    console.log(this.asignatura)
     
     this._asignaturaService.create(this.asignatura).subscribe(
       response => {
@@ -199,6 +224,27 @@ export class AsignaturaNuevoComponent {
 
 
   onItemProfesoresSelect(item: any) {
+  }
+
+  onItemHorariosSelect(item: any) {
+  }
+
+  onKeyUp() {
+    this.asignatura.abreviatura = this.formatearTexto(this.asignatura.nombre);
+  }
+
+
+  formatearTexto(texto: string): string {
+    const palabras = texto.split(' ');
+    console.log(palabras)
+    const resultado = palabras.map(palabra => {
+      if (palabra.length > 1) {
+        return palabra.substring(0, 2).toUpperCase() ;
+      } else {
+        return palabra.toUpperCase();
+      }
+    });
+    return resultado.join('-');
   }
 
 }

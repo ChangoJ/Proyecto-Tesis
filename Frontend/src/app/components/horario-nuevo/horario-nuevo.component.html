@@ -4,7 +4,7 @@
         <div class="center-icon">
           <mat-icon id="verified" aria-hidden="false" aria-label="verified"
             fontIcon="verified"></mat-icon>
-          <a mat-raised-button  (click)="verificarHorario()">Verificar</a>
+          <a mat-raised-button [disabled]="!isActiveBtnV" (click)="verificarHorario()">Verificar</a>
         </div>
       </li>
       <li>
@@ -17,14 +17,14 @@
         <div class="center-icon">
           <mat-icon id="local_printshop" aria-hidden="false" aria-label="local_printshop"
             fontIcon="local_printshop"></mat-icon>
-          <a mat-raised-button [disabled]="!isActiveBtn" (click)="exportarPDF()">Exportar PDF</a>
+          <a mat-raised-button [disabled]="!isActiveBtnG" (click)="exportarPDF()">Exportar PDF</a>
         </div>
       </li>
       <li>
         <div class="center-icon">
           <mat-icon id="local_printshop" aria-hidden="false" aria-label="local_printshop"
             fontIcon="local_printshop"></mat-icon>
-          <a mat-raised-button [disabled]="!isActiveBtn" (click)="exportarExcel()">Exportar Excel</a>
+          <a mat-raised-button [disabled]="!isActiveBtnG" (click)="exportarExcel()">Exportar Excel</a>
         </div>
       </li>
     </ul>
@@ -188,8 +188,8 @@
   </div>
   
   <!-- Nocturno -->
-  
-  
+
+
   <div class="boxcontentHorario" *ngIf="!is_Diurno">
     <div cdkDropListGroup class="mat-elevation-z2 ">
       <mat-grid-list cols="10" rowHeight="2:10" class="CajaHorario">
@@ -197,7 +197,7 @@
           <h2 class="h2Materias">Asignaturas</h2>
           <input id="buscadorHorarioA" [(ngModel)]="terminoBusquedaAsignatura" type="text" placeholder="Buscar por nombre" (input)="filtrarAsignaturas()">
     
-          <div cdkDropList [cdkDropListData]="asignaturasFiltradas" class="cdk-drop-listAsignaturas contenedor-listas"
+          <div cdkDropList [cdkDropListData]="asignaturasFiltradas" id="IdListaAsignaturas" class="cdk-drop-listAsignaturas contenedor-listas"
             (cdkDropListDropped)="drop($event)">
             <ng-container *ngFor="let asignatura of asignaturasFiltradas; let i=index ">
               <ng-container *ngFor="let profesor of asignatura.profesor; let j=index">
@@ -213,7 +213,7 @@
         <mat-grid-tile class="mat-grid-tile-materias listaAulas" rowspan="2">
           <h2 class="h2Materias">Aulas</h2>
           <input id="buscadorHorarioA" [(ngModel)]="terminoBusquedaAula" type="text" placeholder="Buscar por nombre" (input)="filtrarAulas()">
-          <div cdkDropList [cdkDropListData]="aulasFiltradas" class="cdk-drop-listAulas contenedor-listas"
+          <div cdkDropList [cdkDropListData]="aulasFiltradas"id="IdListaAulas" class="cdk-drop-listAulas contenedor-listas"
             (cdkDropListDropped)="drop($event)">
             <ng-container *ngFor="let aula of aulasFiltradas; let i=index ">
               <div style="background-color: {{aula.color}}; font-size: 13px;" id="{{'aula-' + i }}"
@@ -227,17 +227,17 @@
   
         <mat-grid-tile class="tablaHorario" colspan="1">
           <div class="box-table mat-elevation-z2">
-            <h2>Horario Vespertino</h2>
-            <table class="mat-table">
+            <h2>Horario Nocturno - {{opcion2}} - {{opcion3}}</h2>
+            <table class="mat-table" id="table">
               <thead>
                 <tr class="mat-header-row">
-                  <th class="mat-header-cell">Horario</th>
+                  <th class="mat-header-cell">Horas</th>
                   <th class="mat-header-cell">Lunes</th>
                   <th class="mat-header-cell">Martes</th>
                   <th class="mat-header-cell">Miércoles</th>
                   <th class="mat-header-cell">Jueves</th>
                   <th class="mat-header-cell">Viernes</th>
-                  <th class="mat-header-cell">Sabado</th>
+                  <th class="mat-header-cell">Sábado</th>
                 </tr>
               </thead>
               <tbody>
@@ -359,5 +359,7 @@
       </mat-grid-list>
     </div>
   </div>
+  
+
   
   <div class="clearfix"></div>

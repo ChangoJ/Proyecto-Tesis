@@ -22,7 +22,7 @@ export class ItemsAsignaturaComponent {
   public selectedSemestre!: any
 
   @Input() asignaturas!: Asignatura[]
-  columnas = ['N°', 'Nombre', 'Carrera', 'Semestre', 'Profesor', 'Creditos', 'Color', 'Acciones'];
+  columnas = ['N°', 'Nombre', 'Carrera', 'Semestre', 'Profesor','Horario', 'Creditos', 'Color', 'Acciones'];
   carreras = ["Enfermeria", "Fisioterapia", "Nutricion", "Psicologia", " Educacion Basica", "Produccion Audiovisual", "Contabilidad", "Derecho", "Economia", "Software", "Administracion de Empresas",
     "Gastronomia", "Turismo"];
   semestres = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", " 12"];

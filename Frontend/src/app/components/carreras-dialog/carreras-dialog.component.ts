@@ -109,8 +109,17 @@ export class CarrerasDialogComponent {
 
   onCarreraSelected() {
     let existHorarioCarrera: boolean = false
+    console.log(this.datoRecibido)
+
+    if(this.datoRecibido === "Horarios Nocturnos"){
+      this.datoRecibido = "Horario Nocturno"
+    }else{
+      this.datoRecibido = "Horario Diurno"
+    }
+
     for (const horario of this.horarios) {
-      if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre) {
+    console.log(horario.tipoHorario)
+      if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre && horario.tipoHorario === this.datoRecibido ) {
         existHorarioCarrera = true
       }
     }

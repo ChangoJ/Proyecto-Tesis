@@ -41,6 +41,8 @@ export class HorarioNuevoComponent {
   public aulaHorario: Aula[] = []
   public existHorarioCarrera: boolean;
   public isActiveBtn = false
+  public isActiveBtnG = false
+  public isActiveBtnV = true
 
   constructor(
     private _route: ActivatedRoute,
@@ -52,6 +54,7 @@ export class HorarioNuevoComponent {
   ) {
     this.horario = new Horario('', '', '', '', [], [], [], [])
     this.existHorarioCarrera = false
+    this.getHorarios()
   }
 
   hours = [
@@ -89,11 +92,15 @@ export class HorarioNuevoComponent {
 
   aulasFiltradas: any[] = [];
 
-  ngOnInit() {
+  async ngOnInit() {
+
+    this.getHorarios()
     this.getAsignaturas()
     this.getAulas()
-    this.getHorarios()
+
   }
+
+
 
   filtrarAsignaturas() {
     this.asignaturasFiltradas = this.asignaturas.filter(asignatura => asignatura.nombre.toLowerCase().includes(this.terminoBusquedaAsignatura.toLowerCase()));
@@ -129,7 +136,8 @@ export class HorarioNuevoComponent {
       this.opcion2 = this.opcion2.replace('_', " ");
       this.opcion2 = this.opcion2.replace('_', " ");
       this.opcion1 = this.opcion1.replace('_', " ");
-      if (this.opcion1 === "Horarios Diurnos") {
+      console.log(this.opcion1)
+      if (this.opcion1 === "Horario Diurno") {
         this.is_Diurno = true
       } else {
         this.is_Diurno = false
@@ -142,7 +150,7 @@ export class HorarioNuevoComponent {
             this.asignaturas = []; // Reiniciar el array de asignaturas
 
             // Iterar sobre las asignaturas obtenidas en la respuesta
-            response.asignaturas.forEach((asignatura: { creditos: number; _id: string; nombre: string; carrera: String[]; semestre: String[]; profesor: Profesor[]; abreviatura: string; color: string; }) => {
+            response.asignaturas.forEach((asignatura: { creditos: number; _id: string; nombre: string; carrera: String[]; semestre: String[]; profesor: Profesor[]; horario: string; abreviatura: string; color: string; }) => {
               const creditos = asignatura.creditos; // Obtener la cantidad de créditos de la asignatura
 
               // Clonar la asignatura por la cantidad de créditos y guardarlas en el array this.asignaturas
@@ -153,6 +161,7 @@ export class HorarioNuevoComponent {
                   asignatura.carrera,
                   asignatura.semestre,
                   asignatura.profesor,
+                  asignatura.horario,
                   asignatura.creditos,
                   asignatura.abreviatura,
                   asignatura.color
@@ -160,11 +169,18 @@ export class HorarioNuevoComponent {
 
                 this.asignaturas.push(asignaturaClonada);
 
-                this.asignaturasFiltradas = this.asignaturas;
               }
             });
 
+            let tipoHorarioAsig: any
+            if (this.opcion1 === "Horario Diurno") {
+              tipoHorarioAsig = 'Diurno'
+            } else {
+              tipoHorarioAsig = "Nocturno"
+            }
 
+            this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig)
+            this.asignaturasFiltradas = this.asignaturas;
           }
         },
         error => {
@@ -200,6 +216,8 @@ export class HorarioNuevoComponent {
 
     } else {
       this.isActiveBtn = false
+
+      this.isActiveBtnG = false
       const daysOfWeek = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
       const item: any = event.previousContainer.data[event.previousIndex];
       const idParts: string[] = event.container.id.split('-');
@@ -411,7 +429,6 @@ export class HorarioNuevoComponent {
       this._aulasService.getAula(id).subscribe(
         response => {
           if (response.aula) {
-
             this.aulaHorario.push(response.aula);
           }
           resolve(); // Resuelve la promesa una vez que se completa la llamada a la API
@@ -448,13 +465,35 @@ export class HorarioNuevoComponent {
       response => {
         if (response.horarios) {
           this.horarios = response.horarios;
+
           for (const horario of this.horarios) {
-
-            if (horario.carrera === this.opcion2 && horario.semestre === this.opcion3) {
+            if (horario.carrera === this.opcion2 && horario.semestre === this.opcion3 && horario.tipoHorario === this.opcion1) {
               this.existHorarioCarrera = true
-
+              
             }
           }
+          console.log(this.existHorarioCarrera)
+          this.horarios = this.horarios.filter(horario => horario.tipoHorario === this.opcion1);
+          console.log(this.horarios)
+
+          if (this.existHorarioCarrera) {
+            Swal.fire({
+              title: 'EL Horario de ' + this.opcion2 + ' del ' + this.opcion3 + ' semestre ya existe',
+              text: 'Por favor, si desea modificar vaya a la sección de horarios',
+              icon: 'error',
+              showCancelButton: true,
+              confirmButtonColor: '#4CAF50',
+              cancelButtonColor: '#3085d6',
+              confirmButtonText: 'Ir',
+            }).then((result: any) => {
+              if (result.isConfirmed) {
+                this._router.navigate(['/horarios']);
+              } else {
+                this._router.navigate(['/home']);
+              }
+            })
+          }
+          
         }
       },
       error => {
@@ -481,8 +520,8 @@ export class HorarioNuevoComponent {
     let identificadoresAulas = []
     let identificadoresAsignaturas = []
     let datosIguales: boolean = false
-
-    if (this.opcion1 == "Horarios Diurnos") {
+    console.log(this.opcion1)
+    if (this.opcion1 == "Horario Diurno") {
       this.horario.tipoHorario = "Horario Diurno"
     } else {
       this.horario.tipoHorario = "Horario Nocturno"
@@ -626,10 +665,12 @@ export class HorarioNuevoComponent {
                   'El horario se ha creado correctamente',
                   'success'
                 )
-
-                setTimeout(() => {
-                  this._router.navigate(['/horarios']);
-                }, 1000);
+                this.isActiveBtn = false
+                this.isActiveBtnG = true
+                this.isActiveBtnV = false
+                /*  setTimeout(() => {
+                   this._router.navigate(['/horarios']);
+                 }, 1000); */
 
               }
             },
@@ -637,7 +678,7 @@ export class HorarioNuevoComponent {
               this.status = 'error: ' + error
               Swal.fire(
                 'Error',
-                'El horario no se ha creado correctamente'+this.status,
+                'El horario no se ha creado correctamente' + this.status,
                 'error'
               )
             }
@@ -674,11 +715,7 @@ export class HorarioNuevoComponent {
   exportarPDF() {
     // Crear una instancia de jsPDF
     let doc = new jsPDF('landscape', 'mm', 'a4');
-    if (this.opcion1 === 'Horarios Diurnos') {
-      this.opcion1 = 'Horario Diurno'
-    } else {
-      this.opcion1 = 'Horario Nocturno'
-    }
+
 
     // Agregar el título al PDF
     doc.setFontSize(10);
@@ -695,19 +732,29 @@ export class HorarioNuevoComponent {
     doc.text('Director de carrera', 15, doc.internal.pageSize.height - 15);
 
 
-
-    // Crear un array con los días de la semana y las horas
-    let days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+    let days
     let DataAdicional = [];
     let asignaturasProfesores: any[] = [];
-    // Crear un array para almacenar los datos de cada fila
     let rowData: any = [];
-
-
-
-    // Agregar los días de la semana como la primera columna
+    let hoursPDF = this.hours
+    this.hours = []
+    let cellSize
     DataAdicional.push(['Asignaturas', 'Profesores', 'N° Horas'])
-    rowData.push(['Horas', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']);
+    if (this.opcion1 === "Horario Nocturno") {
+
+      cellSize = 38
+
+      this.hours = this.hoursnight
+      days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+
+      rowData.push(['Horas', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sabado']);
+    } else {
+      cellSize = 45
+      this.hours = hoursPDF
+      rowData.push(['Horas', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']);
+      days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+    }
+
 
     // Agregar las horas y los datos de cada celda
     for (let i = 0; i < this.hours.length; i++) {
@@ -770,7 +817,6 @@ export class HorarioNuevoComponent {
 
 
             }
-            // Encontrar la posición exacta de la celda correspondiente
 
           }
 
@@ -790,13 +836,14 @@ export class HorarioNuevoComponent {
       body: rowData,
       theme: 'grid',
       styles: {
-        cellWidth: 45,
+        cellWidth: cellSize,
         minCellHeight: 5,
         fontSize: 8,
         textColor: [0, 0, 0]
 
       }
     });
+
 
 
     autoTable(doc, {
@@ -826,15 +873,38 @@ export class HorarioNuevoComponent {
     worksheet.pageSetup.fitToPage = true;
 
     // Obtener el objeto Column para cada columna y establecer su ancho
-    worksheet.getColumn('A').width = 23;
-    worksheet.getColumn('B').width = 23;
-    worksheet.getColumn('C').width = 23;
-    worksheet.getColumn('D').width = 23;
-    worksheet.getColumn('E').width = 23;
-    worksheet.getColumn('F').width = 23;
+    let cellSize
+    let cellSizeBorder
+    let days
+    let indiceCell
+    let indiceCellBorder
+    let indiceCellList
+    if (this.opcion1 === "Horario Nocturno") {
+      days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+      indiceCell = 7
+      indiceCellBorder = 16
+      indiceCellList = 18
+      cellSize = 19
+      cellSizeBorder = 6
+    } else {
+      indiceCell = 6
+      indiceCellBorder = 14
+      indiceCellList = 16
+      days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+      cellSize = 23
+      cellSizeBorder = 5
+    }
 
-    for (var row = 1; row <= 5; row++) {
-      for (var col = 1; col <= 6; col++) {
+    worksheet.getColumn('A').width = cellSize;
+    worksheet.getColumn('B').width = cellSize;
+    worksheet.getColumn('C').width = cellSize;
+    worksheet.getColumn('D').width = cellSize;
+    worksheet.getColumn('E').width = cellSize;
+    worksheet.getColumn('F').width = cellSize;
+    worksheet.getColumn('G').width = cellSize;
+
+    for (var row = 1; row <= cellSizeBorder; row++) {
+      for (var col = 1; col <= cellSizeBorder + 1; col++) {
         var cell = worksheet.getCell(`${String.fromCharCode(64 + col)}${row}`);
         cell.border = {
           top: { style: 'medium', color: { argb: 'FFC0C0C0' } },
@@ -848,11 +918,7 @@ export class HorarioNuevoComponent {
 
 
 
-    if (this.opcion1 === 'Horarios Diurnos') {
-      this.opcion1 = 'Horario Diurno';
-    } else {
-      this.opcion1 = 'Horario Nocturno';
-    }
+
 
 
 
@@ -881,19 +947,19 @@ export class HorarioNuevoComponent {
 
 
     // Crear un array con los días de la semana y las horas
-    let days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+
+
     let DataAdicional = [];
     let asignaturasProfesores: any[] = [];
 
     // Crear un array para almacenar los datos de cada fila
     let rowData: any = [];
 
-    // Agregar los días de la semana como la primera fila
 
 
     // Pintar encabezado y agregar encabezado de horario
-    worksheet.spliceRows(6, 0, ['Horas', ...days]);
-    worksheet.getRow(6).eachCell({ includeEmpty: true }, function (cell, colNumber) {
+    worksheet.spliceRows(indiceCell, 0, ['Horas', ...days]);
+    worksheet.getRow(indiceCell).eachCell({ includeEmpty: true }, function (cell, colNumber) {
       cell.font = {
         bold: true
       }
@@ -905,6 +971,13 @@ export class HorarioNuevoComponent {
     });
 
     // Agregar las horas y los datos de cada celda
+    let hoursPDF = this.hours
+    this.hours = []
+    if (this.opcion1 === "Horario Nocturno") {
+      this.hours = this.hoursnight
+    } else {
+      this.hours = hoursPDF
+    }
     for (let i = 0; i < this.hours.length; i++) {
       let row = [this.hours[i]];
 
@@ -979,15 +1052,15 @@ export class HorarioNuevoComponent {
 
     }
 
-    for (let i = 7; i <= 14; i++) {
+    for (let i = 7; i <= indiceCellBorder; i++) {
       const rowTablaHorarioItem = worksheet.getRow(i);
       rowTablaHorarioItem.height = 20;
       rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center' }; // Opcional: alinear el contenido
       rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Activar el ajuste de texto
     }
 
-    for (var row = 6; row <= 14; row++) {
-      for (var col = 1; col <= 6; col++) {
+    for (var row = 6; row <= indiceCellBorder; row++) {
+      for (var col = 1; col <= indiceCell; col++) {
         var cell = worksheet.getCell(`${String.fromCharCode(64 + col)}${row}`);
         cell.border = {
           top: { style: 'thin', color: { argb: '000000' } },
@@ -999,9 +1072,9 @@ export class HorarioNuevoComponent {
       }
     }
 
-    worksheet.insertRow(16, ['Asignaturas', 'Profesores', 'N° Horas']);
+    worksheet.insertRow(indiceCellList, ['Asignaturas', 'Profesores', 'N° Horas']);
 
-    worksheet.getRow(16).eachCell({ includeEmpty: true }, function (cell) {
+    worksheet.getRow(indiceCellList).eachCell({ includeEmpty: true }, function (cell) {
       cell.font = {
         bold: true,
         size: 8
@@ -1087,6 +1160,8 @@ export class HorarioNuevoComponent {
 
   async verificarHorario() {
 
+
+
     await this.getHorarios()
     this.aulaHorario = []
     this.asignaturaHorario = []
@@ -1106,8 +1181,7 @@ export class HorarioNuevoComponent {
     let identificadoresAsignaturas = []
     let datosIguales: boolean = false
     let itemHorariosList: any[] = []
-
-    if (this.opcion1 == "Horarios Diurnos") {
+    if (this.opcion1 == "Horario Diurno") {
       this.horario.tipoHorario = "Horario Diurno"
     } else {
       this.horario.tipoHorario = "Horario Nocturno"
@@ -1223,60 +1297,66 @@ export class HorarioNuevoComponent {
       index2 = (index2 + 1) % itemsIdent[0].length;
     }
 
-    Swal.fire({
-      title: '¿Estás seguro?',
-      text: 'Se empezará a verificar el horario',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#4CAF50',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Verificar',
-    }).then((result: any) => {
-      if (result.isConfirmed) {
+    if (this.asignaturasFiltradas.length === 0) {
 
-        let itemsBDHorario = []
-        let itemsHorario = null
-        let mensaje = "";
 
-        if (datosIguales && !this.existHorarioCarrera && parejas.length !== 0) {
 
-          itemsBDHorario = this.horarios.map(verify => ({
-            carrera: verify.carrera,
-            semestre: verify.semestre,
-            dia: verify.dia,
-            idAsignaturaTableVerify: verify.idTabla.map(idTabla => idTabla.idAsignatura),
-            idAulaTableVerify: verify.idTabla.map(idTabla => idTabla.idAula),
-            itemverifyAsignatura: verify.item.map(item => item.asignatura._id),
-            itemverifyAsignaturaNombre: verify.item.map(item => item.asignatura.nombre),
-            itemverifyAula: verify.item.map(item => item.aula._id),
-            itemverifyAulaNombre: verify.item.map(item => item.aula.nombre),
-            itemHorasInico: verify.horas.map(item => item.horaInicio),
-            itemHorasFin: verify.horas.map(item => item.horaFin),
-          }));
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Se empezará a verificar el horario',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#4CAF50',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Verificar',
+      }).then((result: any) => {
+        if (result.isConfirmed) {
 
-         
-          itemsHorario = {
-            dia: this.horario.dia,
-            idAsignaturaTableVerify: this.horario.idTabla.map(idTabla => idTabla.idAsignatura),
-            idAulaTableVerify: this.horario.idTabla.map(idTabla => idTabla.idAula),
-            itemverifyAsignatura: this.horario.item.map(item => item.asignatura._id),
-            itemverifyAula: this.horario.item.map(item => item.aula._id),
-          };
+          let itemsBDHorario = []
+          let itemsHorario = null
+          let mensaje = "";
 
-          
-          for (let i = 0; i < itemsHorario.dia.length; i++) {
-            const diaActual = itemsHorario.dia[i];
-            for (let j = 0; j < itemsBDHorario.length; j++) {
-              if (itemsBDHorario[j].dia.includes(diaActual)) {
+          if (datosIguales && !this.existHorarioCarrera && parejas.length !== 0) {
 
-                // Iterar todos los elementos de los arrays que coinciden con el día actual
-                for (let k = 0; k < itemsBDHorario[j].idAsignaturaTableVerify.length; k++) {
-                  if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
-                    itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
-                    itemsBDHorario[j].itemverifyAsignatura[k] === itemsHorario.itemverifyAsignatura[i] &&
-                    itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]) {
+            itemsBDHorario = this.horarios.map(verify => ({
+              carrera: verify.carrera,
+              semestre: verify.semestre,
+              dia: verify.dia,
+              idAsignaturaTableVerify: verify.idTabla.map(idTabla => idTabla.idAsignatura),
+              idAulaTableVerify: verify.idTabla.map(idTabla => idTabla.idAula),
+              itemverifyAsignatura: verify.item.map(item => item.asignatura._id),
+              itemverifyAsignaturaNombre: verify.item.map(item => item.asignatura.nombre),
+              itemverifyAula: verify.item.map(item => item.aula._id),
+              itemverifyAulaNombre: verify.item.map(item => item.aula.nombre),
+              itemHorasInico: verify.horas.map(item => item.horaInicio),
+              itemHorasFin: verify.horas.map(item => item.horaFin),
+            }));
 
-                    mensaje += `
+
+            itemsHorario = {
+              dia: this.horario.dia,
+              idAsignaturaTableVerify: this.horario.idTabla.map(idTabla => idTabla.idAsignatura),
+              idAulaTableVerify: this.horario.idTabla.map(idTabla => idTabla.idAula),
+              itemverifyAsignatura: this.horario.item.map(item => item.asignatura._id),
+              itemverifyAula: this.horario.item.map(item => item.aula._id),
+            };
+
+            console.log(itemsBDHorario)
+
+
+            for (let i = 0; i < itemsHorario.dia.length; i++) {
+              const diaActual = itemsHorario.dia[i];
+              for (let j = 0; j < itemsBDHorario.length; j++) {
+                if (itemsBDHorario[j].dia.includes(diaActual)) {
+
+                  // Iterar todos los elementos de los arrays que coinciden con el día actual
+                  for (let k = 0; k < itemsBDHorario[j].idAsignaturaTableVerify.length; k++) {
+                    if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
+                      itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
+                      itemsBDHorario[j].itemverifyAsignatura[k] === itemsHorario.itemverifyAsignatura[i] &&
+                      itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]) {
+
+                      mensaje += `
                     <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre}</strong><br>
                     Dia: ${diaActual}<br>
                     Hora: ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
@@ -1286,81 +1366,91 @@ export class HorarioNuevoComponent {
 
 
 
+                    }
                   }
                 }
               }
             }
-          }
 
 
-          if (mensaje !== "") {
-            Swal.fire({
-              title: '¡Choque de asignaturas y aulas!',
-              html: `<div style="height: 250px; overflow-y: auto">${mensaje}</div>`,
-              icon: 'warning',
-              showCancelButton: true,
-              cancelButtonText: 'Cerrar',
-              confirmButtonText: 'Descargar PDF',
-            }).then((result) => {
-              if (result.isConfirmed) {
+            if (mensaje !== "") {
+              Swal.fire({
+                title: '¡Choque de asignaturas y aulas!',
+                html: `<div style="height: 250px; overflow-y: auto">${mensaje}</div>`,
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'Cerrar',
+                confirmButtonText: 'Descargar PDF',
+              }).then((result) => {
                 if (result.isConfirmed) {
-                  const doc = new jsPDF();
-                  doc.setFontSize(20);
-                  doc.text('¡Choque de asignaturas y aulas!', 55, 10);
-                  const text = mensaje.replace(/<br>/g, '').replace(/<strong>/g, '').replace(/<\/strong>/g, '');
-                  doc.text(text, 20, 40);
-                  doc.save('choque_asignaturas_aulas.pdf');
+                  if (result.isConfirmed) {
+                    const doc = new jsPDF();
+                    doc.setFontSize(20);
+                    doc.text('¡Choque de asignaturas y aulas!', 55, 10);
+                    const text = mensaje.replace(/<br>/g, '').replace(/<strong>/g, '').replace(/<\/strong>/g, '');
+                    doc.text(text, 20, 40);
+                    doc.save('choque_asignaturas_aulas.pdf');
+                  }
                 }
-              }
-            });
+              });
+              this.isActiveBtn = false
+
+              this.isActiveBtnG = false
+            }
+
+
+
+            if (datosIguales && !this.existHorarioCarrera && parejas.length !== 0 && mensaje === "") {
+
+              this.status = 'success'
+
+
+              Swal.fire(
+                'Horario Verificado',
+                'El horario esta correctamente',
+                'success'
+              )
+              this.isActiveBtn = true
+
+            }
+
+
+          } else if (parejas.length === 0) {
+            Swal.fire(
+              'Horario Rechazado',
+              'Por favor, rellene las asignaturas y aulas correctamente',
+              'error'
+            )
+            this.isActiveBtn = false
+          } else if (!datosIguales) {
+            Swal.fire(
+              'Horario no verificado',
+              'Por favor, debe contener en cada celda una asignatura y una aula',
+              'error'
+            )
+            this.isActiveBtn = false
+          } else if (this.existHorarioCarrera) {
+            Swal.fire(
+              'EL ' + this.opcion1 + ' de ' + this.opcion2 + ' del ' + this.opcion3 + ' semestre ya existe',
+              'Por favor, si desea modificar vaya a la sección de horarios',
+              'error'
+            )
             this.isActiveBtn = false
           }
 
+        } else {
+          Swal.fire('Operación cancelada', 'El horario no ha sido verificado', 'warning');
 
-
-          if (datosIguales && !this.existHorarioCarrera && parejas.length !== 0 && mensaje === "") {
-
-            this.status = 'success'
-
-
-            Swal.fire(
-              'Horario Verificado',
-              'El horario esta correctamente',
-              'success'
-            )
-            this.isActiveBtn = true
-
-          }
-
-
-        } else if (parejas.length === 0) {
-          Swal.fire(
-            'Horario Rechazado',
-            'Por favor, rellene las asignaturas y aulas correctamente',
-            'error'
-          )
-          this.isActiveBtn = false
-        } else if (!datosIguales) {
-          Swal.fire(
-            'Horario no creado',
-            'Por favor, debe contener en cada celda una asignatura y una aula',
-            'error'
-          )
-          this.isActiveBtn = false
-        } else if (this.existHorarioCarrera) {
-          Swal.fire(
-            'EL Horario de ' + this.opcion2 + ' del ' + this.opcion3 + ' semestre ya existe',
-            'Por favor, si desea modificar vaya a la sección de horarios',
-            'error'
-          )
-          this.isActiveBtn = false
         }
+      });
 
-      } else {
-        Swal.fire('Operación cancelada', 'El horario no ha sido creado', 'warning');
-
-      }
-    });
+    } else {
+      Swal.fire(
+        'Horario no verificado',
+        'Por favor, debe colocar todas las asignaturas',
+        'error'
+      )
+    }
 
   }
 

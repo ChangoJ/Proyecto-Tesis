@@ -43,6 +43,8 @@ export class HorarioEditComponent {
   public aulaHorario: Aula[] = []
   public existHorarioCarrera: boolean;
   public isActiveBtn = false
+  public isActiveBtnG = true
+  public isActiveBtnV = false
 
 
 
@@ -92,6 +94,7 @@ export class HorarioEditComponent {
   terminoBusquedaAsignatura: string = '';
   terminoBusquedaAula: string = '';
   asignaturasFiltradas: any[] = [];
+  asignaturasColocadas: any[] = [];
 
   aulasFiltradas: any[] = [];
 
@@ -108,12 +111,11 @@ export class HorarioEditComponent {
         if (response.horarios) {
           this.horarios = response.horarios;
           for (const horario of this.horarios) {
-
-            if (horario.carrera === this.opcion2 && horario.semestre === this.opcion3) {
+            if (horario.carrera === this.opcion2 && horario.semestre === this.opcion3 && horario.tipoHorario === this.opcion1) {
               this.existHorarioCarrera = true
-
             }
           }
+          this.horarios = this.horarios.filter(horario => horario.tipoHorario === this.opcion1);
         }
       },
       error => {
@@ -156,7 +158,7 @@ export class HorarioEditComponent {
           this.asignaturas = []; // Reiniciar el array de asignaturas
 
           // Iterar sobre las asignaturas obtenidas en la respuesta
-          response.asignaturas.forEach((asignatura: { creditos: number; _id: string; nombre: string; carrera: String[]; semestre: String[]; profesor: Profesor[]; abreviatura: string; color: string; }) => {
+          response.asignaturas.forEach((asignatura: { creditos: number; _id: string; nombre: string; carrera: String[]; semestre: String[]; profesor: Profesor[]; horario: string; abreviatura: string; color: string; }) => {
             const creditos = asignatura.creditos; // Obtener la cantidad de créditos de la asignatura
 
             // Clonar la asignatura por la cantidad de créditos y guardarlas en el array this.asignaturas
@@ -167,6 +169,7 @@ export class HorarioEditComponent {
                 asignatura.carrera,
                 asignatura.semestre,
                 asignatura.profesor,
+                asignatura.horario,
                 asignatura.creditos,
                 asignatura.abreviatura,
                 asignatura.color
@@ -174,9 +177,43 @@ export class HorarioEditComponent {
 
               this.asignaturas.push(asignaturaClonada);
 
-              this.asignaturasFiltradas = this.asignaturas;
             }
           });
+          let tipoHorarioAsig: any
+          if (this.opcion1 === "Horario Diurno") {
+            tipoHorarioAsig = 'Diurno'
+          } else {
+            tipoHorarioAsig = "Nocturno"
+          }
+
+          this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig)
+
+        
+
+          // Recorrer cada objeto del primer array
+          for (let i = 0; i < this.asignaturas.length; i++) {
+            // Verificar si el _id del objeto existe en el segundo array
+            const objetoDuplicado = this.asignaturasColocadas.find(objeto => objeto._id === this.asignaturas[i]._id);
+
+            // Si existe, eliminar todos los objetos con ese _id en ambos arrays
+            if (objetoDuplicado) {
+              this.asignaturas.splice(i, 1);
+              this.asignaturasColocadas.splice(this.asignaturasColocadas.indexOf(objetoDuplicado), 1);
+              i--;
+            }
+            // Si no existe, agregar el objeto al arrayUnico
+            else {
+              this.asignaturasFiltradas.push(this.asignaturas[i]);
+            }
+          }
+
+          // Agregar los objetos restantes del segundo array al arrayUnico
+          this.asignaturasFiltradas.push(...this.asignaturasColocadas);
+
+          // El arrayUnico ahora contiene todos los objetos únicos
+          console.log(this.asignaturasFiltradas);
+
+
 
 
         }
@@ -216,6 +253,9 @@ export class HorarioEditComponent {
     } else {
 
       this.isActiveBtn = false
+      this.isActiveBtnG = false
+
+      this.isActiveBtnV = true
       const daysOfWeek = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
       const item: any = event.previousContainer.data[event.previousIndex];
       const idParts: string[] = event.container.id.split('-');
@@ -226,7 +266,7 @@ export class HorarioEditComponent {
       let identificador = Number(idParts[0]) + '' + '' + Number(idParts[3]);
 
 
-   
+
       // listasignatura id
       const idPartsAsignatura: string[] = event.item.element.nativeElement.id.split('-');
       let elementoType: string = (idPartsAsignatura[0]);
@@ -544,10 +584,15 @@ export class HorarioEditComponent {
         this.saturday.push(nuevoObjetoAsignatura);
         this.saturday.push(nuevoObjetoAula);
       }
+
+
+      this.asignaturasColocadas.push(nuevoObjetoAsignatura.item)
     }
+ 
   }
 
   async submit() {
+    await this.getHorarios()
     this.aulaHorario = []
     this.asignaturaHorario = []
     this.horario = new Horario('', '', '', '', [], [], [], [])
@@ -575,7 +620,7 @@ export class HorarioEditComponent {
     let asig: number = 0
     let aula: number = 0
     for (const dias of arreglosHorario) {
-    
+
       dias.sort(function (a, b) {
         // Convierte las horas de inicio y fin a objetos Date para poder compararlas
         const dateAStart = new Date('1970/01/01 ' + a.hourStart.trim());
@@ -699,9 +744,14 @@ export class HorarioEditComponent {
                   'success'
                 )
 
-                setTimeout(() => {
-                  this._router.navigate(['/horarios']);
-                }, 1500);
+
+                this.isActiveBtn = false
+                this.isActiveBtnG = true
+                this.isActiveBtnV = false
+
+                /*  setTimeout(() => {
+                   this._router.navigate(['/horarios']);
+                 }, 1500); */
 
               } else {
                 Swal.fire(
@@ -742,11 +792,6 @@ export class HorarioEditComponent {
   exportarPDF() {
     // Crear una instancia de jsPDF
     let doc = new jsPDF('landscape', 'mm', 'a4');
-    if (this.opcion1 === 'Horario Diurno') {
-      this.opcion1 = 'Horario Diurno'
-    } else {
-      this.opcion1 = 'Horario Nocturno'
-    }
 
     // Agregar el título al PDF
     doc.setFontSize(10);
@@ -764,18 +809,28 @@ export class HorarioEditComponent {
 
 
 
-    // Crear un array con los días de la semana y las horas
-    let days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+    let days
     let DataAdicional = [];
     let asignaturasProfesores: any[] = [];
-    // Crear un array para almacenar los datos de cada fila
     let rowData: any = [];
-
-
-
-    // Agregar los días de la semana como la primera columna
+    let hoursPDF = this.hours
+    this.hours = []
+    let cellSize
     DataAdicional.push(['Asignaturas', 'Profesores', 'N° Horas'])
-    rowData.push(['Horas', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']);
+    if (this.opcion1 === "Horario Nocturno") {
+
+      cellSize = 38
+
+      this.hours = this.hoursnight
+      days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+
+      rowData.push(['Horas', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sabado']);
+    } else {
+      cellSize = 45
+      this.hours = hoursPDF
+      rowData.push(['Horas', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']);
+      days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+    }
 
     // Agregar las horas y los datos de cada celda
     for (let i = 0; i < this.hours.length; i++) {
@@ -811,7 +866,7 @@ export class HorarioEditComponent {
                 asignaturasProfesores.push({ asignatura: currentAsignatura, profesores: currentProfesores, horas: currentAsignaturaCreditos });
 
               }
-        
+
 
             }
             // Obtener la hora del elemento actual
@@ -858,7 +913,7 @@ export class HorarioEditComponent {
       body: rowData,
       theme: 'grid',
       styles: {
-        cellWidth: 45,
+        cellWidth: cellSize,
         minCellHeight: 5,
         fontSize: 8,
         textColor: [0, 0, 0]
@@ -880,7 +935,7 @@ export class HorarioEditComponent {
     });
 
     // Descargar el PDF
-    doc.save('tabla.pdf');
+    doc.save(this.opcion1 + '-' + this.opcion2 + '-' + this.opcion3 + '.pdf');
   }
 
   exportarExcel() {
@@ -893,16 +948,38 @@ export class HorarioEditComponent {
     worksheet.pageSetup.paperSize = 9;
     worksheet.pageSetup.fitToPage = true;
 
-    // Obtener el objeto Column para cada columna y establecer su ancho
-    worksheet.getColumn('A').width = 23;
-    worksheet.getColumn('B').width = 23;
-    worksheet.getColumn('C').width = 23;
-    worksheet.getColumn('D').width = 23;
-    worksheet.getColumn('E').width = 23;
-    worksheet.getColumn('F').width = 23;
+    let cellSize
+    let cellSizeBorder
+    let days
+    let indiceCell
+    let indiceCellBorder
+    let indiceCellList
+    if (this.opcion1 === "Horario Nocturno") {
+      days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+      indiceCell = 7
+      indiceCellBorder = 16
+      indiceCellList = 18
+      cellSize = 19
+      cellSizeBorder = 6
+    } else {
+      indiceCell = 6
+      indiceCellBorder = 14
+      indiceCellList = 16
+      days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+      cellSize = 23
+      cellSizeBorder = 5
+    }
 
-    for (var row = 1; row <= 5; row++) {
-      for (var col = 1; col <= 6; col++) {
+    worksheet.getColumn('A').width = cellSize;
+    worksheet.getColumn('B').width = cellSize;
+    worksheet.getColumn('C').width = cellSize;
+    worksheet.getColumn('D').width = cellSize;
+    worksheet.getColumn('E').width = cellSize;
+    worksheet.getColumn('F').width = cellSize;
+    worksheet.getColumn('G').width = cellSize;
+
+    for (var row = 1; row <= cellSizeBorder; row++) {
+      for (var col = 1; col <= cellSizeBorder + 1; col++) {
         var cell = worksheet.getCell(`${String.fromCharCode(64 + col)}${row}`);
         cell.border = {
           top: { style: 'medium', color: { argb: 'FFC0C0C0' } },
@@ -915,12 +992,6 @@ export class HorarioEditComponent {
     }
 
 
-
-    if (this.opcion1 === 'Horario Diurno') {
-      this.opcion1 = 'Horario Diurno';
-    } else {
-      this.opcion1 = 'Horario Nocturno';
-    }
 
 
 
@@ -947,21 +1018,12 @@ export class HorarioEditComponent {
     titulo.alignment = { horizontal: 'center' };
 
 
-
-    // Crear un array con los días de la semana y las horas
-    let days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
-    let DataAdicional = [];
     let asignaturasProfesores: any[] = [];
-
-    // Crear un array para almacenar los datos de cada fila
-    let rowData: any = [];
-
-    // Agregar los días de la semana como la primera fila
 
 
     // Pintar encabezado y agregar encabezado de horario
-    worksheet.spliceRows(6, 0, ['Horas', ...days]);
-    worksheet.getRow(6).eachCell({ includeEmpty: true }, function (cell, colNumber) {
+    worksheet.spliceRows(indiceCell, 0, ['Horas', ...days]);
+    worksheet.getRow(indiceCell).eachCell({ includeEmpty: true }, function (cell, colNumber) {
       cell.font = {
         bold: true
       }
@@ -973,6 +1035,13 @@ export class HorarioEditComponent {
     });
 
     // Agregar las horas y los datos de cada celda
+    let hoursPDF = this.hours
+    this.hours = []
+    if (this.opcion1 === "Horario Nocturno") {
+      this.hours = this.hoursnight
+    } else {
+      this.hours = hoursPDF
+    }// Agregar las horas y los datos de cada celda
     for (let i = 0; i < this.hours.length; i++) {
       let row = [this.hours[i]];
 
@@ -1006,7 +1075,7 @@ export class HorarioEditComponent {
               if (!asignaturasProfesores.some(ap => ap.asignatura === currentAsignatura && ap.profesores === currentProfesores)) {
                 asignaturasProfesores.push({ asignatura: currentAsignatura, profesores: currentProfesores, horas: currentAsignaturaCreditos });
               }
-             
+
             }
 
             // Obtener la hora del elemento actual
@@ -1047,15 +1116,15 @@ export class HorarioEditComponent {
 
     }
 
-    for (let i = 7; i <= 14; i++) {
+    for (let i = 7; i <= indiceCellBorder; i++) {
       const rowTablaHorarioItem = worksheet.getRow(i);
       rowTablaHorarioItem.height = 20;
       rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center' }; // Opcional: alinear el contenido
       rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Activar el ajuste de texto
     }
 
-    for (var row = 6; row <= 14; row++) {
-      for (var col = 1; col <= 6; col++) {
+    for (var row = 6; row <= indiceCellBorder; row++) {
+      for (var col = 1; col <= indiceCell; col++) {
         var cell = worksheet.getCell(`${String.fromCharCode(64 + col)}${row}`);
         cell.border = {
           top: { style: 'thin', color: { argb: '000000' } },
@@ -1067,9 +1136,9 @@ export class HorarioEditComponent {
       }
     }
 
-    worksheet.insertRow(16, ['Asignaturas', 'Profesores', 'N° Horas']);
+    worksheet.insertRow(indiceCellList, ['Asignaturas', 'Profesores', 'N° Horas']);
 
-    worksheet.getRow(16).eachCell({ includeEmpty: true }, function (cell) {
+    worksheet.getRow(indiceCellList).eachCell({ includeEmpty: true }, function (cell) {
       cell.font = {
         bold: true,
         size: 8
@@ -1100,7 +1169,7 @@ export class HorarioEditComponent {
     });
 
     const identificador = uuidv4();
-    const nombreArchivo = `ejemplo-${identificador}.xlsx`;
+    const nombreArchivo = this.opcion1 + '-' + this.opcion2 + '-' + this.opcion3 + `-(${identificador}).xlsx`;
 
 
 
@@ -1174,7 +1243,7 @@ export class HorarioEditComponent {
     let datosIguales: boolean = false
     let itemHorariosList: any[] = []
 
-    if (this.opcion1 == "Horarios Diurnos") {
+    if (this.opcion1 == "Horario Diurno") {
       this.horario.tipoHorario = "Horario Diurno"
     } else {
       this.horario.tipoHorario = "Horario Nocturno"
@@ -1385,6 +1454,8 @@ export class HorarioEditComponent {
               }
             });
             this.isActiveBtn = false
+
+            this.isActiveBtnG = false
           }
 
 
@@ -1400,8 +1471,6 @@ export class HorarioEditComponent {
               'success'
             )
             this.isActiveBtn = true
-
-
           }
 
 
