@@ -4,6 +4,7 @@ import { Profesor } from './../models/profesor';
 import { ProfesorService } from './../services/profesor.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component } from '@angular/core';
+import { IDropdownSettings } from 'ng-multiselect-dropdown';
 
 @Component({
   selector: 'app-profesor-nuevo',
@@ -18,21 +19,73 @@ export class ProfesorNuevoComponent {
   public page_title: string
   public url!: string
   public isChecked!: boolean
+  public selectedCarreras: any[] = [];
+  public dropdownCarreras: IDropdownSettings = {};
+  public selectedContrato: any[] = [];
+  public dropdownContrato: IDropdownSettings = {};
 
+  contratos: any[] = [
+    { id: 1, textField: 'Tiempo Completo' },
+    { id: 2, textField: 'Medio Tiempo' },
+    { id: 3, textField: 'Tiempo Parcial' }
+  ];
+
+  carreras: any[] = [
+    { id: 1, textField: 'Enfermeria' },
+    { id: 2, textField: 'Fisioterapia' },
+    { id: 3, textField: 'Nutricion' },
+    { id: 4, textField: 'Psicologia' },
+    { id: 5, textField: 'Educacion Basica' },
+    { id: 6, textField: 'Produccion Audiovisual' },
+    { id: 7, textField: 'Contabilidad' },
+    { id: 8, textField: 'Derecho' },
+    { id: 9, textField: 'Economia' },
+    { id: 10, textField: 'Software' },
+    { id: 11, textField: 'Administracion de Empresas' },
+    { id: 12, textField: 'Gastronomia' },
+    { id: 13, textField: 'Turismo' }
+  ];
 
   constructor(
     private _route: ActivatedRoute,
     private _profesorService: ProfesorService, 
     private _router: Router
   ) { 
-    this.profesor = new Profesor('','', '','','')
-    this.page_title = "Crear Profesor"
+    this.profesor = new Profesor('','', '',[])
+    this.page_title = "Nuevo Profesor"
     this.is_edit = false;
     this.url = Global.url
+
+
+    this.dropdownCarreras = {
+      singleSelection: false,
+      idField: 'id',
+      textField: 'textField',
+      selectAllText: 'Seleccionar todo',
+      unSelectAllText: 'Deseleccionar todo',
+      itemsShowLimit: 13,
+      allowSearchFilter: true
+    };
+
+    this.dropdownContrato = {
+      singleSelection: true,
+      idField: 'id',
+      textField: 'textField',
+      selectAllText: 'Seleccionar todo',
+      unSelectAllText: 'Deseleccionar todo',
+      itemsShowLimit: 3,
+      allowSearchFilter: false
+    };
+
   }
 
   onSubmit(){
     
+    
+    for (const carrera of this.selectedCarreras) {
+      this.profesor.carrera.push(carrera.textField);
+    }
+    this.profesor.contrato = this.selectedContrato[0].textField
 
    this._profesorService.create(this.profesor).subscribe(
       response => {
@@ -68,6 +121,22 @@ export class ProfesorNuevoComponent {
 
   redirectProfesor(){
     this._router.navigate(['/especificacion/profesores'], { relativeTo: this._route });
+  }
+
+  onItemCarrerasSelect(item: any) {
+  }
+
+  onItemContratoSelect(item: any) {
+  }
+
+  allProfesores(){
+    this._router.navigate(['/especificacion/profesores'])
+  }
+
+  resumenProfesores(){
+    this._router.navigate(['/especificacion/profesores/resumen-profesores'])
+    
+   
   }
 
 }

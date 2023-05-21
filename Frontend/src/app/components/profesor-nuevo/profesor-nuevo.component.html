@@ -1,16 +1,32 @@
-<div class="center">
-    <section id="content-info">
-       
+<div id="contentEspecificacion">
 
-        <h2 class="subheader">{{page_title}}</h2>
+ 
+     <nav id="submenu" >
+         <ul>
+             <li>
+                 <div class="center-icon">
+                     <mat-icon>person_add</mat-icon>
+                 <a id="matButton" mat-raised-button  [routerLink]="['/especificacion/profesores/crearProfesor']" >Nuevo Profesor</a>
+                 </div>
+             </li>
+             <li>
+                 <div class="center-icon">
+                     <mat-icon id="people icon" aria-hidden="people icon" aria-label="people icon"
+                         fontIcon="people icon"></mat-icon>
+                 <a id="matButton" mat-raised-button (click)="allProfesores()">Mostrar Profesores</a>
+                 </div>
+             </li>
+             <li>
+                 <div class="center-icon">
+                     <mat-icon>library_books</mat-icon>
+                 <a id="matButton" mat-raised-button (click)="resumenProfesores()">Resumen Profesores</a>
+                 </div>
+             </li>
+         </ul>
+     </nav>
+     <h2 class="subheader">{{page_title}}</h2>
 
         
-        <div>
-            <button class="btnback" (click)="redirectProfesor()"><mat-icon class="icono" id="keyboard_backspace" aria-hidden="false"
-                    aria-label="keyboard_backspace" fontIcon="keyboard_backspace"></mat-icon>Regresar</button>
-        </div>
-
-    
         <form class="mid-form" #profesorForm="ngForm" (ngSubmit)="onSubmit()">
             <div class="form-group">
                 <label for="nombre">Nombres y Apellidos: </label>
@@ -19,34 +35,43 @@
                     El nombre no es valido
                 </small>
             </div>
-            <div class="form-group">
+         
+            <div class="form-group" *ngIf="!is_edit">
                 <label for="contrato">Contrato: </label>
-                <input type="text" name="contrato" #contrato="ngModel" [(ngModel)]="profesor.contrato" required />
-                <small *ngIf="!contrato.valid && contrato.touched">
-                    El contrato no es valido
-                </small>
+                <ng-multiselect-dropdown [placeholder]="'Seleccione el Contrato'" [settings]="dropdownContrato"
+                    [data]="contratos" [(ngModel)]="selectedContrato" [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
             </div>
-            <div class="form-group">
-                <label for="cargo">Cargo: </label>
-                <input type="text" name="cargo" #cargo="ngModel" [(ngModel)]="profesor.cargo" required />
-                <small *ngIf="!cargo.valid && cargo.touched">
-                    El cargo no es valido
-                </small>
-            </div>
-            <div class="form-group">
-                <label for="area">Area: </label>
-                <input type="text" name="area" #area="ngModel" [(ngModel)]="profesor.area" required />
-                <small *ngIf="!area.valid && area.touched">
-                    El area no es valido
-                </small>
+
+            <div class="form-group" *ngIf="is_edit">
+                <label for="contrato">Contrato: </label>
+                <ng-multiselect-dropdown [placeholder]="'Seleccione el Contrato'" [settings]="dropdownContrato"
+                    [data]="contratos" [(ngModel)]="selectedContrato" (ngModelChange)="onItemContratoSelect($event)"
+                    [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
             </div>
            
-            <div class="clearfix"></div>
+            <div class="form-group" *ngIf="!is_edit">
+                <label for="carrera">Carrera: </label>
+                <ng-multiselect-dropdown   [placeholder]="'Seleccione las Carreras'" [settings]="dropdownCarreras"
+                    [data]="carreras" [(ngModel)]="selectedCarreras" [ngModelOptions]="{standalone: true}" >
+                </ng-multiselect-dropdown>
+            </div>
+           
+            <div class="form-group" *ngIf="is_edit">
+                <label for="carrera">Carrera: </label>
+                <ng-multiselect-dropdown [placeholder]="'Seleccione las Carreras'" [settings]="dropdownCarreras"
+                    [data]="carreras" [(ngModel)]="selectedCarreras"  (ngModelChange)="onItemCarrerasSelect($event)"
+                    [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
+            </div>
 
-            <input type="submit" value="Enviar" class="btn btn-success" [disabled]="profesorForm.invalid" />
+           
+
+            <input style="margin-bottom: 30px; margin-top: 20px;" type="submit" value="Enviar" class="btn btn-success" [disabled]="profesorForm.invalid" />
         </form>
-    </section>
-
-</div>
+     
+         
+     </div>
 
 <div class="clearfix"></div>

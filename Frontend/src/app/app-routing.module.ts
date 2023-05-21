@@ -1,3 +1,4 @@
+import { ProfesoresResumenComponent } from './components/profesores-resumen/profesores-resumen.component';
 import { ItemsAsignaturaComponent } from './components/items-asignatura/items-asignatura.component';
 import { ProfesorEditComponent } from './components/profesor-edit/profesor-edit.component';
 import { ProfesorNuevoComponent } from './components/profesor-nuevo/profesor-nuevo.component';
@@ -22,7 +23,7 @@ const routes: Routes = [
   {
     path: 'home', component: HomeComponent
   },
-  
+
   {
     path: 'horarios', component: ItemsHorarioComponent
   },
@@ -52,6 +53,15 @@ const routes: Routes = [
         path: 'asignaturas/search/:search',
         component: AsignaturasComponent,
       },
+
+      {
+        path: 'asignaturas/crearAsignatura',
+        component: AsignaturaNuevoComponent
+      },
+      {
+        path: 'asignaturas/editarAsignatura/:id',
+        component: AsignaturaEditComponent
+      },
       {
         path: 'aulas',
         component: AulasComponent,
@@ -61,22 +71,39 @@ const routes: Routes = [
         path: 'aulas/searchAula/:search1',
         component: AulasComponent,
       },
+
+      {
+        path: 'aulas/crearAula',
+        component: AulaNuevoComponent
+      },
+      {
+        path: 'aulas/editarAula/:id',
+        component: AulaEditComponent
+      },
       {
         path: 'profesores',
         component: ProfesoresComponent
       },
       {
+        path: 'profesores/resumen-profesores',
+        component: ProfesoresResumenComponent
+      },
+      {
         path: 'profesores/searchProfesor/:search1',
         component: ProfesoresComponent,
-      }
+      },
+
+      {
+        path: 'profesores/editarProfesor/:id',
+        component: ProfesorEditComponent
+      },
+
+      {
+        path: 'profesores/crearProfesor',
+        component: ProfesorNuevoComponent
+      },
     ]
   },
-  { path: 'especificacion/asignaturas/crearAsignatura', component: AsignaturaNuevoComponent },
-  { path: 'especificacion/asignaturas/editarAsignatura/:id', component: AsignaturaEditComponent },
-  { path: 'especificacion/aulas/crearAula', component: AulaNuevoComponent },
-  { path: 'especificacion/aulas/editarAula/:id', component: AulaEditComponent },
-  { path: 'especificacion/profesores/crearProfesor', component: ProfesorNuevoComponent },
-  { path: 'especificacion/profesores/editarProfesor/:id', component: ProfesorEditComponent },
   { path: 'horarios/editarHorario/:id', component: HorarioComponent },
   { path: '**', component: ErrorComponent }
 ];

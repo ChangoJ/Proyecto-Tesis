@@ -2,8 +2,10 @@ import { Global } from './../services/global';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Profesor } from './../models/profesor';
 import { ProfesorService } from './../services/profesor.service';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import Swal from 'sweetalert2';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-items-profesor',
@@ -14,34 +16,37 @@ import Swal from 'sweetalert2';
 export class ItemsProfesorComponent {
   public colorCuadro = document.querySelector(".color-square")
   public url: string
-  public profesoresFiltrados: any[] = [];
+  public profesoresFiltrados!: MatTableDataSource<any>;
   public terminoBusquedaProfesor: string = '';
 
   @Input() profesores!: Profesor[]
-  columnas = ['N°','Nombre', 'Contrato', 'Cargo', 'Area', 'Acciones'];
+  columnas = ['N°', 'Nombre', 'Contrato', 'Carreras', 'Acciones'];
   profesoresObtenidos: any[] = [];
-  
-  constructor(  private _profesorService: ProfesorService,
+
+  constructor(private _profesorService: ProfesorService,
     private _route: ActivatedRoute,
-    private _router: Router){
+    private _router: Router) {
     this.url = Global.url
-    this.profesoresFiltrados = []
-    
+
   }
 
-ngOnInit() {
- this._profesorService.getProfesores().subscribe(
+  @ViewChild('paginatorP', { static: false }) paginator!: MatPaginator;
+
+  ngOnInit() {
+    
+    this._profesorService.getProfesores().subscribe(
       response => {
         if (response.profesores) {
           this.profesoresObtenidos = response.profesores
-          this.profesoresFiltrados =  this.profesoresObtenidos;
+          this.profesoresFiltrados = new MatTableDataSource<any>(this.profesoresObtenidos);
+          this.profesoresFiltrados.paginator = this.paginator;
         }
       },
       error => {
         console.log(error)
       }
-    )  
-    
+    )
+
   }
 
   delete(id: string) {
@@ -54,7 +59,7 @@ ngOnInit() {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Delete',
-    }).then((result:any) => {
+    }).then((result: any) => {
       if (result.isConfirmed) {
         this._profesorService.delete(id).subscribe(
           (response) => {
@@ -73,28 +78,33 @@ ngOnInit() {
         Swal.fire('Operación cancelada', 'El profesor no ha sido borrado', 'warning');
       }
     });
-  
-    
+
+
   }
 
+ 
   filtrarProfesores() {
-    const terminosBusqueda = this.terminoBusquedaProfesor.split(' ').join('|');
-    const regexBusqueda = new RegExp(terminosBusqueda, 'gi');
-    this.profesoresFiltrados = this.profesoresObtenidos.filter(profesor => 
-        profesor.nombre.toLowerCase().match(regexBusqueda) ||
-        profesor.cargo.toLowerCase().match(regexBusqueda) ||
-        profesor.area.toLowerCase().match(regexBusqueda)||
-        profesor.contrato.toLowerCase().match(regexBusqueda)
-    );
-}
+    let terminosBusqueda = this.terminoBusquedaProfesor.split(' ').join(' | ');
+    console.log(terminosBusqueda)
+    let regexBusqueda = new RegExp(terminosBusqueda, 'gi');
+    this.profesoresFiltrados = new MatTableDataSource<any>(this.profesoresObtenidos.filter(profesor =>
+      profesor.nombre.toString().toLowerCase().match(regexBusqueda) ||
+      profesor.carrera.toString().toLowerCase().match(regexBusqueda) ||
+      profesor.contrato.toString().toLowerCase().match(regexBusqueda)
+    ));
+  }
 
-  allProfesores(){
+  allProfesores() {
     this._router.navigate(['/especificacion/profesores'])
     location.reload();
   }
 
-  redirectEdit(id:any){
-    this._router.navigate(['/especificacion/profesores/editarProfesor/',id])
-    
+  resumenProfesores() {
+    this._router.navigate(['/especificacion/profesores/resumen-profesores'])
+  }
+
+  redirectEdit(id: any) {
+    this._router.navigate(['/especificacion/profesores/editarProfesor/', id])
+
   }
 }

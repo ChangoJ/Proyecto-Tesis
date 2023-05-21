@@ -45,6 +45,7 @@ export class HorarioEditComponent {
   public isActiveBtn = false
   public isActiveBtnG = true
   public isActiveBtnV = false
+  public opcionVerHorario = false
 
 
 
@@ -77,10 +78,10 @@ export class HorarioEditComponent {
     '10:00 - 11:00',
     '11:00 - 12:00',
     '12:00 - 13:00',
-    '17:50 - 18:50',
-    '18:50 - 19:50',
-    '19:50 - 20:50',
-    '20:50 - 21:50'
+    '18:00 - 19:00',
+    '19:00 - 20:00',
+    '20:00 - 21:00',
+    '21:00 - 22:00',
   ]
 
 
@@ -103,6 +104,20 @@ export class HorarioEditComponent {
     this.getAulas()
     this.getHorario()
     this.getHorarios()
+    this.verHorario()
+  }
+
+  verHorario(){
+    this._route.params.subscribe(params => {
+      const valorRecibido = params['valor'];
+      // Aquí puedes utilizar el valor recibido en el componente receptor
+      console.log(valorRecibido)
+      if(valorRecibido === "Ver"){
+        this.opcionVerHorario = true
+      }else{
+        this.opcionVerHorario = false
+      }
+  });
   }
 
   async getHorarios() {
@@ -1496,6 +1511,10 @@ export class HorarioEditComponent {
       }
     });
 
+  }
+
+  deshabilitarTabla() {
+    
   }
 
 }

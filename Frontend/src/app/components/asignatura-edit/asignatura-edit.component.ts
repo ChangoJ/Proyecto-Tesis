@@ -23,11 +23,8 @@ export class AsignaturaEditComponent {
   public is_edit!: boolean
   public page_title: string
   public url!: string
-  public asignaturanumber!: number/* 
-  semestres = ["1", "2", "3", "4", " 5", "6", "7", "8", "9", "10", "11", " 12"]; */
-  /* carreras = ["Enfermeria", "Fisioterapia", "Nutricion", "Psicologia", " Educacion Basica",
-    "Produccion Audiovisual", "Contabilidad", "Derecho", "Economia", "Software", "Administracion de Empresas",
-    "Gastronomia", "Turismo"]; */
+  public asignaturanumber!: number
+
   carreras: any[] = [
     { id: 1, textField: 'Enfermeria' },
     { id: 2, textField: 'Fisioterapia' },
@@ -52,11 +49,7 @@ export class AsignaturaEditComponent {
     { id: 5, textField: '5' },
     { id: 6, textField: '6' },
     { id: 7, textField: '7' },
-    { id: 8, textField: '8' },
-    { id: 9, textField: '9' },
-    { id: 10, textField: '10' },
-    { id: 11, textField: '11' },
-    { id: 12, textField: '12' },
+    { id: 8, textField: '8' }
   ];
 
   horariosType: any[] = [
@@ -65,14 +58,13 @@ export class AsignaturaEditComponent {
   ];
 
   selectedCarreras: any[] = [];
+  selectedHorarios: any[] = [];
+  selectedSemestres: any[] = [];
+  selectedProfesores: any[] = [];
   itemCarreraEdit: any[] = [];
   itemSemestreEdit: any[] = [];
   itemProfesoresEdit: any[] = [];
-  selectedHorarios: any[] = [];
-
   itemHorarioEdit: any[] = []
-  selectedSemestres: any[] = [];
-  selectedProfesores: any[] = [];
   dropdownCarreras: IDropdownSettings = {};
   dropdownSemestres: IDropdownSettings = {};
   dropdownHorarios: IDropdownSettings = {};
@@ -137,44 +129,18 @@ export class AsignaturaEditComponent {
 
 
   onSubmit() {
-    console.log(this.selectedHorarios)
-    let itemCarreraRecogida = this.itemCarreraEdit
     this.asignatura.carrera = []
-    let itemCarreraDepu = []
-    let itemCarreraGood = []
-    for (const carrera of itemCarreraRecogida) {
-      if (carrera.textField) {
-        itemCarreraDepu.push(carrera.textField)
-      } else {
-        itemCarreraDepu.push(carrera)
-      }
-    }
-    itemCarreraGood = itemCarreraDepu.filter((valor, indice, arreglo) => arreglo.indexOf(valor) === indice)
-
-    for (const carrera of itemCarreraGood) {
-      this.asignatura.carrera.push(carrera);
-    }
-
-    let itemSemestreRecogida = this.itemSemestreEdit
     this.asignatura.semestre = []
-    let itemSemestreDepu = []
-    let itemSemestreGood = []
-    for (const semestre of itemSemestreRecogida) {
-      if (semestre.textField) {
-        itemSemestreDepu.push(semestre.textField)
-      } else {
-        itemSemestreDepu.push(semestre)
-      }
-    }
-    itemSemestreGood = itemSemestreDepu.filter((valor, indice, arreglo) => arreglo.indexOf(valor) === indice)
 
-    for (const semestre of itemSemestreGood) {
-      this.asignatura.semestre.push(semestre);
+    for (const carrera of this.itemCarreraEdit) {
+      this.asignatura.carrera.push(carrera.textField);
     }
 
+    for (const semestre of this.selectedSemestres) {
+      this.asignatura.semestre.push(semestre.textField);
+    }
     this.asignatura.horario = this.itemHorarioEdit[0].textField
 
-    console.log(this.asignatura.horario)
     this._asignaturaService.update(this.asignatura._id, this.asignatura).subscribe(
       response => {
 
@@ -231,7 +197,6 @@ export class AsignaturaEditComponent {
   ngOnInit() {
     this.getAsignatura();
     this.getProfesores();
-
   }
 
 
@@ -257,8 +222,8 @@ export class AsignaturaEditComponent {
           if (response.asignatura) {
             this.asignatura = response.asignatura
             this.selectedHorarios = this.horariosType.filter(horario => horario.textField === this.asignatura.horario);
-           
-
+            this.selectedCarreras = this.carreras.filter(carrera => this.asignatura.carrera.includes(carrera.textField));
+            this.selectedSemestres = this.semestres.filter(semestre => this.asignatura.semestre.includes(semestre.textField));
           } else {
             this._router.navigate(['/especificacion/asignaturas'], { relativeTo: this._route });
           }
@@ -290,6 +255,10 @@ export class AsignaturaEditComponent {
 
   onItemHorariosSelect(item: any) {
     this.itemHorarioEdit = item
+  }
+
+  allAsignaturas() {
+    this._router.navigate(['/especificacion/asignaturas'])
   }
 
 

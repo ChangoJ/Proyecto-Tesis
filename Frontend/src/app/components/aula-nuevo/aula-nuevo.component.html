@@ -1,20 +1,33 @@
-<div class="center">
-    <section id="content-info">
+<div id="content">
 
-        <h2 class="subheader">{{page_title}}</h2>
-        <div>
-            <button class="btnback" (click)="redirectAula()"><mat-icon class="icono" id="keyboard_backspace"
-                    aria-hidden="false" aria-label="keyboard_backspace"
-                    fontIcon="keyboard_backspace"></mat-icon>Regresar</button>
-        </div>
-        <form class="mid-form" #aulaForm="ngForm" (ngSubmit)="onSubmit()">
-            <div class="form-group">
-                <label for="nombreAula">Nombre del Aula: </label>
-                <input type="text" name="nombreAula" #nombreAula="ngModel" [(ngModel)]="aula.nombre" (keyup)="onKeyUp()" required />
-                <small *ngIf="!nombreAula.valid && nombreAula.touched">
-                    El nombre no es valido
-                </small>
-            </div><!-- 
+    <nav id="submenu" >
+        <ul>
+            <li>
+                <div class="center-icon">
+                    <mat-icon>add_home</mat-icon>
+                <a id="matButton" mat-raised-button  [routerLink]="['/especificacion/aulas/crearAula']">Nueva Aula</a>
+                </div>
+            </li>
+            <li>
+                <div class="center-icon">
+                    <mat-icon>location_city</mat-icon>
+                <a id="matButton" mat-raised-button (click)="allAulas()">Mostrar todo</a>
+                </div>
+            </li>
+           
+        </ul>
+    </nav>
+    <h2 class="subheader">{{page_title}}</h2>
+
+    <form class="mid-form" #aulaForm="ngForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label for="nombreAula">Nombre del Aula: </label>
+            <input type="text" name="nombreAula" #nombreAula="ngModel" [(ngModel)]="aula.nombre" (keyup)="onKeyUp()"
+                required />
+            <small *ngIf="!nombreAula.valid && nombreAula.touched">
+                El nombre no es valido
+            </small>
+        </div><!-- 
             <div class="form-group">
                 <label for="ubicacion">Ubicacion: </label>
                 <input type="text" name="ubicacion" #ubicacion="ngModel" [(ngModel)]="aula.ubicacion"  required />
@@ -23,38 +36,38 @@
                 </small>
             </div> -->
 
-            <div class="form-group" *ngIf="!is_edit">
-                <label for="aula">Ubicacion: </label>
-                <ng-multiselect-dropdown [placeholder]="'Seleccione la Ubicacion'" [settings]="dropdownUbicacion"
-                    [data]="ubicaciones" [(ngModel)]="selectedUbicacion" [ngModelOptions]="{standalone: true}">
-                </ng-multiselect-dropdown>
-            </div>
+        <div class="form-group" *ngIf="!is_edit">
+            <label for="aula">Ubicacion: </label>
+            <ng-multiselect-dropdown [placeholder]="'Seleccione la Ubicacion'" [settings]="dropdownUbicacion"
+                [data]="ubicaciones" [(ngModel)]="selectedUbicacion" [ngModelOptions]="{standalone: true}">
+            </ng-multiselect-dropdown>
+        </div>
 
-            <div class="form-group" *ngIf="is_edit">
-                <label for="aula">Ubicacion: </label>
-                <ng-multiselect-dropdown [placeholder]="'Seleccione la Ubicacion'" [settings]="dropdownUbicacion"
-                    [data]="ubicaciones" [(ngModel)]="selectedUbicacion"  (ngModelChange)="onItemUbicacionSelect($event)"
-                    [ngModelOptions]="{standalone: true}">
-                </ng-multiselect-dropdown>
-            </div>
+        <div class="form-group" *ngIf="is_edit">
+            <label for="aula">Ubicacion: </label>
+            <ng-multiselect-dropdown [placeholder]="'Seleccione la Ubicacion'" [settings]="dropdownUbicacion"
+                [data]="ubicaciones" [(ngModel)]="selectedUbicacion" (ngModelChange)="onItemUbicacionSelect($event)"
+                [ngModelOptions]="{standalone: true}">
+            </ng-multiselect-dropdown>
+        </div>
 
-            <div class="form-group">
-                <label for="abreviatura">Abreviatura: </label>
-                <input type="text" name="abreviatura" #abreviatura="ngModel" [(ngModel)]="aula.abreviatura" required />
-                <small *ngIf="!abreviatura.valid && abreviatura.touched">
-                    La abreviatura no es valido
-                </small>
-            </div>
-            
-            <div class="form-group" >
-                <label for="compartida">Aula compartida: </label>
-                <div class="custom-checkbox">
-                    <input type="checkbox" id="compartida" name="compartida"  #compartido="ngModel" [(ngModel)]="isChecked">
-                    <label class="custom-checkbox-label" for="compartida"></label>
-                    
-                </div>
-            </div>
-            <!-- <div class="form-group" *ngIf="is_edit">
+        <div class="form-group">
+            <label for="abreviatura">Abreviatura: </label>
+            <input type="text" name="abreviatura" #abreviatura="ngModel" [(ngModel)]="aula.abreviatura" required />
+            <small *ngIf="!abreviatura.valid && abreviatura.touched">
+                La abreviatura no es valido
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="compartida">Aula compartida:</label>
+            <div class="custom-checkbox"></div>
+            <mat-checkbox name="compartida" #compartida="ngModel" [checked]="isChecked" [(ngModel)]="isChecked"
+                (change)="handleChange($event)"></mat-checkbox>
+        </div>
+
+
+        <!-- <div class="form-group" *ngIf="is_edit">
                 <label for="compartido">Aula compartida: </label>
                 <div class="custom-checkbox">
                     <input type="checkbox" id="compartida" name="compartida"  #compartido="ngModel" [(ngModel)]="aula.compartida">
@@ -62,20 +75,20 @@
                     
                 </div>
             </div> -->
-            
-            <div class="form-group">
-                <label for="color">Color: </label>
-                <input type="color" name="color" #color="ngModel" [(ngModel)]="aula.color" required />
-                <small *ngIf="!color.valid && color.touched">
-                    El color no es valido
-                </small>
-            </div>
 
-            <div class="clearfix"></div>
+        <div class="form-group">
+            <label for="color">Color: </label>
+            <input type="color" name="color" #color="ngModel" [(ngModel)]="aula.color" required />
+            <small *ngIf="!color.valid && color.touched">
+                El color no es valido
+            </small>
+        </div>
 
-            <input type="submit" value="Enviar" class="btn btn-success" [disabled]="aulaForm.invalid" />
-        </form>
-    </section>
+        <div class="clearfix"></div>
+
+        <input style="margin-bottom: 30px; margin-top: 20px;"  type="submit" value="Enviar" class="btn btn-success" [disabled]="aulaForm.invalid" />
+    </form>
+
 
 </div>
 

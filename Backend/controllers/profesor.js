@@ -16,8 +16,6 @@ var controller = {
         try {
             var validate_nombre = !validator.isEmpty(params.nombre);  
             var validate_contrato = !validator.isEmpty(params.contrato);
-            var validate_cargo = !validator.isEmpty(params.cargo);
-            var validate_area = !validator.isEmpty(params.area);
 
 
         } catch (err) {
@@ -27,7 +25,7 @@ var controller = {
             });
         }
 
-        if (validate_nombre &&  validate_contrato && validate_cargo && validate_area) {
+        if (validate_nombre &&  validate_contrato && params.carrera !==0) {
 
             
             //Crear el objeto a guardar
@@ -37,8 +35,7 @@ var controller = {
             //asignar valores
             profesor1.nombre = params.nombre;
             profesor1.contrato = params.contrato;
-            profesor1.cargo = params.cargo;
-            profesor1.area = params.area;
+            profesor1.carrera = params.carrera;
         
 
             //guardar el articulo
@@ -151,8 +148,6 @@ var controller = {
         try {
             var validate_nombre = !validator.isEmpty(params.nombre); 
             var validate_contrato = !validator.isEmpty(params.contrato);
-            var validate_cargo = !validator.isEmpty(params.cargo);
-            var validate_area = !validator.isEmpty(params.area);
         } catch (err) {
             return res.status(200).send({
                 status: 'error',
@@ -160,7 +155,7 @@ var controller = {
             });
         }
 
-        if ( profesorId.match(/^[0-9a-fA-F]{24}$/) && profesorIdValid && validate_nombre &&  validate_contrato && validate_cargo && validate_area ) {
+        if ( profesorId.match(/^[0-9a-fA-F]{24}$/) && profesorIdValid && validate_nombre &&  validate_contrato  && params.carrera !==0 ) {
            
             profesor.findOneAndUpdate({ _id: profesorId }, params, { new: true }).then( (profesorUpdated) => {
                 
@@ -220,18 +215,11 @@ var controller = {
                     "nombre": { "$regex": searchString, "$options": "i"}
                 }
                 ,
-                
-                {
-                    "abreviatura": { "$regex": searchString, "$options": "i"}
-                },
                 {
                     "contrato": { "$regex": searchString, "$options": "i"}
                 },
                 {
-                    "area": { "$regex": searchString, "$options": "i"}
-                },
-                {
-                    "cargo": { "$regex": searchString, "$options": "i"}
+                    "carrera": { "$regex": searchString, "$options": "i"}
                 }
             ]
         })

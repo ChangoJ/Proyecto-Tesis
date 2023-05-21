@@ -43,6 +43,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { CarrerasDialogComponent } from './components/carreras-dialog/carreras-dialog.component';
 import { ItemsHorarioComponent } from './components/items-horario/items-horario.component';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import { ProfesoresResumenComponent } from './components/profesores-resumen/profesores-resumen.component';
+import {MatDividerModule} from '@angular/material/divider';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 
 @NgModule({
@@ -72,7 +76,8 @@ import { ItemsHorarioComponent } from './components/items-horario/items-horario.
     ItemsAsignaturaComponent,
     HorarioDialogComponent,
     CarrerasDialogComponent,
-    ItemsHorarioComponent
+    ItemsHorarioComponent,
+    ProfesoresResumenComponent
   ],
   imports: [
     BrowserModule,
@@ -91,7 +96,10 @@ import { ItemsHorarioComponent } from './components/items-horario/items-horario.
     MatDialogModule,
     MatTableModule,
     MatGridListModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatCheckboxModule,
+    MatDividerModule,
+    MatPaginatorModule
   ],
   providers: [],
   bootstrap: [AppComponent]

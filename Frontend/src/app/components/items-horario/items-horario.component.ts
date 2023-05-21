@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
-import { Asignatura } from '../models/asignatura';
+import { Component, ViewChild } from '@angular/core';
 import { Horario } from '../models/horario';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HorarioService } from '../services/horario.service';
 import Swal from 'sweetalert2';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-items-horario',
@@ -16,8 +17,9 @@ export class ItemsHorarioComponent {
   public indiceHora!: string
   public listaA: any[] = []
   public is_horario: boolean
-  public horariosFiltrados: any[] = [];
+  public horariosFiltrados!: MatTableDataSource<any>;
   public terminoBusquedaHorario: string = '';
+  public ver: any;
 
   constructor(
     private _route: ActivatedRoute,
@@ -25,32 +27,36 @@ export class ItemsHorarioComponent {
     private _router: Router
   ) {
     this.is_horario = false
-    this.horariosFiltrados = []
   }
+
+  @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
 
   ngOnInit() {
     this.getHorarios()
+    this.ver = "Ver";
+
   }
 
   columnas = ['N°','Carrera', 'Semestre', 'Tipo', 'Acciones'];
 
   filtrarHorarios() {
-    const terminosBusqueda = this.terminoBusquedaHorario.split(' ').join('|');
-    const regexBusqueda = new RegExp(terminosBusqueda, 'gi');
-    this.horariosFiltrados = this.horarios.filter(horario => 
-        horario.carrera.toLowerCase().match(regexBusqueda) ||
-        horario.semestre.toLowerCase().match(regexBusqueda) ||
-        horario.tipoHorario.toLowerCase().match(regexBusqueda)
-    );
+    let terminosBusqueda = this.terminoBusquedaHorario.split(' ').join('|');
+    let regexBusqueda = new RegExp(terminosBusqueda, 'gi');
+    this.horariosFiltrados= new MatTableDataSource<any>( this.horarios.filter(horario => 
+        horario.carrera.toString().toLowerCase().match(regexBusqueda) ||
+        horario.semestre.toString().toLowerCase().match(regexBusqueda) ||
+        horario.tipoHorario.toString().toLowerCase().match(regexBusqueda)
+    ));
 }
 
   getHorarios(){
       this._horarioService.getHorarios().subscribe(
         response => {
           if (response.horarios) {
-            this.horarios = response.horarios;
-            this.horariosFiltrados = this.horarios
             this.is_horario = true
+            this.horarios = response.horarios;
+            this.horariosFiltrados = new MatTableDataSource<any>(this.horarios)
+            this.horariosFiltrados.paginator = this.paginator
           }
         },
         error => {

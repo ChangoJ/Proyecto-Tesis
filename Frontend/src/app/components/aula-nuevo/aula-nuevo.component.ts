@@ -5,6 +5,8 @@ import { Aula } from './../models/aula';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component } from '@angular/core';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
+import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
+
 
 @Component({
   selector: 'app-aula-nuevo',
@@ -18,7 +20,8 @@ export class AulaNuevoComponent {
   public is_edit!: boolean
   public page_title: string
   public url!: string
-  public isChecked!: boolean
+  public isChecked!: boolean ;
+
   public textoFormateado!:string
 
   public selectedUbicacion: any[] = [];
@@ -35,10 +38,11 @@ export class AulaNuevoComponent {
     private _router: Router
   ) { 
     this.aula = new Aula('', '', '','','','#000000')
-    this.page_title = "Crear Aula"
+    this.page_title = "Nueva Aula"
     this.is_edit = false;
     this.url = Global.url
-    this.selectedUbicacion = []
+    
+
 
     this.dropdownUbicacion = {
       singleSelection: true,
@@ -120,4 +124,19 @@ export class AulaNuevoComponent {
   onItemUbicacionSelect(item: any) {
   }
 
+  checkboxChanged(item:any){
+    console.log(item)
+  }
+
+  handleChange(item:any) {
+    if(item.checked === false){
+      this.isChecked = false
+    }else{
+      this.isChecked = true
+    }
+   }
+
+   allAulas(){
+    this._router.navigate(['/especificacion/aulas'])
+  }
 }

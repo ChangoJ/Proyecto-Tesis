@@ -49,11 +49,7 @@ export class AsignaturaNuevoComponent {
     { id: 5, textField: '5' },
     { id: 6, textField: '6' },
     { id: 7, textField: '7' },
-    { id: 8, textField: '8' },
-    { id: 9, textField: '9' },
-    { id: 10, textField: '10' },
-    { id: 11, textField: '11' },
-    { id: 12, textField: '12' },
+    { id: 8, textField: '8' }
   ];
 
   horariosType: any[] = [
@@ -64,7 +60,7 @@ export class AsignaturaNuevoComponent {
   selectedCarreras: any[] = [];
   selectedSemestres: any[] = [];
   selectedProfesores: any[] = [];
-  
+
   selectedHorarios: any[];
   dropdownCarreras: IDropdownSettings = {};
   dropdownSemestres: IDropdownSettings = {};
@@ -78,7 +74,7 @@ export class AsignaturaNuevoComponent {
     private _profesorService: ProfesorService,
     private _router: Router
   ) {
-    this.asignatura = new Asignatura('', '', [], [], [],'',0, '', '#000000')
+    this.asignatura = new Asignatura('', '', [], [], [], '', 0, '', '#000000')
     this.page_title = "Crear Asignatura"
     this.is_edit = false;
     this.url = Global.url
@@ -162,6 +158,9 @@ export class AsignaturaNuevoComponent {
   }
 
   async onSubmit() {
+    this.asignatura.semestre = []
+    this.asignatura.carrera = []
+    this.asignatura.horario = ''
     for (const profesor of this.selectedProfesores) {
       await this.getProfesorId(profesor._id); // Utiliza await para esperar a que se complete la llamada a getProfesorId
     }
@@ -175,40 +174,48 @@ export class AsignaturaNuevoComponent {
       this.asignatura.semestre.push(semestre.textField);
     }
 
-   /*  for (const horario of this.selectedHorarios) {
-      this.asignatura.horario = horario.textField
-    } */
+    /*  for (const horario of this.selectedHorarios) {
+       this.asignatura.horario = horario.textField
+     } */
     this.asignatura.horario = this.selectedHorarios[0].textField
-    console.log(this.asignatura)
-    
-    this._asignaturaService.create(this.asignatura).subscribe(
-      response => {
-        if (response.status == 'success') {
-          this.status = 'success'
-          this.asignatura = response.asignatura
 
-          Swal.fire(
-            'Asignatura creada',
-            'La Asignatura se ha creado correctamente',
-            'success'
-          )
+    if (this.asignatura.semestre.length !== 0 && this.asignatura.carrera.length !== 0 && this.asignatura.horario !== '') {
+      this._asignaturaService.create(this.asignatura).subscribe(
+        response => {
+          if (response.status == 'success') {
+            this.status = 'success'
+            this.asignatura = response.asignatura
 
-          setTimeout(() => {
-            this._router.navigate(['/especificacion/asignaturas']);
-          }, 1200);
-        } else {
-          Swal.fire(
-            'Asignatura no creada',
-            'Por favor, rellene los datos correctamente',
-            'error'
-          )
+            Swal.fire(
+              'Asignatura creada',
+              'La Asignatura se ha creado correctamente',
+              'success'
+            )
+
+            setTimeout(() => {
+              this._router.navigate(['/especificacion/asignaturas']);
+            }, 1200);
+          } else {
+            Swal.fire(
+              'Asignatura no creada',
+              'Por favor, rellene los datos correctamente',
+              'error'
+            )
+            this.status = 'error'
+          }
+        },
+        error => {
           this.status = 'error'
         }
-      },
-      error => {
-        this.status = 'error'
-      }
-    )
+      )
+    } else {
+      Swal.fire(
+        'Asignatura no creada',
+        'Por favor, rellene los datos correctamente',
+        'error'
+      )
+      this.status = 'error'
+    }
   }
 
 
@@ -239,12 +246,16 @@ export class AsignaturaNuevoComponent {
     console.log(palabras)
     const resultado = palabras.map(palabra => {
       if (palabra.length > 1) {
-        return palabra.substring(0, 2).toUpperCase() ;
+        return palabra.substring(0, 2).toUpperCase();
       } else {
         return palabra.toUpperCase();
       }
     });
     return resultado.join('-');
+  }
+
+  allAsignaturas() {
+    this._router.navigate(['/especificacion/asignaturas'])
   }
 
 }

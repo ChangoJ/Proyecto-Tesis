@@ -18,7 +18,7 @@ export class AulaEditComponent {
   public is_edit!: boolean
   public page_title!: string
   public url!: string
-  public isChecked!: boolean
+  public isChecked!: boolean 
   public textoFormateado!:string
   public selectedUbicacion: any[] = [];
   public dropdownUbicacion: IDropdownSettings = {};
@@ -53,6 +53,7 @@ export class AulaEditComponent {
 
 
   onSubmit() {
+    this.aula.ubicacion = ''
 
     this.aula.ubicacion = this.itemUbicacionEdit[0].textField
 
@@ -138,7 +139,6 @@ export class AulaEditComponent {
 
   formatearTexto(texto: string): string {
     const palabras = texto.split(' ');
-    console.log(palabras)
     const resultado = palabras.map(palabra => {
       if (palabra.length > 1) {
         return palabra.substring(0, 2).toUpperCase() ;
@@ -153,4 +153,16 @@ export class AulaEditComponent {
     this.itemUbicacionEdit = item
   }
 
+  handleChange(item:any) {
+    if(item.checked === false){
+      this.isChecked = false
+    }else{
+      this.isChecked = true
+    }
+   }
+
+   allAulas(){
+    this._router.navigate(['/especificacion/aulas'])
+    location.reload();
+  }
 }

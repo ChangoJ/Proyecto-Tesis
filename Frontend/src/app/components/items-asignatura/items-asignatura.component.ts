@@ -2,8 +2,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { Global } from './../services/global';
 import { Asignatura } from './../models/asignatura';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { AsignaturaService } from '../services/asignatura.service';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-items-asignatura',
@@ -15,7 +17,7 @@ export class ItemsAsignaturaComponent {
 
   public colorCuadro = document.querySelector(".color-square")
   public url: string
-  public asignaturasFiltrados: any[] = [];
+  public asignaturasFiltrados!: MatTableDataSource<any>;
   public terminoBusquedaAsignatura: string = '';
 
   public selectedCarrera!: any
@@ -34,13 +36,16 @@ export class ItemsAsignaturaComponent {
     this.url = Global.url
   }
 
+  @ViewChild('paginatorAs', { static: false }) paginator!: MatPaginator;
+
 
   ngOnInit() {
     this._asignaturaService.getAsignaturas().subscribe(
       response => {
         if (response.asignaturas) {
           this.asignaturasObtenidos = response.asignaturas
-          this.asignaturasFiltrados = this.asignaturasObtenidos;
+          this.asignaturasFiltrados = new MatTableDataSource<any>(this.asignaturasObtenidos);
+          this.asignaturasFiltrados.paginator = this.paginator;
         }
       },
       error => {
@@ -85,7 +90,7 @@ export class ItemsAsignaturaComponent {
 
   filtrarAsignaturas() {
 
-    const terminosBusqueda = this.terminoBusquedaAsignatura.trim().toLowerCase();
+    let terminosBusqueda = this.terminoBusquedaAsignatura.trim().toLowerCase();
 
     let asignaturasFiltrados = this.asignaturasObtenidos;
 
@@ -108,26 +113,26 @@ export class ItemsAsignaturaComponent {
     if (terminosBusqueda !== '') {
       let regexBusqueda = new RegExp(`\\b${terminosBusqueda}\\b`, 'gi');
       asignaturasFiltrados = asignaturasFiltrados.filter(asignaturas =>
-        asignaturas.nombre.toLowerCase().match(regexBusqueda) ||
-        asignaturas.profesor[0].nombre.toLowerCase().match(regexBusqueda) ||
+        asignaturas.nombre.toString().toLowerCase().match(regexBusqueda) ||
+        asignaturas.profesor[0].nombre.toString().toLowerCase().match(regexBusqueda) ||
         asignaturas.creditos.toString().toLowerCase().match(regexBusqueda) ||
-        asignaturas.abreviatura.toLowerCase().match(regexBusqueda) ||
-        asignaturas.color.toLowerCase().match(regexBusqueda)
+        asignaturas.abreviatura.toString().toLowerCase().match(regexBusqueda) ||
+        asignaturas.color.toString().toLowerCase().match(regexBusqueda)
       );
 
       if (asignaturasFiltrados.length === 0) {
-        const terminosBusquedaSeparados = terminosBusqueda.split(' ');
+        let terminosBusquedaSeparados = terminosBusqueda.split(' ');
         regexBusqueda = new RegExp(`(${terminosBusquedaSeparados.join('|')})`, 'gi');
         asignaturasFiltrados = this.asignaturasObtenidos.filter(asignaturas =>
-          asignaturas.nombre.toLowerCase().match(regexBusqueda) ||
-          asignaturas.profesor[0].nombre.toLowerCase().match(regexBusqueda) ||
+          asignaturas.nombre.toString().toLowerCase().match(regexBusqueda) ||
+          asignaturas.profesor[0].nombre.toString().toLowerCase().match(regexBusqueda) ||
           asignaturas.creditos.toString().toLowerCase().match(regexBusqueda) ||
-          asignaturas.abreviatura.toLowerCase().match(regexBusqueda) ||
-          asignaturas.color.toLowerCase().match(regexBusqueda)
+          asignaturas.abreviatura.toString().toLowerCase().match(regexBusqueda) ||
+          asignaturas.color.toString().toLowerCase().match(regexBusqueda)
         );
       }
     }
-    this.asignaturasFiltrados = asignaturasFiltrados;
+    this.asignaturasFiltrados = new MatTableDataSource<any>(asignaturasFiltrados);
   }
 
   allAsignaturas() {

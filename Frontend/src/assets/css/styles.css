@@ -31,13 +31,18 @@ body {
     float: none;
 }
 
-#logoC{
+#logoC {
     color: black;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     cursor: default;
-  }
+}
 
 #logo {
     width: 33%;
@@ -95,7 +100,7 @@ li a:hover:not(.active) {
     color: rgb(49, 113, 233) !important;
 }
 
-.active{
+.active {
 
     color: white !important;
 }
@@ -170,7 +175,7 @@ li a:hover:not(.active) {
     width: 100%;
     float: right;
     font-size: 18px;
-    
+
     margin-bottom: -28px;
 }
 
@@ -209,8 +214,8 @@ li a:hover:not(.active) {
     cursor: pointer;
 }
 
-a mat-raised-button{
-   
+a mat-raised-button {
+
     background-color: #F4C200;
 }
 
@@ -222,6 +227,7 @@ a mat-raised-button{
     position: relative;
 
 }
+
 
 
 #submenuHorario ul {
@@ -251,7 +257,42 @@ a mat-raised-button{
     cursor: pointer;
 }
 
+/* Submenu Resumen Profesores */
 
+#submenuResumenProfesores {
+    font-size: 18px;
+    position: relative;
+
+}
+
+
+
+#submenuResumenProfesores ul {
+    list-style: none;
+    /* 
+    display: inline-block; */
+    padding: 2px;
+    margin-bottom: 98px;
+}
+
+#submenuResumenProfesores ul li {
+    position: relative;
+    float: left;
+    margin: 0;
+    padding: 0;
+    height: 38px;
+    margin-left: 12px;
+    margin-right: 12px;
+
+}
+
+#submenuResumenProfesores a {
+    text-decoration: none;
+    color: #000000;
+    transition: 300ms all;
+    padding: 7px;
+    cursor: pointer;
+}
 
 /* submenuAsignatura */
 
@@ -267,7 +308,22 @@ a mat-raised-button{
     text-align: center;
     width: 100%;
     float: left;
-    min-height: 300px;
+    min-height: 419px;
+}
+
+#contentHome {
+    margin-top: 5%;
+    text-align: center;
+    width: 100%;
+    float: left;
+    min-height: 215px;
+}
+
+#contentEspecificacion {
+    text-align: center;
+    width: 100%;
+    float: left;
+    min-height: 802px;
 }
 
 #content-sub {
@@ -334,7 +390,28 @@ input[type='submit'] {
 
 /* CASILLA */
 
-.custom-checkbox {
+.mat-mdc-checkbox.mat-accent {
+    text-align: left;
+    display: block;
+    --mdc-checkbox-selected-focus-icon-color: #007BFF;
+    --mdc-checkbox-selected-hover-icon-color: #007BFF;
+    --mdc-checkbox-selected-icon-color: #007BFF;
+    --mdc-checkbox-selected-pressed-icon-color: #007BFF;
+}
+
+.mat-mdc-checkbox.mat-accent .mdc-checkbox--selected~.mdc-checkbox__ripple {
+    background: #007BFF;
+}
+
+.custom-divider {
+    border: 1px solid #ddd;
+    margin-left: -24px !important;
+    margin-right: -24px !important;
+    /* margin: 0px;  */
+}
+
+
+/* .custom-checkbox {
     vertical-align: middle;
 }
 
@@ -374,47 +451,52 @@ input[type='submit'] {
 .custom-checkbox input[type="checkbox"]:checked+.custom-checkbox-label::before {
     display: block;
 }
-
+ */
 
 /* Tabla lista horarios0 */
 
 .mat-mdc-table {
     border-bottom: 2px solid #e0e0e0 !important;
-    
+
+}
+
+.tablaDocentesResumen {
+
     margin-bottom: 43px !important;
-  }
-
-#busquedaHorario{
-    float: left;
-    text-align: left;
 }
 
-#busquedaAsignatura{
-    float: left;
+#busquedaHorario {
     text-align: left;
+    width: 18%;
 }
 
-#busquedaHorario #buscadorHorario{
+#busquedaAsignatura {
+    text-align: left;
+    width: 50%;
+}
+
+#busquedaHorario #buscadorHorario {
     width: 163%;
-    
+
     margin-top: -21px;
     margin-bottom: 17px;
 }
 
-#busquedaAsignatura #buscadorAsignatura{
+#busquedaAsignatura #buscadorAsignatura {
     width: 89%;
-    
+
     margin-top: -21px;
     margin-bottom: 17px;
 }
 
- 
+
 /* ARTICLEIMTE */
 
-#matselectBusquedaAsignatura{
+#matselectBusquedaAsignatura {
     display: inline;
 }
-mat-form-field#matselectSemestre{
+
+mat-form-field#matselectSemestre {
     margin-left: 10px;
     width: 54%;
 
@@ -455,10 +537,10 @@ mat-form-field#matselectSemestre{
 
 }
 
-.SubheaderPrincipal{
-      display: inline-block;
-      width: 55%;
-  } 
+.SubheaderPrincipal {
+    display: inline-block;
+    width: 55%;
+}
 
 h2#listasTitulo.Subheader {
     border-bottom: 1px solid #d4d2d2;
@@ -596,6 +678,20 @@ h2#listasTitulo.Subheader {
 .mat-grid-tile.tablaHorario {
     left: calc((37% - 0.5px + 1px) * 1) !important;
     width: calc((63% - 0.5px) * 1 + 0px) !important;
+    margin-top: 0px;
+    padding-top: calc((42% - 0.5px) * 1 + 0px) !important;
+}
+
+.mat-grid-tile.tablaHorario-inactivo {
+    left: calc((37% - 0.5px + 1px) * 1) !important;
+    width: calc((63% - 0.5px) * 1 + 0px) !important;
+    margin-top: 0px;
+    padding-top: calc((42% - 0.5px) * 1 + 0px) !important;
+}
+
+
+.mat-grid-tile.tablaHorario-activo {
+    width: calc((100% - 0.5px) * 1 + 0px) !important;
     margin-top: 0px;
     padding-top: calc((42% - 0.5px) * 1 + 0px) !important;
 }

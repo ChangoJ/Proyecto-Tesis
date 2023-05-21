@@ -1,12 +1,26 @@
-<div class="center">
-    <section id="content-info">
+<div id="articlesAsignatura" >
+ 
+    <nav id="submenu">
+        <ul>
+            <li>
+                <div class="center-icon">
+                    <mat-icon>library_add</mat-icon>
+                    <a id="matButton" mat-raised-button [routerLink]="['/especificacion/asignaturas/crearAsignatura']">Nueva
+                        Asignatura</a>
+                </div>
+            </li>
+            <li>
+                <div class="center-icon">
+                    <mat-icon>collections_bookmark</mat-icon>
+
+                    <a id="matButton" mat-raised-button (click)="allAsignaturas()">Mostrar todo</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
 
         <h2 class="subheader">{{page_title}}</h2>
-        <div>
-            <button class="btnback" (click)="redirectAsignatura()"><mat-icon class="icono" id="keyboard_backspace"
-                    aria-hidden="false" aria-label="keyboard_backspace"
-                    fontIcon="keyboard_backspace"></mat-icon>Regresar</button>
-        </div>
+     
         <form class="mid-form" #asignaturaForm="ngForm" (ngSubmit)="onSubmit()">
             <div class="form-group">
                 <label for="nombre">Nombre de la Asignatura: </label>
@@ -28,7 +42,7 @@
 
                 <label for="carrera">Carreras: </label>
                 <ng-multiselect-dropdown [placeholder]="'Selecciona las Carreras'" [settings]="dropdownCarreras"
-                    [data]="carreras" [(ngModel)]="asignatura.carrera" (ngModelChange)="onItemCarreraSelect($event)"
+                    [data]="carreras" [(ngModel)]="selectedCarreras" (ngModelChange)="onItemCarreraSelect($event)"
                     [ngModelOptions]="{standalone: true}">
                 </ng-multiselect-dropdown>
             </div>
@@ -46,7 +60,7 @@
 
                 <label for="semestre">Semestres: </label>
                 <ng-multiselect-dropdown [placeholder]="'Selecciona los semestres'" [settings]="dropdownSemestres"
-                    [data]="semestres" [(ngModel)]="asignatura.semestre" (ngModelChange)="onItemSemestreSelect($event)"
+                    [data]="semestres" [(ngModel)]="selectedSemestres" (ngModelChange)="onItemSemestreSelect($event)"
                     [ngModelOptions]="{standalone: true}">
                 </ng-multiselect-dropdown>
             </div>
@@ -113,7 +127,7 @@
 
             <input type="submit" value="Enviar" class="btn btn-success" [disabled]="asignaturaForm.invalid" />
         </form>
-    </section>
+
 
 </div>
 

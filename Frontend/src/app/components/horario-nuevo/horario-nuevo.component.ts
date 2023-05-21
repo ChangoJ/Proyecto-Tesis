@@ -740,8 +740,9 @@ export class HorarioNuevoComponent {
     this.hours = []
     let cellSize
     DataAdicional.push(['Asignaturas', 'Profesores', 'N° Horas'])
-    if (this.opcion1 === "Horario Nocturno") {
 
+    
+    if (this.opcion1 === "Horario Nocturno") {
       cellSize = 38
 
       this.hours = this.hoursnight
