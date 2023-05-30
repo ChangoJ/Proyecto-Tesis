@@ -5,13 +5,12 @@ var AsignaturaController = require('../controllers/asignatura')
 var AulaController = require('../controllers/aula')
 var ProfesorController = require('../controllers/profesor')
 var HorarioController = require('../controllers/horario')
+var UsuarioController = require('../controllers/usuario')
 var router = express.Router();
 
 
-//rutas de prueba
+//rutas 
 
-
-//rutas para articulos utiles
 /* Asignaturas */
 router.post('/save', AsignaturaController.save);
 router.post('/save-for-profesor', AsignaturaController.saveForProfesor);
@@ -50,5 +49,16 @@ router.get('/horario/:id', HorarioController.getHorario);
 router.put('/horario/:id', HorarioController.update);
 router.delete('/horario/:id', HorarioController.delete);
 router.get('/searchHorario/:search1', HorarioController.search);
+
+/* Usuario */
+
+
+router.post('/save-usuario', UsuarioController.save);
+router.get('/usuarios/:last?', UsuarioController.getUsuarios);
+router.get('/usuario/:id', UsuarioController.getUsuario);
+router.put('/usuario/:id', UsuarioController.update);
+router.delete('/usuario/:id', UsuarioController.delete);
+router.get('/searchUsuario/:search1', UsuarioController.search);
+
 
 module.exports = router;

@@ -47,7 +47,12 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import { ProfesoresResumenComponent } from './components/profesores-resumen/profesores-resumen.component';
 import {MatDividerModule} from '@angular/material/divider';
 import { MatPaginatorModule } from '@angular/material/paginator';
-
+import { LoginComponent } from './components/login/login.component';
+import { MatCardModule } from '@angular/material/card';
+import { UsuariosComponent } from './components/usuarios/usuarios.component';
+import { ItemsUsuarioComponent } from './components/items-usuario/items-usuario.component';
+import { UsuarioEditComponent } from './components/usuario-edit/usuario-edit.component';
+import { UsuarioNuevoComponent } from './components/usuario-nuevo/usuario-nuevo.component';
 
 @NgModule({
   declarations: [
@@ -77,7 +82,12 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     HorarioDialogComponent,
     CarrerasDialogComponent,
     ItemsHorarioComponent,
-    ProfesoresResumenComponent
+    ProfesoresResumenComponent,
+    LoginComponent,
+    UsuariosComponent,
+    ItemsUsuarioComponent,
+    UsuarioEditComponent,
+    UsuarioNuevoComponent
   ],
   imports: [
     BrowserModule,
@@ -99,7 +109,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     MatTooltipModule,
     MatCheckboxModule,
     MatDividerModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatCardModule
   ],
   providers: [],
   bootstrap: [AppComponent]

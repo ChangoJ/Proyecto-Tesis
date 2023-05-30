@@ -1,0 +1,264 @@
+'use strict'
+
+var validator = require('validator');
+var usuario = require('../models/usuario');
+var fs = require('fs');
+var path = require('path');
+const { default: mongoose } = require('mongoose');
+
+var controller = {
+
+    save: (req, res) => {
+        // Recoger parametros por post
+        var params = req.body;
+
+        // Validar datos (validator)
+        try {
+            var validate_nombre = !validator.isEmpty(params.nombre);  
+            var validate_usuario = !validator.isEmpty(params.usuario);
+            var validate_email = !validator.isEmpty(params.email);  
+            var validate_contrasena = !validator.isEmpty(params.contrasena);  
+            var validate_rol = !validator.isEmpty(params.rol);
+
+
+        } catch (err) {
+            return res.status(200).send({
+                status: 'error',
+                message: 'Faltan datos por enviar'
+            });
+        }
+
+        if (validate_nombre &&  validate_usuario && validate_email && validate_contrasena && validate_rol) {
+
+            
+            //Crear el objeto a guardar
+            var usuario1 = new usuario();
+
+
+            //asignar valores
+            usuario1.nombre = params.nombre;
+            usuario1.usuario = params.usuario;
+            usuario1.email = params.email;
+            usuario1.phoneNumber = params.phoneNumber;
+            usuario1.contrasena = params.contrasena;
+            usuario1.rol = params.rol;
+        
+
+            //guardar el articulo
+            usuario1.save().then( (usuarioStored) => {
+
+                if (!usuarioStored) {
+                    return res.status(404).send({
+                        status: 'error',
+                        message: 'El usuario no se ha guardado.'
+                    });
+                }
+
+                // devolder respuesta
+                return res.status(200).send({
+                    status: 'success',
+                    usuario: usuarioStored
+                });
+
+            });
+
+
+
+        } else {
+            return res.status(200).send({
+                status: 'error',
+                message: 'Los datos no son validos'
+            });
+        }
+    },
+
+    getUsuarios: (req, res) => {
+
+        var query = usuario.find({});
+
+        var last = req.params.last;
+
+        if (last || last != undefined) {
+            query.limit(5);
+        }
+
+        //find 
+        query.sort('-_id').then((usuarios) => {
+
+            if (!usuarios) {
+                return res.status(404).send({
+                    status: 'error',
+                    message: 'No hay usuarios para mostrar'
+                });
+            }
+
+            return res.status(200).send({
+                status: 'success',
+                usuarios
+            });
+
+        });
+
+    },
+
+    getUsuario: (req, res) => {
+
+        //recoger el id de la url
+
+        var usuarioId = req.params.id
+        var usuarioIdValid = mongoose.Types.ObjectId.isValid(usuarioId);
+        //comprobar que existe
+        if(usuarioIdValid){
+
+        
+        if (!usuarioId || usuario == null) {
+            return res.status(404).send({
+                status: 'error',
+                message: 'No existe el usuario'
+            });
+        } else {
+            usuario.findById(usuarioId).then((usuario) => {
+
+                if (!usuario) {
+                    return res.status(404).send({
+                        status: 'error',
+                        message: 'No existe el usuario'
+                    });
+                }
+
+                return res.status(200).send({
+                    status: 'success',
+                    usuario
+                });
+
+            });
+        }
+    } else {
+        return res.status(200).send({
+            status: 'error',
+            message: 'La validacion no es correcta'
+        });
+    }
+    },
+
+    update: (req, res) => {
+        //recoger el id del articulo por la url
+        var usuarioId = req.params.id
+
+        //recoger datos del put
+
+        var params = req.body;
+        
+        var usuarioIdValid = mongoose.Types.ObjectId.isValid(usuarioId);
+        //validar datos
+        try {
+            var validate_nombre = !validator.isEmpty(params.nombre);  
+            var validate_usuario = !validator.isEmpty(params.usuario);
+            var validate_email = !validator.isEmpty(params.email);  
+            var validate_contrasena = !validator.isEmpty(params.contrasena);  
+            var validate_rol = !validator.isEmpty(params.rol);
+
+        } catch (err) {
+            return res.status(200).send({
+                status: 'error',
+                message: 'Faltan datos por enviar'
+            });
+        }
+
+        if ( usuarioId.match(/^[0-9a-fA-F]{24}$/) && validate_nombre && validate_usuario && validate_email && validate_contrasena && validate_rol) {
+           
+            usuario.findOneAndUpdate({ _id: usuarioId }, params, { new: true }).then( (usuarioUpdated) => {
+                
+                if (!usuarioUpdated) {
+                    return res.status(404).send({
+                        status: 'error',
+                        message: 'No existe el usuario'
+                    });
+                }
+
+                return res.status(200).send({
+                    status: 'success',
+                    usuario: usuarioUpdated
+                });
+
+            });
+        } else {
+            return res.status(200).send({
+                status: 'error',
+                message: 'La validacion no es correcta'
+            });
+        }
+
+    },
+
+    delete: (req, res) => {
+
+        var usuarioId = req.params.id;
+
+
+        usuario.findByIdAndDelete({ _id: usuarioId }).then((usuarioRemoved) => {
+            
+            if (!usuarioRemoved) {
+                return res.status(404).send({
+                    status: 'error',
+                    message: 'usuario no existe'
+                });
+            }
+
+            return res.status(200).send({
+                status: 'success',
+                usuario: usuarioRemoved
+            });
+        });
+    },
+
+    search: (req, res) => {
+
+        //sacar strin a buscar
+
+        var searchString = req.params.search1;
+        //find and 
+
+        usuario.find({
+            "$or": [
+                {
+                    "nombre": { "$regex": searchString, "$options": "i"}
+                }
+                ,
+                {
+                    "usuario": { "$regex": searchString, "$options": "i"}
+                },
+                {
+                    "email": { "$regex": searchString, "$options": "i"}
+                },
+                {
+                    "ROL": { "$regex": searchString, "$options": "i"}
+                }
+            ]
+        })
+           .sort([['date', 'descending']])
+            .then((usuarios) => {
+                if (!usuarios || usuarios.length <= 0) {
+                    return res.status(404).send({
+                        status: 'error',
+                        message: 'No hay usuarios para mostrar'
+                    });
+                }
+
+                return res.status(200).send({
+                    status: 'success',
+                    usuarios
+                });
+            })
+
+    },
+
+
+   
+            
+
+
+}; //end controller
+
+
+module.exports = controller;

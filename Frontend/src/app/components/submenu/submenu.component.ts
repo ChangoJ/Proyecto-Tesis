@@ -24,7 +24,7 @@ export class SubmenuComponent {
 
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.rutaActual = this._router.url
 
     if (this.rutaActual.includes("/especificacion")) {

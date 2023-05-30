@@ -17,6 +17,7 @@ import { Horario } from '../models/horario';
 import Swal from 'sweetalert2';
 import FileSaver = require('file-saver');
 
+
 @Component({
   selector: 'app-profesores-resumen',
   templateUrl: './profesores-resumen.component.html',
@@ -387,48 +388,7 @@ export class ProfesoresResumenComponent {
     let asignaturasPorProfesorMedioTiempo: any = []
     let asignaturasPorProfesorTiempoCompleto: any = []
     let asignaturasPorProfesorTiempoParcial: any = []
-    /* 
-        // Crear un objeto para almacenar las asignaturas por profesor
-        let asignaturasPorProfesor2: any = [];
-    // Iterar sobre cada elemento en asignaturasProfesores
-    for (let i = 0; i < asignaturasProfesores.length; i++) {
-      let asignatura = asignaturasProfesores[i];
-      let profesorContrato = asignatura.profesorContrato;
-      let profeId = asignatura.profeId;
-    
-      // Verificar si el profesor tiene un contrato de "Medio Tiempo"
-      if (profesorContrato === "Tiempo Completo") {
-        // Verificar si el ID del profesor ya existe en asignaturasPorProfesorMedioTiempo
-        if (profeId in asignaturasPorProfesorTiempoCompleto) {
-          // Agregar la asignatura al arreglo del profesor existente
-          asignaturasPorProfesorTiempoCompleto.push(asignatura);
-        } else {
-          // Crear un nuevo arreglo para el profesor y agregar la asignatura
-          asignaturasPorProfesorTiempoCompleto = [asignatura];
-        }
-      }else if(profesorContrato === "Medio Tiempo"){
-        if (profeId in asignaturasPorProfesorMedioTiempo) {
-          // Agregar la asignatura al arreglo del profesor existente
-          asignaturasPorProfesorMedioTiempo.push(asignatura);
-        } else {
-          // Crear un nuevo arreglo para el profesor y agregar la asignatura
-          asignaturasPorProfesorMedioTiempo = [asignatura];
-        }
-      }else if(profesorContrato === "Tiempo Parcial"){
-        if (profeId in asignaturasPorProfesorTiempoParcial) {
-          // Agregar la asignatura al arreglo del profesor existente
-          asignaturasPorProfesorTiempoParcial.push(asignatura);
-        } else {
-          // Crear un nuevo arreglo para el profesor y agregar la asignatura
-          asignaturasPorProfesorTiempoParcial = [asignatura];
-        }
-      }
-    
-    }
-     */
-
-
-
+   
 
     for (let profesor of asignaturasProfesores) {
       console.log(profesor)
@@ -462,39 +422,6 @@ export class ProfesoresResumenComponent {
 
     }
  
-    /* for (let asignatura of asignaturas) {
-
-      for (let profesor of asignatura.profesor) {
-
-        let profesorId = profesor._id;
-        let profesorNombre = profesor.nombre;
-        let profesorContrato = profesor.contrato;
-        let profesorCarrera = profesor.carrera;
-
-        let asignaturasDelProfesor = asignaturasPorProfesor.find(
-          (item: any) => item.profesorId === profesorId
-        );
-
-        console.log(asignaturasDelProfesor)
-        if (asignaturasDelProfesor) {
-          asignaturasDelProfesor.asignaturas.push(asignatura);
-        } else {
-          asignaturasPorProfesor.push({
-            profesorId: profesorId,
-            profesornombre: profesorNombre,
-            profesorContrato: profesorContrato,
-            profesorCarrera: profesorCarrera,
-            asignaturas: [asignatura],
-          });
-        }
-
-
-      }
-
-    } */
-
-
-
     for (let asigPro of asignaturasPorProfesor) {
       // Agrupar asignaturas por tipo de contrato
       if (asigPro.profesorContrato === 'Tiempo Completo') {
@@ -687,6 +614,9 @@ export class ProfesoresResumenComponent {
   }
 
   exportarProfeExcel(profesor?: any) {
+
+  
+
     // Crear una instancia de ExcelJS Workbook
     let workbook = new ExcelJS.Workbook();
     let worksheet = workbook.addWorksheet(profesor);
@@ -927,9 +857,9 @@ export class ProfesoresResumenComponent {
       rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Activar el ajuste de texto
     }
 
+
+
     let nombreArchivo = 'Horario ' + profesor + '.xlsx';
-
-
 
 
 
@@ -967,15 +897,15 @@ export class ProfesoresResumenComponent {
       let isFirstRow = true;
 
       for (let asig of profesorTCompleto.asignaturas) {
-        sumaHoras += parseInt(asig.creditos);
+        sumaHoras += parseInt(asig.horas);
       }
 
       for (let asignatura of profesorTCompleto.asignaturas) {
         if (isFirstRow) {
-          rowData.push([profesorTCompleto.profesornombre, asignatura.nombre, asignatura.creditos, sumaHoras]);
+          rowData.push([profesorTCompleto.profesornombre, asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras]);
           isFirstRow = false;
         } else {
-          rowData.push(['', asignatura.nombre, asignatura.creditos, '']);
+          rowData.push(['', asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )', asignatura.horas, '']);
         }
       }
     }
@@ -987,15 +917,17 @@ export class ProfesoresResumenComponent {
       let isFirstRow = true;
 
       for (let asig of profesorMTiempo.asignaturas) {
-        sumaHoras += parseInt(asig.creditos);
+        sumaHoras += parseInt(asig.horas);
       }
 
       for (let asignatura of profesorMTiempo.asignaturas) {
+        
+        console.log(asignatura)
         if (isFirstRow) {
-          rowData2.push([profesorMTiempo.profesornombre, asignatura.nombre, asignatura.creditos, sumaHoras]);
+          rowData2.push([profesorMTiempo.profesornombre, asignatura.asignatura+ '\n ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras]);
           isFirstRow = false;
         } else {
-          rowData2.push(['', asignatura.nombre, asignatura.creditos, '']);
+          rowData2.push(['', asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )', asignatura.horas, '']);
         }
       }
     }
@@ -1007,15 +939,15 @@ export class ProfesoresResumenComponent {
       let isFirstRow = true;
 
       for (let asig of profesorTParcial.asignaturas) {
-        sumaHoras += parseInt(asig.creditos);
+        sumaHoras += parseInt(asig.horas);
       }
 
       for (let asignatura of profesorTParcial.asignaturas) {
         if (isFirstRow) {
-          rowData3.push([profesorTParcial.profesornombre, asignatura.nombre, asignatura.creditos, sumaHoras]);
+          rowData3.push([profesorTParcial.profesornombre, asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras]);
           isFirstRow = false;
         } else {
-          rowData3.push(['', asignatura.nombre, asignatura.creditos, '']);
+          rowData3.push(['', asignatura.asignatura + '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )', asignatura.horas, '']);
         }
       }
     }
@@ -1104,7 +1036,7 @@ export class ProfesoresResumenComponent {
       let sumaHoras = 0;
 
       for (let asig of profesorTCompleto.asignaturas) {
-        sumaHoras += parseInt(asig.creditos);
+        sumaHoras += parseInt(asig.horas);
       }
 
       let asignaturasCount = profesorTCompleto.asignaturas.length;
@@ -1120,8 +1052,8 @@ export class ProfesoresResumenComponent {
         }
 
         let asignatura = profesorTCompleto.asignaturas[i];
-        sheet.getCell(`B${rowIndexStart}`).value = asignatura.nombre;
-        sheet.getCell(`C${rowIndexStart}`).value = asignatura.creditos;
+        sheet.getCell(`B${rowIndexStart}`).value = asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )';
+        sheet.getCell(`C${rowIndexStart}`).value = asignatura.horas;
       }
 
       if (asignaturasCount > 1) {
@@ -1184,7 +1116,7 @@ export class ProfesoresResumenComponent {
       let sumaHoras = 0;
 
       for (let asig of profesorMTiempo.asignaturas) {
-        sumaHoras += parseInt(asig.creditos);
+        sumaHoras += parseInt(asig.horas);
       }
 
       let asignaturasCount = profesorMTiempo.asignaturas.length;
@@ -1200,8 +1132,8 @@ export class ProfesoresResumenComponent {
         }
 
         let asignatura = profesorMTiempo.asignaturas[i];
-        sheet.getCell(`B${rowIndexStart}`).value = asignatura.nombre;
-        sheet.getCell(`C${rowIndexStart}`).value = asignatura.creditos;
+        sheet.getCell(`B${rowIndexStart}`).value = asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )';
+        sheet.getCell(`C${rowIndexStart}`).value = asignatura.horas;
       }
 
       if (asignaturasCount > 1) {
@@ -1216,7 +1148,7 @@ export class ProfesoresResumenComponent {
 
     // Aplicar bordes oscuros a la tabla
     startRowIndex = primeraTablaFinal + 1;
-    endRowIndex = segundaTablaInicio + this.asignaturasPorProfesorMedioTiempo.data.length - 1;
+    endRowIndex = segundaTablaInicio + this.asignaturasPorProfesorMedioTiempo.data.length ;
     startColumnIndex = 1;
     endColumnIndex = 6;
 
@@ -1257,7 +1189,7 @@ export class ProfesoresResumenComponent {
       let sumaHoras = 0;
 
       for (let asig of profesorTParcial.asignaturas) {
-        sumaHoras += parseInt(asig.creditos);
+        sumaHoras += parseInt(asig.horas);
       }
 
       let asignaturasCount = profesorTParcial.asignaturas.length;
@@ -1273,8 +1205,8 @@ export class ProfesoresResumenComponent {
         }
 
         let asignatura = profesorTParcial.asignaturas[i];
-        sheet.getCell(`B${rowIndexStart}`).value = asignatura.nombre;
-        sheet.getCell(`C${rowIndexStart}`).value = asignatura.creditos;
+        sheet.getCell(`B${rowIndexStart}`).value = asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )';
+        sheet.getCell(`C${rowIndexStart}`).value = asignatura.horas;
       }
 
       if (asignaturasCount > 1) {
@@ -1289,7 +1221,7 @@ export class ProfesoresResumenComponent {
 
     // Aplicar bordes oscuros a la tabla
     startRowIndex = segundaTablaFinal + 3;
-    endRowIndex = terceraTablaInicio + this.asignaturasPorProfesorMedioTiempo.data.length - 1;
+    endRowIndex = terceraTablaInicio + this.asignaturasPorProfesorMedioTiempo.data.length ;
     startColumnIndex = 1;
     endColumnIndex = 6;
 

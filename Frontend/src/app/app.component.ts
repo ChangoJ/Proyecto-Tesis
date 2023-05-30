@@ -6,5 +6,14 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'sistema-web-creacion-distributivos-horarios-unibe';
+  public title = 'sistema-web-creacion-de-horarios-unibe';
+
+
+ ngOnInit() {
+
+  
+ }
+
+
+
 }

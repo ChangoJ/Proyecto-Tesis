@@ -43,6 +43,7 @@ export class HorarioNuevoComponent {
   public isActiveBtn = false
   public isActiveBtnG = false
   public isActiveBtnV = true
+  verificarDiaPresencialVirtualBolean: boolean = false;
 
   constructor(
     private _route: ActivatedRoute,
@@ -306,6 +307,7 @@ export class HorarioNuevoComponent {
           && !event.container.id.startsWith('5-')) {
           return; // Permitir transferencia
         }
+
       }
 
 
@@ -415,6 +417,7 @@ export class HorarioNuevoComponent {
 
 
 
+      this.verificarDiaPresencialVirtual()
 
 
     }
@@ -469,7 +472,7 @@ export class HorarioNuevoComponent {
           for (const horario of this.horarios) {
             if (horario.carrera === this.opcion2 && horario.semestre === this.opcion3 && horario.tipoHorario === this.opcion1) {
               this.existHorarioCarrera = true
-              
+
             }
           }
           console.log(this.existHorarioCarrera)
@@ -493,7 +496,7 @@ export class HorarioNuevoComponent {
               }
             })
           }
-          
+
         }
       },
       error => {
@@ -741,7 +744,7 @@ export class HorarioNuevoComponent {
     let cellSize
     DataAdicional.push(['Asignaturas', 'Profesores', 'N° Horas'])
 
-    
+
     if (this.opcion1 === "Horario Nocturno") {
       cellSize = 38
 
@@ -1161,8 +1164,6 @@ export class HorarioNuevoComponent {
 
   async verificarHorario() {
 
-
-
     await this.getHorarios()
     this.aulaHorario = []
     this.asignaturaHorario = []
@@ -1287,20 +1288,9 @@ export class HorarioNuevoComponent {
       identificadoresAsignaturas,
       identificadoresAulas
     ];
-    let index2 = 0;
-    //agregar items de cada celda
-    for (let i = 0; i < itemsIdent[0].length || i < itemsIdent[1].length; i++) {
-      if (itemsIdent[0][index2]) {
-        let IdAsignatura = itemsIdent[0][index2];
-        let IdAula = itemsIdent[1][index2];
-        this.horario.idTabla.push({ idAsignatura: IdAsignatura, idAula: IdAula });
-      }
-      index2 = (index2 + 1) % itemsIdent[0].length;
-    }
+
 
     if (this.asignaturasFiltradas.length === 0) {
-
-
 
       Swal.fire({
         title: '¿Estás seguro?',
@@ -1340,9 +1330,9 @@ export class HorarioNuevoComponent {
               idAulaTableVerify: this.horario.idTabla.map(idTabla => idTabla.idAula),
               itemverifyAsignatura: this.horario.item.map(item => item.asignatura._id),
               itemverifyAula: this.horario.item.map(item => item.aula._id),
+              itemverifyAulaNombre: this.horario.item.map(item => item.aula.nombre),
             };
 
-            console.log(itemsBDHorario)
 
 
             for (let i = 0; i < itemsHorario.dia.length; i++) {
@@ -1352,6 +1342,7 @@ export class HorarioNuevoComponent {
 
                   // Iterar todos los elementos de los arrays que coinciden con el día actual
                   for (let k = 0; k < itemsBDHorario[j].idAsignaturaTableVerify.length; k++) {
+
                     if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
                       itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
                       itemsBDHorario[j].itemverifyAsignatura[k] === itemsHorario.itemverifyAsignatura[i] &&
@@ -1452,6 +1443,159 @@ export class HorarioNuevoComponent {
         'error'
       )
     }
+    console.log(this.horario)
+
+  }
+
+  async verificarDiaPresencialVirtual() {
+    this.aulaHorario = []
+    this.asignaturaHorario = []
+    this.horario = new Horario('', '', '', '', [], [], [], [])
+    let arreglosHorario = []
+    arreglosHorario = [
+      this.monday,
+      this.tuesday,
+      this.wednesday,
+      this.thursday,
+      this.friday,
+      this.saturday
+    ]
+
+    let identificadoresAulas = []
+    let identificadoresAsignaturas = []
+    if (this.opcion1 == "Horario Diurno") {
+      this.horario.tipoHorario = "Horario Diurno"
+    } else {
+      this.horario.tipoHorario = "Horario Nocturno"
+    }
+
+    this.horario.carrera = this.opcion2
+    this.horario.semestre = this.opcion3
+
+    let elementoComprobarTipo: any = []
+    let elementoComprobarId: any = []
+    let asig: number = 0
+    let aula: number = 0
+
+    let grupoAsigPoId: any = []
+    for (const dias of arreglosHorario) {
+      dias.sort(function (a, b) {
+        // Convierte las horas de inicio y fin a objetos Date para poder compararlas
+        const dateAStart = new Date('1970/01/01 ' + a.hourStart.trim());
+        const dateBStart = new Date('1970/01/01 ' + b.hourStart.trim());
+        const dateAEnd = new Date('1970/01/01 ' + a.hourEnd.trim());
+        const dateBEnd = new Date('1970/01/01 ' + b.hourEnd.trim());
+
+        // Compara las horas de inicio y fin y devuelve el resultado de la comparación
+        if (dateAStart < dateBStart) {
+          return -1;
+        } else if (dateAStart > dateBStart) {
+          return 1;
+        } else if (dateAEnd < dateBEnd) {
+          return -1;
+        } else if (dateAEnd > dateBEnd) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
+      for (const objetoElementoType of dias) {
+        elementoComprobarTipo.push(objetoElementoType.elementoType)
+        elementoComprobarId.push(objetoElementoType.identificador)
+      }
+      for (let objetoElementoType of dias) {
+        let elemento = objetoElementoType;
+        let primerDigito = elemento.identificador.toString()[0];
+        if (objetoElementoType.identificador.includes("aula")) {
+
+
+          if (grupoAsigPoId[primerDigito]) {
+            grupoAsigPoId[primerDigito].push(elemento);
+          } else {
+            grupoAsigPoId[primerDigito] = [elemento];
+          }
+        }
+      }
+
+      for (const objeto of dias) {
+        if (objeto.identificador.includes("aula")) {
+          identificadoresAulas.push(objeto.identificador)
+          await this.getAulaId(objeto.item._id)
+        }
+
+        if (objeto.identificador.includes("asignatura")) {
+          this.horario.dia.push(objeto.dayName)
+          this.horario.horas.push({ horaInicio: objeto.hourStart, horaFin: objeto.hourEnd });
+          identificadoresAsignaturas.push(objeto.identificador)
+          await this.getAsignaturaId(objeto.item._id)
+        }
+      }
+    }
+
+    console.log(grupoAsigPoId)
+
+
+    grupoAsigPoId.forEach((subArray: any[]) => {
+      let isValid = true; // Variable para verificar si el día es válido
+
+      let zoomExist = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() === 'zoom');
+
+      if (zoomExist) {
+        let hasOtherThanZoom = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'zoom');
+
+        if (hasOtherThanZoom) {
+          isValid = false;
+         
+        }
+      }
+
+      const Dias = {
+        0: 'Lunes',
+        1: 'Martes',
+        2: 'Miércoles',
+        3: 'Jueves',
+        4: 'Viernes',
+        5: 'Sábado'
+      };
+
+      let dia:any = 0
+      // Verificar si el día es válido
+      if (!this.verificarDiaPresencialVirtualBolean) {
+        if (!isValid) {
+          subArray.forEach(element => {
+            if (element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'zoom') {
+              dia=parseInt(element.identificador.toString()[0])
+            }
+          });
+          console.log(dia)
+          let swalPromise = new Promise((resolve, reject) => {
+            Swal.fire({
+              title: 'Advertencia',
+              text: 'Hay clases presenciales y virtuales en el mismo día en el dia: '+Dias+'',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Aceptar',
+              cancelButtonText: 'Quitar Advertencia'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                resolve(false);
+              } else if (result.dismiss === Swal.DismissReason.cancel) {
+                resolve(true);
+              }
+            });
+          });
+
+          swalPromise.then((value: any) => {
+            console.log(value)
+            this.verificarDiaPresencialVirtualBolean = value;
+
+
+          });
+        }
+      }
+
+    });
 
   }
 

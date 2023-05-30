@@ -17,9 +17,15 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ItemsHorarioComponent } from './components/items-horario/items-horario.component';
 import { HorarioEditComponent } from './components/horario-edit/horario-edit.component';
+import { LoginComponent } from './components/login/login.component';
+import { UsuariosComponent } from './components/usuarios/usuarios.component';
+import { UsuarioEditComponent } from './components/usuario-edit/usuario-edit.component';
+import { UsuarioNuevoComponent } from './components/usuario-nuevo/usuario-nuevo.component';
 
 const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: 'login', component: LoginComponent },
+
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
   {
     path: 'home', component: HomeComponent
   },
@@ -38,12 +44,7 @@ const routes: Routes = [
       {
         path: 'asignaturas',
         component: AsignaturasComponent,
-        /* children:[
-          {
-            path: 'asignaturas/:opcion1/:opcion2',
-           component: ItemsAsignaturaComponent,
-          }
-        ] */
+
       },
       {
         path: 'asignaturas/search/:search1/:search2',
@@ -102,6 +103,20 @@ const routes: Routes = [
         path: 'profesores/crearProfesor',
         component: ProfesorNuevoComponent
       },
+      
+      {
+        path: 'usuarios',
+        component: UsuariosComponent
+      },
+      {
+        path: 'usuarios/editarUsuario/:id',
+        component: UsuarioEditComponent
+      },
+
+      {
+        path: 'usuarios/crearUsuario',
+        component: UsuarioNuevoComponent
+      }
     ]
   },
   { path: 'horarios/editarHorario/:id', component: HorarioComponent },
