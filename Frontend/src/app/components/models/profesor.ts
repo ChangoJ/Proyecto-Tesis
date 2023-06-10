@@ -4,6 +4,7 @@ export class Profesor {
         public nombre: string,
         public contrato: string,
         public carrera: Array<String>,
+        public observacion?: string,
     ){
 
     }

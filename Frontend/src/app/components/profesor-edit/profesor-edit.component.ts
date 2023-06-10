@@ -2,9 +2,10 @@ import { Global } from './../services/global';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Profesor } from './../models/profesor';
 import { ProfesorService } from './../services/profesor.service';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import Swal from 'sweetalert2';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-profesor-edit',
@@ -12,7 +13,8 @@ import { IDropdownSettings } from 'ng-multiselect-dropdown';
   styleUrls: ['./profesor-edit.component.css'],
   providers: [ProfesorService]
 })
-  export class ProfesorEditComponent {
+export class ProfesorEditComponent {
+  @ViewChild('profesorForm', { static: false }) profesorForm!: NgForm;
   public profesor!: Profesor
   public status!: string
   public is_edit!: boolean
@@ -53,7 +55,7 @@ import { IDropdownSettings } from 'ng-multiselect-dropdown';
     private _profesorService: ProfesorService,
     private _router: Router
   ) {
-    this.profesor = new Profesor('','', '', [])
+    this.profesor = new Profesor('', '', '', [], '')
     this.page_title = "Editar Aula"
     this.is_edit = true;
     this.url = Global.url
@@ -85,11 +87,30 @@ import { IDropdownSettings } from 'ng-multiselect-dropdown';
     this.profesor.carrera = []
     this.profesor.contrato = ''
 
+    let controles: string[] = []
+    Object.values(this.profesorForm.controls).forEach(control => {
+      control.markAsTouched();
+      controles.push(control.status)
+    });
+
     for (const carrera of this.itemCarrerasEdit) {
       this.profesor.carrera.push(carrera.textField);
     }
-    this.profesor.contrato = this.itemContratoEdit[0].textField
+    if (this.itemContratoEdit.length !== 0) {
+      this.profesor.contrato = this.itemContratoEdit[0].textField
+    }
+    if (this.profesor.carrera.length ===0
+      || this.profesor.nombre === ""
+      || this.profesor.contrato.length ===0
+      || controles.includes("INVALID")
+    ) {
+      Swal.fire(
+        'Profesor no se ha modificada',
+        'Por favor, rellene los datos correctamente',
+        'error'
+      )
 
+    } else {
     this._profesorService.update(this.profesor._id, this.profesor).subscribe(
       response => {
 
@@ -121,6 +142,7 @@ import { IDropdownSettings } from 'ng-multiselect-dropdown';
         this.status = 'error'
       }
     )
+    }
   }
 
   ngOnInit() {
@@ -136,7 +158,7 @@ import { IDropdownSettings } from 'ng-multiselect-dropdown';
             this.profesor = response.profesor
             this.selectedCarreras = this.carreras.filter(carrera => this.profesor.carrera.includes(carrera.textField));
             this.selectedContrato = this.contratos.filter(contrato => contrato.textField === this.profesor.contrato);
-           
+
           } else {
             this._router.navigate(['/especificacion/profesores'], { relativeTo: this._route });
           }
@@ -163,14 +185,13 @@ import { IDropdownSettings } from 'ng-multiselect-dropdown';
   onItemContratoSelect(item: any) {
     this.itemContratoEdit = item
   }
-  
-  allProfesores(){
+
+  allProfesores() {
     this._router.navigate(['/especificacion/profesores'])
   }
 
-  resumenProfesores(){
+  resumenProfesores() {
     this._router.navigate(['/especificacion/profesores/resumen-profesores'])
-    
-    location.reload();
+
   }
 }

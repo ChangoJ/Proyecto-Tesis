@@ -36,6 +36,7 @@ var controller = {
             profesor1.nombre = params.nombre;
             profesor1.contrato = params.contrato;
             profesor1.carrera = params.carrera;
+            profesor1.observacion = params.observacion;
         
 
             //guardar el articulo
@@ -220,6 +221,9 @@ var controller = {
                 },
                 {
                     "carrera": { "$regex": searchString, "$options": "i"}
+                },
+                {
+                    "observacion": { "$regex": searchString, "$options": "i"}
                 }
             ]
         })

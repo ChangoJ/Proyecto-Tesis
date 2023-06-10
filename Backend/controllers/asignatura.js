@@ -14,9 +14,7 @@ var controller = {
 
         // Validar datos (validator)
         try {
-            var validate_nombre = !validator.isEmpty(params.nombre); /* 
-            var validate_carrera = !validator.isEmpty(params.carrera);   */
-            /* var validate_semestre = !validator.isEmpty(params.semestre); */
+            var validate_nombre = !validator.isEmpty(params.nombre);
             var validate_abreviatura = !validator.isEmpty(params.abreviatura);
             var validate_color = !validator.isEmpty(params.color);
             var validate_horario = !validator.isEmpty(params.horario);

@@ -3,9 +3,10 @@ import { Global } from './../services/global';
 import { AulaService } from './../services/aula.service';
 import { Aula } from './../models/aula';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
+import { NgForm } from '@angular/forms';
 
 
 @Component({
@@ -15,6 +16,8 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
   providers: [AulaService]
 })
 export class AulaNuevoComponent {
+  
+  @ViewChild('aulaForm', { static: false }) aulaForm!: NgForm;
   public aula!: Aula
   public status!: string
   public is_edit!: boolean
@@ -29,7 +32,8 @@ export class AulaNuevoComponent {
 
   ubicaciones: any[] = [
     { id: 1, textField: 'Campus Norte' },
-    { id: 2, textField: 'Campus Colon' }
+    { id: 2, textField: 'Campus Colon' },
+    { id: 3, textField: 'ZOOM' }
   ];
 
   constructor(
@@ -57,18 +61,34 @@ export class AulaNuevoComponent {
   }
 
   onSubmit(){
-    console.log(this.selectedUbicacion)
-
+    let controles: string[] = []
+    Object.values(this.aulaForm.controls).forEach(control => {
+      control.markAsTouched();
+      controles.push(control.status)
+    });
+    if (this.selectedUbicacion.length !== 0) {
     this.aula.ubicacion = this.selectedUbicacion[0].textField
-
-    console.log(this.aula.ubicacion)
+    }
 
     if (this.isChecked === undefined || this.isChecked === false){
       this.aula.compartida = "No"
     }else{
       this.aula.compartida = "Si"
     }
+    if (this.aula.compartida === ""
+      || this.aula.nombre === ""
+      || this.aula.abreviatura === ""
+      || this.aula.color === ""
+      || this. aula.ubicacion.length == 0
+      || controles.includes("INVALID")
+    ) {
+      Swal.fire(
+        'Aula no creada',
+        'Por favor, rellene los datos correctamente.',
+        'error'
+      )
 
+    } else {
    this._aulaService.create(this.aula).subscribe(
       response => {
 
@@ -78,7 +98,7 @@ export class AulaNuevoComponent {
 
           Swal.fire(
             'Aula creada',
-            'La Aula se ha creado correctamente',
+            'La Aula se ha creado correctamente.',
             'success'
           )
 
@@ -88,16 +108,19 @@ export class AulaNuevoComponent {
         } else {
           Swal.fire(
             'Aula no creada',
-            'Por favor, rellene los datos correctamente',
+            'Por favor, rellene los datos correctamente.',
             'error'
           )
           this.status = 'error'
         }
       },
       error => {
+        
+        console.log(error)
         this.status = 'error'
       }
     ) 
+    }
   }
 
   redirectAula(){

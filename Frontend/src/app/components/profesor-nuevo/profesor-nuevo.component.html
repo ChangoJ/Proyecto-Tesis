@@ -30,16 +30,16 @@
         <form class="mid-form" #profesorForm="ngForm" (ngSubmit)="onSubmit()">
             <div class="form-group">
                 <label for="nombre">Nombres y Apellidos: </label>
-                <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="profesor.nombre" required />
+                <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="profesor.nombre" pattern="^[^0-9]+$" required />
                 <small *ngIf="!nombre.valid && nombre.touched">
-                    El nombre no es valido
+                    El nombre y apellido ingresados no son válidos. Por favor, asegúrate de que solo contengan letras.
                 </small>
             </div>
          
             <div class="form-group" *ngIf="!is_edit">
                 <label for="contrato">Contrato: </label>
                 <ng-multiselect-dropdown [placeholder]="'Seleccione el Contrato'" [settings]="dropdownContrato"
-                    [data]="contratos" [(ngModel)]="selectedContrato" [ngModelOptions]="{standalone: true}">
+                    [data]="contratos" [(ngModel)]="selectedContrato" [ngModelOptions]="{standalone: true}" >
                 </ng-multiselect-dropdown>
             </div>
 
@@ -66,9 +66,12 @@
                 </ng-multiselect-dropdown>
             </div>
 
-           
+            <div class="form-group">
+                <label for="observacion">Observación: </label>
+                <textarea style="height: 50px;" name="observacion" #observacion="ngModel" [(ngModel)]="profesor.observacion"></textarea>
+            </div>
 
-            <input style="margin-bottom: 30px; margin-top: 20px;" type="submit" value="Enviar" class="btn btn-success" [disabled]="profesorForm.invalid" />
+            <input style="margin-bottom: 30px; margin-top: 20px;" type="submit" value="Enviar" class="btn btn-success" />
         </form>
      
          

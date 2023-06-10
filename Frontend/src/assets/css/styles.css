@@ -167,8 +167,7 @@ li a:hover:not(.active) {
 /*  MEWNU */
 
 #menu {
-    width: 65%;
-    float: right;
+    width: 100%;
     font-size: 18px;
 }
 
@@ -183,7 +182,7 @@ li a:hover:not(.active) {
 
 #menu ul {
     line-height: 21px;
-    width: 54%;
+    width: 41%;
     float: right;
 }
 

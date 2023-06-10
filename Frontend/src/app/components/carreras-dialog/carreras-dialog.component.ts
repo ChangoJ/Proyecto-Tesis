@@ -14,8 +14,9 @@ import Swal from 'sweetalert2';
 })
 export class CarrerasDialogComponent {
   public datoRecibido!: any;
-  selectedCarrera!: string;
-  selectedSemestre!: string;
+  public selectedCarrera!: string;
+  public selectedSemestre!: string;
+  public periodoTIpo!:any
 
   public horarios: Horario[] = []
 
@@ -47,8 +48,11 @@ export class CarrerasDialogComponent {
     { id: 8, textField: '8' },
     { id: 9, textField: '9' },
     { id: 10, textField: '10' },
-    { id: 11, textField: '11' },
-    { id: 12, textField: '12' },
+  ];
+
+  ciclos: any[] = [
+    { id: 1, textField: '1' },
+    { id: 2, textField: '2' },
   ];
 
   selectedCarreras: any[] = [];
@@ -63,8 +67,8 @@ export class CarrerasDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _router: Router,
     private _route: ActivatedRoute, private _horarioService: HorarioService) {
-
-
+      
+    
 
     this.dropdownCarreras = {
       singleSelection: false,
@@ -90,7 +94,14 @@ export class CarrerasDialogComponent {
 
   ngOnInit() {
     this.getHorarios()
-  }
+    if(this.datoRecibido === "Horarios Nocturnos"){
+      this.semestres = this.ciclos
+      this.periodoTIpo = "Ciclo"
+      }else{
+        
+      this.periodoTIpo = "Semestre"
+      }
+    }
 
   getHorarios() {
     this._horarioService.getHorarios().subscribe(
@@ -108,17 +119,18 @@ export class CarrerasDialogComponent {
 
 
   onCarreraSelected() {
-    let existHorarioCarrera: boolean = false
     console.log(this.datoRecibido)
+    let existHorarioCarrera: boolean = false
 
     if(this.datoRecibido === "Horarios Nocturnos"){
       this.datoRecibido = "Horario Nocturno"
+      this.periodoTIpo = "Ciclo"
     }else{
       this.datoRecibido = "Horario Diurno"
+      this.periodoTIpo = "Semestre"
     }
 
     for (const horario of this.horarios) {
-    console.log(horario.tipoHorario)
       if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre && horario.tipoHorario === this.datoRecibido ) {
         existHorarioCarrera = true
       }
@@ -132,7 +144,7 @@ export class CarrerasDialogComponent {
       }, 400);
     } else {
       Swal.fire(
-        'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' semestre ya existe',
+        'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + this.periodoTIpo +' ya existe',
         'Por favor, si desea modificar vaya a la sección de horarios',
         'error'
       )

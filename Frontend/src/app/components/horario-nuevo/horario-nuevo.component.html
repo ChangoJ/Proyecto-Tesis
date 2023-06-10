@@ -31,9 +31,9 @@
   </nav>
   
   <p *ngIf="is_Diurno">Estas creando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
-    <strong>{{opcion3}}</strong> semestre</p>
+    <strong>{{opcion3}}</strong> {{periodoTipo}}</p>
     <p *ngIf="!is_Diurno">Estas creando el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
-      <strong>{{opcion3}}</strong> semestre</p>
+      {{periodoTipo}} <strong>{{opcion3}}</strong> </p>
   
   
   <div class="boxcontentHorario" *ngIf="is_Diurno">

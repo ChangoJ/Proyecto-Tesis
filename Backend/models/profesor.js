@@ -7,6 +7,7 @@ var ProfesorScheme = Schema({
     nombre: String,
     contrato: String,
     carrera: Array,
+    observacion: { type: String, required: false },
 });
 
 module.exports = mongoose.model('Profesor', ProfesorScheme);

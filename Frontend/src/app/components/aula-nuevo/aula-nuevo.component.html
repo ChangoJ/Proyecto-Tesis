@@ -25,16 +25,9 @@
             <input type="text" name="nombreAula" #nombreAula="ngModel" [(ngModel)]="aula.nombre" (keyup)="onKeyUp()"
                 required />
             <small *ngIf="!nombreAula.valid && nombreAula.touched">
-                El nombre no es valido
+                El nombre no es valido.
             </small>
-        </div><!-- 
-            <div class="form-group">
-                <label for="ubicacion">Ubicacion: </label>
-                <input type="text" name="ubicacion" #ubicacion="ngModel" [(ngModel)]="aula.ubicacion"  required />
-                <small *ngIf="!ubicacion.valid && ubicacion.touched">
-                    La ubicacion no es valido
-                </small>
-            </div> -->
+        </div>
 
         <div class="form-group" *ngIf="!is_edit">
             <label for="aula">Ubicacion: </label>
@@ -55,7 +48,7 @@
             <label for="abreviatura">Abreviatura: </label>
             <input type="text" name="abreviatura" #abreviatura="ngModel" [(ngModel)]="aula.abreviatura" required />
             <small *ngIf="!abreviatura.valid && abreviatura.touched">
-                La abreviatura no es valido
+                La abreviatura no es valida.
             </small>
         </div>
 
@@ -66,27 +59,17 @@
                 (change)="handleChange($event)"></mat-checkbox>
         </div>
 
-
-        <!-- <div class="form-group" *ngIf="is_edit">
-                <label for="compartido">Aula compartida: </label>
-                <div class="custom-checkbox">
-                    <input type="checkbox" id="compartida" name="compartida"  #compartido="ngModel" [(ngModel)]="aula.compartida">
-                    <label class="custom-checkbox-label" for="compartida"></label>
-                    
-                </div>
-            </div> -->
-
         <div class="form-group">
             <label for="color">Color: </label>
             <input type="color" name="color" #color="ngModel" [(ngModel)]="aula.color" required />
             <small *ngIf="!color.valid && color.touched">
-                El color no es valido
+                El color no es valido.
             </small>
         </div>
 
         <div class="clearfix"></div>
 
-        <input style="margin-bottom: 30px; margin-top: 20px;"  type="submit" value="Enviar" class="btn btn-success" [disabled]="aulaForm.invalid" />
+        <input style="margin-bottom: 30px; margin-top: 20px;"  type="submit" value="Enviar" class="btn btn-success" />
     </form>
 
 

@@ -3,24 +3,30 @@
         <img src="../../../assets/images/logo.png" alt="Logo">
     </div>
     <h1>Sistema web de creación de horarios</h1>
-    <form>
+    <form #AuthForm="ngForm" (ngSubmit)="login()">
         <div class="form-row">
             <mat-form-field class="form-field">
                 <mat-label>Usuario</mat-label>
-                <input matInput type="text" id="username" name="username" required>
+                <input matInput type="text" id="username" name="username" #username="ngModel" [(ngModel)]="usernameValue" required>
+                <small *ngIf="!username.valid && username.touched">
+                    El username no es valido
+                </small>
             </mat-form-field>
         </div>
         <div class="form-row">
             <mat-form-field class="form-field">
                 <mat-label>Contraseña</mat-label>
-                <input matInput type="password" id="password" name="password" required>
+                <input matInput type="password" id="password" name="password" #password="ngModel" [(ngModel)]="passwordValue" required>
+                <small *ngIf="!password.valid && password.touched">
+                    La contraseña no es valida
+                </small>
             </mat-form-field>
         </div>
-        <div class="form-row">
+       <!--  <div class="form-row">
             <a href="ruta-olvidar-contraseña">¿Olvidaste tu contraseña?</a>
-        </div>
+        </div> -->
         <div class="form-row">
-            <button mat-raised-button color="primary" type="submit">Ingresar</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="AuthForm.invalid">Ingresar</button>
         </div>
         
     </form>

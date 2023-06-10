@@ -4,9 +4,10 @@ import { Global } from './../services/global';
 import { Asignatura } from './../models/asignatura';
 import { AsignaturaService } from './../services/asignatura.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import Swal from 'sweetalert2';
 import { ProfesorService } from '../services/profesor.service';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-asignatura-nuevo',
@@ -15,6 +16,7 @@ import { ProfesorService } from '../services/profesor.service';
   providers: [AsignaturaService, ProfesorService]
 })
 export class AsignaturaNuevoComponent {
+  @ViewChild('asignaturaForm', { static: false }) asignaturaForm!: NgForm;
   public asignatura!: Asignatura
   public profesor!: Profesor
   public profesores: any[] = []
@@ -52,6 +54,12 @@ export class AsignaturaNuevoComponent {
     { id: 8, textField: '8' }
   ];
 
+  ciclos: any[] = [
+    { id: 1, textField: '1' },
+    { id: 2, textField: '2' },
+  ];
+
+
   horariosType: any[] = [
     { id: 1, textField: 'Diurno' },
     { id: 2, textField: 'Nocturno' }
@@ -64,6 +72,7 @@ export class AsignaturaNuevoComponent {
   selectedHorarios: any[];
   dropdownCarreras: IDropdownSettings = {};
   dropdownSemestres: IDropdownSettings = {};
+  dropdownCiclos: IDropdownSettings = {};
   dropdownHorarios: IDropdownSettings = {};
   dropdownProfesores: IDropdownSettings = {};
 
@@ -102,6 +111,18 @@ export class AsignaturaNuevoComponent {
       itemsShowLimit: 13,
       allowSearchFilter: true
     };
+
+    this.dropdownCiclos = {
+      singleSelection: false,
+      idField: 'id',
+      textField: 'textField',
+      selectAllText: 'Seleccionar todo',
+      unSelectAllText: 'Deseleccionar todo',
+      itemsShowLimit: 13,
+      allowSearchFilter: true
+    };
+
+   
 
     this.dropdownProfesores = {
       singleSelection: false,
@@ -161,6 +182,12 @@ export class AsignaturaNuevoComponent {
     this.asignatura.semestre = []
     this.asignatura.carrera = []
     this.asignatura.horario = ''
+    let controles: string[] = []
+    Object.values(this.asignaturaForm.controls).forEach(control => {
+      control.markAsTouched();
+      controles.push(control.status)
+    });
+
     for (const profesor of this.selectedProfesores) {
       await this.getProfesorId(profesor._id); // Utiliza await para esperar a que se complete la llamada a getProfesorId
     }
@@ -174,13 +201,27 @@ export class AsignaturaNuevoComponent {
       this.asignatura.semestre.push(semestre.textField);
     }
 
-    /*  for (const horario of this.selectedHorarios) {
-       this.asignatura.horario = horario.textField
-     } */
+    if (this.selectedHorarios.length !== 0) {
     this.asignatura.horario = this.selectedHorarios[0].textField
+    }
+    if (this.asignatura.nombre === ""
+    || this.asignatura.abreviatura === ""
+    || this.asignatura.color === ""
+    || this.asignatura.creditos === 0
+    || this.asignatura.carrera.length === 0
+    || this.asignatura.horario === ""
+    || this.asignatura.profesor.length ===0
+    || this.asignatura.semestre.length ===0
+    || controles.includes("INVALID")
+  ) {
+    Swal.fire(
+      'Asignatura no creada',
+      'Por favor, rellene los datos correctamente.',
+      'error'
+    )
 
-    if (this.asignatura.semestre.length !== 0 && this.asignatura.carrera.length !== 0 && this.asignatura.horario !== '') {
-      this._asignaturaService.create(this.asignatura).subscribe(
+  } else {
+     this._asignaturaService.create(this.asignatura).subscribe(
         response => {
           if (response.status == 'success') {
             this.status = 'success'
@@ -188,7 +229,7 @@ export class AsignaturaNuevoComponent {
 
             Swal.fire(
               'Asignatura creada',
-              'La Asignatura se ha creado correctamente',
+              'La Asignatura se ha creado correctamente.',
               'success'
             )
 
@@ -198,7 +239,7 @@ export class AsignaturaNuevoComponent {
           } else {
             Swal.fire(
               'Asignatura no creada',
-              'Por favor, rellene los datos correctamente',
+              'Por favor, rellene los datos correctamente.',
               'error'
             )
             this.status = 'error'
@@ -208,14 +249,7 @@ export class AsignaturaNuevoComponent {
           this.status = 'error'
         }
       )
-    } else {
-      Swal.fire(
-        'Asignatura no creada',
-        'Por favor, rellene los datos correctamente',
-        'error'
-      )
-      this.status = 'error'
-    }
+  }
   }
 
 

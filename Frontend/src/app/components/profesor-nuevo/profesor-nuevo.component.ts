@@ -3,8 +3,9 @@ import { Global } from './../services/global';
 import { Profesor } from './../models/profesor';
 import { ProfesorService } from './../services/profesor.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-profesor-nuevo',
@@ -13,6 +14,8 @@ import { IDropdownSettings } from 'ng-multiselect-dropdown';
   providers : [ProfesorService]
 })
 export class ProfesorNuevoComponent {
+  
+  @ViewChild('profesorForm', { static: false }) profesorForm!: NgForm;
   public profesor!: Profesor
   public status!: string
   public is_edit!: boolean
@@ -51,7 +54,7 @@ export class ProfesorNuevoComponent {
     private _profesorService: ProfesorService, 
     private _router: Router
   ) { 
-    this.profesor = new Profesor('','', '',[])
+    this.profesor = new Profesor('','', '',[],'')
     this.page_title = "Nuevo Profesor"
     this.is_edit = false;
     this.url = Global.url
@@ -80,13 +83,30 @@ export class ProfesorNuevoComponent {
   }
 
   onSubmit(){
-    
+    let controles: string[] = []
+    Object.values(this.profesorForm.controls).forEach(control => {
+      control.markAsTouched();
+      controles.push(control.status)
+    });
     
     for (const carrera of this.selectedCarreras) {
       this.profesor.carrera.push(carrera.textField);
     }
+    if (this.selectedContrato.length !== 0) {
     this.profesor.contrato = this.selectedContrato[0].textField
+  }
+  if (this.profesor.carrera.length ===0
+      || this.profesor.nombre === ""
+      || this.profesor.contrato.length ===0
+      || controles.includes("INVALID")
+    ) {
+      Swal.fire(
+        'Profesor no creada',
+        'Por favor, rellene los datos correctamente.',
+        'error'
+      )
 
+    } else {
    this._profesorService.create(this.profesor).subscribe(
       response => {
 
@@ -96,7 +116,7 @@ export class ProfesorNuevoComponent {
 
           Swal.fire(
             'Profesor creada',
-            'El profesor se ha creado correctamente',
+            'El profesor se ha creado correctamente.',
             'success'
           )
 
@@ -106,16 +126,18 @@ export class ProfesorNuevoComponent {
         } else {
           Swal.fire(
             'Profesor no creada',
-            'Por favor, rellene los datos correctamente',
+            'Por favor, rellene los datos correctamente.',
             'error'
           )
           this.status = 'error'
         }
       },
       error => {
+        console.log(error)
         this.status = 'error'
       }
     ) 
+    }
   }
 
 

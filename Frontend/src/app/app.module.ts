@@ -53,8 +53,10 @@ import { UsuariosComponent } from './components/usuarios/usuarios.component';
 import { ItemsUsuarioComponent } from './components/items-usuario/items-usuario.component';
 import { UsuarioEditComponent } from './components/usuario-edit/usuario-edit.component';
 import { UsuarioNuevoComponent } from './components/usuario-nuevo/usuario-nuevo.component';
+import { AuthService } from './components/services/auth.service';
 
 @NgModule({
+  
   declarations: [
     AppComponent,
     HomeComponent,
@@ -112,7 +114,7 @@ import { UsuarioNuevoComponent } from './components/usuario-nuevo/usuario-nuevo.
     MatPaginatorModule,
     MatCardModule
   ],
-  providers: [],
+  providers: [AuthService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

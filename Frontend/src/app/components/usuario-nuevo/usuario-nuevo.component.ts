@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { UsuarioService } from '../services/usuario.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Global } from '../services/global';
 import Swal from 'sweetalert2';
 import { Usuario } from '../models/usuario';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-usuario-nuevo',
@@ -13,6 +14,8 @@ import { Usuario } from '../models/usuario';
   providers: [UsuarioService]
 })
 export class UsuarioNuevoComponent {
+  @ViewChild('usuarioForm', { static: false }) usuarioForm!: NgForm;
+
   public user!: Usuario
   public status!: string
   public is_edit!: boolean
@@ -48,7 +51,7 @@ export class UsuarioNuevoComponent {
     private _usuarioService: UsuarioService,
     private _router: Router
   ) {
-    this.user = new Usuario('','', '','','','')
+    this.user = new Usuario('', '', '', '', '', '', '')
     this.page_title = "Nuevo Usuario"
     this.is_edit = false;
     this.url = Global.url
@@ -65,40 +68,64 @@ export class UsuarioNuevoComponent {
     };
   }
 
-  onSubmit() {
+  async onSubmit() {
+    let controles: string[] = []
+    Object.values(this.usuarioForm.controls).forEach(control => {
+      control.markAsTouched();
+      controles.push(control.status)
+    });
+    if (this.selectedRol.length !== 0) {
+      this.user.rol = this.selectedRol[0].textField
+    }
+    if (this.user.ci === ""
+      || this.user.nombre === ""
+      || this.user.email === ""
+      || this.user.rol === ""
+      || this.user.username === ""
+      || this.user.contrasena === ""
+      || this.user.phoneNumber === undefined
+      || this.user.phoneNumber === ""
+      || controles.includes("INVALID")
+    ) {
+      Swal.fire(
+        'Usuario no creada',
+        'Por favor, rellene los datos correctamente.',
+        'error'
+      )
 
+    } else {
+      this._usuarioService.create(this.user).subscribe(
+        response => {
+          console.log(response)
+          if (response.status == 'success') {
+            this.status = 'success'
+            this.user = response.usuario
 
-    this.user.rol = this.selectedRol[0].textField
+            Swal.fire(
+              'Usuario creada',
+              'El Usuario se ha creado correctamente.',
+              'success'
+            )
 
-    this._usuarioService.create(this.user).subscribe(
-      response => {
-
-        if (response.status == 'success') {
-          this.status = 'success'
-          this.user = response.usuario
-
-          Swal.fire(
-            'Usaurio creada',
-            'El Usuario se ha creado correctamente',
-            'success'
-          )
-
-          setTimeout(() => {
-            this._router.navigate(['/especificacion/usuarios']);
-          }, 1200);
-        } else {
-          Swal.fire(
-            'Usuario no creada',
-            'Por favor, rellene los datos correctamente',
-            'error'
-          )
+            setTimeout(() => {
+              this._router.navigate(['/especificacion/usuarios']);
+            }, 1200);
+          } else {
+            Swal.fire(
+              response.message,
+              'Por favor, rellene los datos correctamente.',
+              'error'
+            )
+            this.status = 'error'
+          }
+        },
+        error => {
+          console.log(error)
           this.status = 'error'
         }
-      },
-      error => {
-        this.status = 'error'
-      }
-    )
+      )
+    }
+
   }
 
 

@@ -1,87 +1,93 @@
 <div id="contentEspecificacion">
 
- 
-    <nav id="submenu" >
-        <ul>
-            <li>
-                <div class="center-icon">
-                    <mat-icon>person_add</mat-icon>
-                <a id="matButton" mat-raised-button  [routerLink]="['/especificacion/usuarios/crearUsuario']" >Nuevo Usuario</a>
-                </div>
-            </li>
-            <li>
-                <div class="center-icon">
-                    <mat-icon id="people icon" aria-hidden="people icon" aria-label="people icon"
-                        fontIcon="people icon"></mat-icon>
-                <a id="matButton" mat-raised-button (click)="allUsuarios()">Mostrar Usuarios</a>
-                </div>
-            </li>
-        </ul>
-    </nav>
-    <h2 class="subheader">{{page_title}}</h2>
 
-       
-       <form class="mid-form" #usuarioForm="ngForm" (ngSubmit)="onSubmit()">
-           <div class="form-group">
-               <label for="nombre">Nombres y Apellidos: </label>
-               <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="user.nombre" required />
-               <small *ngIf="!nombre.valid && nombre.touched">
-                   El nombre no es valido
-               </small>
-           </div>
+  <nav id="submenu">
+    <ul>
+      <li>
+        <div class="center-icon">
+          <mat-icon>person_add</mat-icon>
+          <a id="matButton" mat-raised-button [routerLink]="['/especificacion/usuarios/crearUsuario']">Nuevo Usuario</a>
+        </div>
+      </li>
+      <li>
+        <div class="center-icon">
+          <mat-icon id="people icon" aria-hidden="people icon" aria-label="people icon"
+            fontIcon="people icon"></mat-icon>
+          <a id="matButton" mat-raised-button (click)="allUsuarios()">Mostrar Usuarios</a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+  <h2 class="subheader">{{page_title}}</h2>
 
-           <div class="form-group">
-            <label for="nombre">Usuario: </label>
-            <input type="text" name="usuario" #usuario="ngModel" [(ngModel)]="user.usuario" required />
-            <small *ngIf="!usuario.valid && usuario.touched">
-                El usuario no es valido
-            </small>
-        </div>
-          
-        <div class="form-group">
-            <label for="nombre">Email: </label>
-            <input type="email" name="email" #email="ngModel" [(ngModel)]="user.email" required />
-            <small *ngIf="!email.valid && email.touched">
-                El email no es valido
-            </small>
-        </div>
-          
-        <div class="form-group">
-            <label for="nombre">N° Celular: </label>
-            <input type="text" name="phone" #phone="ngModel" [(ngModel)]="user.phoneNumber" required />
-            <small *ngIf="!phone.valid && phone.touched">
-                El celular no es valido
-            </small>
-        </div>
-        <div class="form-group">
-            <label for="nombre">Contraseña: </label>
-            <input type="password" name="contrasena" #contrasena="ngModel" [(ngModel)]="user.contrasena" required />
-            <small *ngIf="!contrasena.valid && contrasena.touched">
-                El contraseña no es valido
-            </small>
-        </div>
 
-        <div class="form-group" *ngIf="!is_edit">
-            <label for="rol">Rol: </label>
-            <ng-multiselect-dropdown [placeholder]="'Seleccione el Rol'" [settings]="dropdownRoles"
-                [data]="roles" [(ngModel)]="selectedRol" [ngModelOptions]="{standalone: true}">
-            </ng-multiselect-dropdown>
-        </div>
-
-        <div class="form-group" *ngIf="is_edit">
-            <label for="rol">Rol: </label>
-            <ng-multiselect-dropdown [placeholder]="'Seleccione el Rol'" [settings]="dropdownRoles"
-                [data]="roles" [(ngModel)]="selectedRol" (ngModelChange)="onItemRolSelect($event)"
-                [ngModelOptions]="{standalone: true}">
-            </ng-multiselect-dropdown>
-        </div>
-
-          
-
-           <input style="margin-bottom: 30px; margin-top: 20px;" type="submit" value="Enviar" class="btn btn-success" [disabled]="usuarioForm.invalid" />
-       </form>
-    
-        
+  <form class="mid-form" #usuarioForm="ngForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="nombre">Nombres y Apellidos: </label>
+      <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="user.nombre" required pattern="^[^0-9]+$" />
+      <small *ngIf="nombre.errors && nombre.touched">
+        El nombre no es válido. Asegúrate de no incluir números.
+      </small>
     </div>
+
+
+    <div class="form-group" *ngIf="!is_edit">
+      <label for="rol">Rol: </label>
+      <ng-multiselect-dropdown [placeholder]="'Seleccione el Rol'" [settings]="dropdownRoles" [data]="roles"
+        [(ngModel)]="selectedRol" [ngModelOptions]="{standalone: true}">
+      </ng-multiselect-dropdown>
+    </div>
+
+    <div class="form-group" *ngIf="is_edit">
+      <label for="rol">Rol: </label>
+      <ng-multiselect-dropdown [placeholder]="'Seleccione el Rol'" [settings]="dropdownRoles" [data]="roles"
+        [(ngModel)]="selectedRol" (ngModelChange)="onItemRolSelect($event)" [ngModelOptions]="{standalone: true}">
+      </ng-multiselect-dropdown>
+    </div>
+    <div class="form-group">
+      <label for="nombre">Usuario: </label>
+      <input type="text" name="usuario" #usuario="ngModel" [(ngModel)]="user.username" required />
+      <small *ngIf="!usuario.valid && usuario.touched">
+        El usuario no es valido
+      </small>
+    </div>
+    <div class="form-group">
+      <label for="cedula">Cédula de Identidad: </label>
+      <input type="text" name="cedula" #cedula="ngModel" [(ngModel)]="user.ci" pattern="[0-9]{10}" required />
+      <small *ngIf="!cedula.valid && cedula.touched">
+        La cédula de identidad debe contener 10 dígitos numéricos.
+      </small>
+    </div>
+    <div class="form-group">
+      <label for="email">Email: </label>
+      <input type="email" name="email" #email="ngModel" [(ngModel)]="user.email" required pattern=".+@.+" />
+      <small *ngIf="email.errors && email.touched ">
+        El correo electrónico no es válido. Asegúrate de incluir el símbolo "@".
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="numero">N° Celular: </label>
+      <input type="text" name="phone" #phone="ngModel" [(ngModel)]="user.phoneNumber" pattern="[0-9]{10}" required />
+      <small *ngIf="!phone.valid && phone.touched">
+        El número de celular no es válido. Debe tener 10 dígitos numéricos.
+      </small>
+    </div>
+    <div class="form-group">
+      <label for="nombre">Contraseña: </label>
+      <input type="password" name="contrasena" #contrasena="ngModel" [(ngModel)]="user.contrasena" required
+        minlength="8" />
+      <small *ngIf="contrasena.errors && contrasena.touched">
+        La contraseña no es válida. Debe tener al menos 8 caracteres.
+      </small>
+    </div>
+
+
+
+    <input style="margin-bottom: 30px; margin-top: 20px;" type="submit" value="Enviar" class="btn btn-success" />
+  </form>
+
+
+</div>
 
 <div class="clearfix"></div>

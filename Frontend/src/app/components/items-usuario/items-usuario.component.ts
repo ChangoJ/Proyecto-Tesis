@@ -20,7 +20,7 @@ export class ItemsUsuarioComponent {
   public terminoBusquedaUsuarios: string = '';
 
   @Input() usuarios!: Usuario[]
-  columnas = ['N°', 'Nombre', 'Usuario', 'Email', 'N° Celular', 'Rol', 'Acciones'];
+  columnas = ['N°', 'Nombre', 'Usuario','CI', 'Email', 'N° Celular', 'Rol', 'Acciones'];
   usuariosObtenidos: any[] = [];
 
   constructor(private _usuarioService: UsuarioService,
@@ -73,7 +73,7 @@ export class ItemsUsuarioComponent {
           }
         );
 
-        Swal.fire('Uusario borrado', 'El usuario ha sido borrado', 'success');
+        Swal.fire('Usuario borrado', 'El usuario ha sido borrado', 'success');
       } else {
         Swal.fire('Operación cancelada', 'El usuario no ha sido borrado', 'warning');
       }

@@ -15,12 +15,14 @@ export class SubmenuComponent {
   public home!: boolean
   public especificacion!: boolean
   public horario!: boolean
+  public is_admin!: boolean
 
   constructor(private _route: ActivatedRoute, private dialog: MatDialog,
     private _router: Router) {
     this.home = false;
     this.especificacion = false;
     this.horario = false;
+    this.is_admin = false
 
   }
 
@@ -33,7 +35,11 @@ export class SubmenuComponent {
       this.horario = true;
     } else if (this.rutaActual.includes("/home") || this.rutaActual.includes("")) {
       this.home = true;
-
+    }
+    let authToken = localStorage.getItem('datosUsuario');
+    let UserData = JSON.parse(authToken!)
+    if(UserData.rol === "Administrador" ){
+      this.is_admin = true
     }
 
   }

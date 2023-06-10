@@ -36,6 +36,14 @@
                         <a [routerLink]="['/horarios']" [routerLinkActive]="['active']">Horarios</a>
                     </div>
                 </li>
+
+                <li>
+                    <div class="center-icon">
+                        <mat-icon id="exit_to_app" aria-hidden="false" aria-label="exit_to_app"
+                            fontIcon="exit_to_app"></mat-icon>
+                        <a mat-flat-button (click)="logout()">Cerrar Sesion</a>
+                    </div>
+                </li>
             </ul>
 
         </nav>

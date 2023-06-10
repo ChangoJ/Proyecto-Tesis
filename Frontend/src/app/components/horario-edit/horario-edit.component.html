@@ -32,18 +32,18 @@
 </nav>
 
 <p *ngIf="!opcionVerHorario && is_Diurno">Estas editando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
-  <strong>{{opcion3}}</strong> semestre
+ {{periodoTipo}} <strong>{{opcion3}}</strong>
 </p>
 <p *ngIf="!opcionVerHorario && !is_Diurno">Estas editando el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
-  <strong>{{opcion3}}</strong> semestre
+  {{periodoTipo}} <strong>{{opcion3}}</strong>
 </p>
 
 <p *ngIf="opcionVerHorario && !is_Diurno">Estas viendo el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
-  <strong>{{opcion3}}</strong> semestre
+  {{periodoTipo}} <strong>{{opcion3}}</strong>
 </p>
 
 <p *ngIf="opcionVerHorario && is_Diurno">Estas viendo el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
-  <strong>{{opcion3}}</strong> semestre
+   {{periodoTipo}} <strong>{{opcion3}}</strong>
 </p>
 
 

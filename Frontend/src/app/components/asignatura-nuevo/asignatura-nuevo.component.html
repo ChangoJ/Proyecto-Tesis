@@ -27,7 +27,7 @@
                 <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="asignatura.nombre" (keyup)="onKeyUp()"
                     required />
                 <small *ngIf="!nombre.valid && nombre.touched">
-                    El nombre no es valido
+                    El nombre no es valido.
                 </small>
             </div>
 
@@ -47,23 +47,60 @@
                 </ng-multiselect-dropdown>
             </div>
 
-
             <div class="form-group" *ngIf="!is_edit">
-
-                <label for="semestre">Semestres: </label>
-                <ng-multiselect-dropdown [placeholder]="'Selecciona los semestres'" [settings]="dropdownSemestres"
-                    [data]="semestres" [(ngModel)]="selectedSemestres" [ngModelOptions]="{standalone: true}">
+                <label for="horario">Horario: </label>
+                <ng-multiselect-dropdown [placeholder]="'Seleccione el Horario'" [settings]="dropdownHorarios"
+                    [data]="horariosType" [(ngModel)]="selectedHorarios" [ngModelOptions]="{standalone: true}">
                 </ng-multiselect-dropdown>
             </div>
 
             <div class="form-group" *ngIf="is_edit">
 
-                <label for="semestre">Semestres: </label>
+                <label for="horario">Horario: </label>
+                <ng-multiselect-dropdown [placeholder]="'Seleccione el Horario'" [settings]="dropdownHorarios"
+                    [data]="horariosType" [(ngModel)]="selectedHorarios" (ngModelChange)="onItemHorariosSelect($event)"
+                    [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
+            </div>
+
+            <div class="form-group" *ngIf="!is_edit && selectedHorarios && selectedHorarios.length > 0 && selectedHorarios[0].textField === 'Nocturno'">
+                <label for="periodo">Ciclos: </label>
+                <ng-multiselect-dropdown [placeholder]="'Selecciona los ciclos'" [settings]="dropdownCiclos"
+                                         [data]="ciclos" [(ngModel)]="selectedSemestres" [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
+              </div>
+              
+              <div class="form-group" *ngIf="!is_edit && selectedHorarios && selectedHorarios.length > 0 && selectedHorarios[0].textField === 'Diurno'">
+                <label for="periodo">Semestres: </label>
+                <ng-multiselect-dropdown [placeholder]="'Selecciona los semestres'" [settings]="dropdownSemestres"
+                                         [data]="semestres" [(ngModel)]="selectedSemestres" [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
+              </div>
+
+           
+
+          <!--   <div class="form-group" *ngIf="is_edit">
+
+                <label for="periodo">Periodo: </label>
                 <ng-multiselect-dropdown [placeholder]="'Selecciona los semestres'" [settings]="dropdownSemestres"
                     [data]="semestres" [(ngModel)]="selectedSemestres" (ngModelChange)="onItemSemestreSelect($event)"
                     [ngModelOptions]="{standalone: true}">
                 </ng-multiselect-dropdown>
-            </div>
+            </div> -->
+
+            <div class="form-group" *ngIf="is_edit && selectedHorarios && selectedHorarios.length > 0 && selectedHorarios[0].textField === 'Nocturno'">
+                <label for="periodo">Ciclos: </label>
+                <ng-multiselect-dropdown [placeholder]="'Selecciona los ciclos'" [settings]="dropdownCiclos"
+                                         [data]="ciclos" [(ngModel)]="selectedSemestres" (ngModelChange)="onItemSemestreSelect($event)" [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
+              </div>
+              
+              <div class="form-group" *ngIf="is_edit && selectedHorarios && selectedHorarios.length > 0 && selectedHorarios[0].textField === 'Diurno'">
+                <label for="periodo">Semestres: </label>
+                <ng-multiselect-dropdown [placeholder]="'Selecciona los semestres'" [settings]="dropdownSemestres"
+                                         [data]="semestres" [(ngModel)]="selectedSemestres" (ngModelChange)="onItemSemestreSelect($event)" [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown>
+              </div>
 
             <div class="form-group" *ngIf="is_edit">
 
@@ -82,50 +119,35 @@
                 </ng-multiselect-dropdown>
             </div>
 
-
             <div class="form-group">
                 <label for="creditos">Creditos: </label>
                 <input type="number" name="creditos" #creditos="ngModel" [(ngModel)]="asignatura.creditos" required
                     min="1" max="10" step="1" />
                 <small *ngIf="!creditos.valid && creditos.touched">
-                    Los creditos no es valido (Ingrese un valor entre el 1 al 10)
+                    Los creditos no son validos. Por favor, asegúrate de que sean valores positivos.
                 </small>
             </div>
-            <div class="form-group" *ngIf="!is_edit">
 
-                <label for="horario">Horario: </label>
-                <ng-multiselect-dropdown [placeholder]="'Seleccione el Horario'" [settings]="dropdownHorarios"
-                    [data]="horariosType" [(ngModel)]="selectedHorarios" [ngModelOptions]="{standalone: true}">
-                </ng-multiselect-dropdown>
-            </div>
-
-            <div class="form-group" *ngIf="is_edit">
-
-                <label for="horario">Horario: </label>
-                <ng-multiselect-dropdown [placeholder]="'Seleccione el Horario'" [settings]="dropdownHorarios"
-                    [data]="horariosType" [(ngModel)]="selectedHorarios" (ngModelChange)="onItemHorariosSelect($event)"
-                    [ngModelOptions]="{standalone: true}">
-                </ng-multiselect-dropdown>
-            </div>
+           
             <div class="form-group">
                 <label for="abreviatura">Abreviatura: </label>
                 <input type="text" name="abreviatura" #abreviatura="ngModel" [(ngModel)]="asignatura.abreviatura"
                     required />
                 <small *ngIf="!abreviatura.valid && abreviatura.touched">
-                    La abreviatura no es valido
+                    La abreviatura no es valida.
                 </small>
             </div>
             <div class="form-group">
                 <label for="color">Color: </label>
                 <input type="color" name="color" #color="ngModel" [(ngModel)]="asignatura.color" required />
                 <small *ngIf="!color.valid && color.touched">
-                    El color no es valido
+                    El color no es valido.
                 </small>
             </div>
 
             <div class="clearfix"></div>
 
-            <input type="submit" value="Enviar" class="btn btn-success" [disabled]="asignaturaForm.invalid" />
+            <input type="submit" value="Enviar" class="btn btn-success"  />
         </form>
 
 

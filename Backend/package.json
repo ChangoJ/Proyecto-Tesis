@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Api RESTful Sistema de creacion de distributivos y horarios",
+  "description": "Api RESTful Sistema de creacion de horarios",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
@@ -10,9 +10,12 @@
   "author": "JORDAN CHANGO & CRISTHIAN BARROS",
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "^5.1.0",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.28",
     "mongoose": "^7.0.2",

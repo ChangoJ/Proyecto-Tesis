@@ -1,15 +1,24 @@
 'use strict'
 
+
+
 var express = require('express');
 var AsignaturaController = require('../controllers/asignatura')
 var AulaController = require('../controllers/aula')
 var ProfesorController = require('../controllers/profesor')
 var HorarioController = require('../controllers/horario')
 var UsuarioController = require('../controllers/usuario')
+var AuthController  = require('../controllers/login');
+const { authenticateToken } = require('../middleware/authMiddleware');
 var router = express.Router();
 
 
 //rutas 
+
+
+/* Login */
+
+router.post('/login', AuthController.login);
 
 /* Asignaturas */
 router.post('/save', AsignaturaController.save);

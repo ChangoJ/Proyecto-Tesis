@@ -63,7 +63,7 @@
             <a [routerLink]="['profesores']" [routerLinkActive]="['active']">Profesores</a>
             </div>
         </li>
-        <li>
+        <li *ngIf="is_admin">
             <div class="center-icon">
                 <mat-icon id="supervised_user_circle" aria-hidden="false" aria-label="supervised_user_circle"
                     fontIcon="supervised_user_circle"></mat-icon>

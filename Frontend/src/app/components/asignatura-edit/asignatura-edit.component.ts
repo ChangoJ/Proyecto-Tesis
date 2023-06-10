@@ -4,9 +4,10 @@ import { Global } from './../services/global';
 import { Asignatura } from './../models/asignatura';
 import { AsignaturaService } from './../services/asignatura.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { ProfesorService } from '../services/profesor.service';
+import { NgForm } from '@angular/forms';
 
 
 @Component({
@@ -16,6 +17,7 @@ import { ProfesorService } from '../services/profesor.service';
   providers: [AsignaturaService, ProfesorService]
 })
 export class AsignaturaEditComponent {
+  @ViewChild('asignaturaForm', { static: false }) asignaturaForm!: NgForm;
   public asignatura!: Asignatura
   public profesor!: Profesor
   public profesores: any[] = []
@@ -51,6 +53,11 @@ export class AsignaturaEditComponent {
     { id: 7, textField: '7' },
     { id: 8, textField: '8' }
   ];
+  
+  ciclos: any[] = [
+    { id: 1, textField: '1' },
+    { id: 2, textField: '2' },
+  ];
 
   horariosType: any[] = [
     { id: 1, textField: 'Diurno' },
@@ -69,6 +76,8 @@ export class AsignaturaEditComponent {
   dropdownSemestres: IDropdownSettings = {};
   dropdownHorarios: IDropdownSettings = {};
   dropdownProfesores: IDropdownSettings = {};
+  
+  dropdownCiclos: IDropdownSettings = {};
 
 
   constructor(
@@ -105,6 +114,16 @@ export class AsignaturaEditComponent {
       allowSearchFilter: true
     };
 
+    this.dropdownCiclos = {
+      singleSelection: false,
+      idField: 'id',
+      textField: 'textField',
+      selectAllText: 'Seleccionar todo',
+      unSelectAllText: 'Deseleccionar todo',
+      itemsShowLimit: 13,
+      allowSearchFilter: true
+    };
+
     this.dropdownProfesores = {
       singleSelection: true,
       idField: '_id',
@@ -131,7 +150,11 @@ export class AsignaturaEditComponent {
   onSubmit() {
     this.asignatura.carrera = []
     this.asignatura.semestre = []
-
+    let controles: string[] = []
+    Object.values(this.asignaturaForm.controls).forEach(control => {
+      control.markAsTouched();
+      controles.push(control.status)
+    });
     for (const carrera of this.itemCarreraEdit) {
       this.asignatura.carrera.push(carrera.textField);
     }
@@ -139,8 +162,26 @@ export class AsignaturaEditComponent {
     for (const semestre of this.selectedSemestres) {
       this.asignatura.semestre.push(semestre.textField);
     }
+    if (this.itemHorarioEdit.length !== 0) {
     this.asignatura.horario = this.itemHorarioEdit[0].textField
+  }
+  if (this.asignatura.nombre === ""
+    || this.asignatura.abreviatura === ""
+    || this.asignatura.color === ""
+    || this.asignatura.creditos === 0
+    || this.asignatura.carrera.length === 0
+    || this.asignatura.horario === ""
+    || this.asignatura.profesor.length ===0
+    || this.asignatura.semestre.length ===0
+    || controles.includes("INVALID")
+  ) {
+    Swal.fire(
+      'Asignatura no se ha modificada',
+      'Por favor, rellene los datos correctamente.',
+      'error'
+    )
 
+  } else {
     this._asignaturaService.update(this.asignatura._id, this.asignatura).subscribe(
       response => {
 
@@ -150,7 +191,7 @@ export class AsignaturaEditComponent {
 
           Swal.fire(
             'Asignatura modificada',
-            'La Asignatura se ha modificado correctamente',
+            'La Asignatura se ha modificado correctamente.',
             'success'
           )
           setTimeout(() => {
@@ -159,7 +200,7 @@ export class AsignaturaEditComponent {
         } else {
           Swal.fire(
             'Asignatura no se ha modificado',
-            'Por favor, rellene los datos correctamente',
+            'Por favor, rellene los datos correctamente.',
             'error'
           )
           this.status = 'error'
@@ -172,6 +213,7 @@ export class AsignaturaEditComponent {
         this.status = 'error'
       }
     )
+  }
   }
 
   onKeyUp() {

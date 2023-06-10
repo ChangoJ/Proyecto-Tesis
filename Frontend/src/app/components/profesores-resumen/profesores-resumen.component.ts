@@ -16,6 +16,7 @@ import { Aula } from '../models/aula';
 import { Horario } from '../models/horario';
 import Swal from 'sweetalert2';
 import FileSaver = require('file-saver');
+import { Profesor } from '../models/profesor';
 
 
 @Component({
@@ -36,6 +37,7 @@ export class ProfesoresResumenComponent {
   public aulaHorario: Aula[] = []
   public horarios: Horario[] = []
   public profesores: any[] = [];
+  public profesor!: Profesor
   public aulas!: Aula[];
   public idHorario: string = "";
   public status!: string;
@@ -49,8 +51,10 @@ export class ProfesoresResumenComponent {
   public friday: any[] = [];
   public saturday: any[] = [];
   public profesorSeleccionado!: any
+  editingProfesor: any = null;
 
-  hours = [
+
+  public hours = [
     '07:00 - 08:00',
     '08:00 - 09:00',
     '09:00 - 10:00',
@@ -60,15 +64,13 @@ export class ProfesoresResumenComponent {
     '13:00 - 14:00',
     '14:00 - 15:00',];
 
-  hoursnight = [
-    '07:00 - 08:00',
+  public hoursnight = [
     '08:00 - 09:00',
     '09:00 - 10:00',
     '10:00 - 11:00',
     '11:00 - 12:00',
     '12:00 - 13:00',
     '13:00 - 14:00',
-    '14:00 - 15:00',
     '18:00 - 19:00',
     '19:00 - 20:00',
     '20:00 - 21:00',
@@ -110,6 +112,95 @@ export class ProfesoresResumenComponent {
         console.log(error)
       }
     )
+  }
+
+  getProfesor(id: any) {
+
+    return new Promise<void>((resolve, reject) => {
+      this._profesoresService.getProfesor(id).subscribe(
+        response => {
+          if (response.profesor) {
+
+            this.profesor = response.profesor
+          }
+          resolve(); // Resuelve la promesa una vez que se completa la llamada a la API
+        },
+        error => {
+          console.log(error);
+          reject(error); // Rechaza la promesa en caso de error
+        }
+      );
+    });
+  }
+
+
+  startEditing(profesor: any): void {
+    this.editingProfesor = profesor;
+
+  }
+
+
+  async saveObservation(profesor: any) {
+
+    await this.getProfesor(profesor.profesorId)
+    this.profesor.observacion = profesor.profesorObservacion
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Se modificará la observacion del profesor.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Aceptar',
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        this._profesoresService.update(profesor.profesorId, this.profesor).subscribe(
+          response => {
+            if (response.status == 'success') {
+              this.status = 'success';
+              this.profesor = response.profesor;
+
+              Swal.fire(
+                'Observacion modificado',
+                'La observacion se ha modificado correctamente.',
+                'success'
+              );
+
+              setTimeout(() => {
+                this._router.navigate(['/especificacion/profesores']);
+              }, 1200);
+            } else {
+              Swal.fire(
+                'No se ha podido modificar la observacion',
+                'Por favor, complete los datos correctamente.',
+                'error'
+              );
+
+              this.status = 'error';
+              setTimeout(() => {
+                location.reload();
+              }, 1200);
+            }
+          },
+          error => {
+            this.status = 'error';
+          }
+        );
+        Swal.fire('Observacion modificada', 'La observacion ha sido modificada.', 'success');
+        setTimeout(() => {
+          location.reload();
+        }, 1200);
+      } else {
+        Swal.fire('Operación cancelada', 'La observacion no ha sido modificada.', 'warning');
+
+        setTimeout(() => {
+          location.reload();
+        }, 1200);
+      }
+    });
+
+    this.editingProfesor = null;
   }
 
   getAulas() {
@@ -234,6 +325,7 @@ export class ProfesoresResumenComponent {
         }
 
 
+
       }
 
     }
@@ -270,7 +362,6 @@ export class ProfesoresResumenComponent {
         return false; // Omitir otros elementos
       }
     }));
-    console.log(this.horarioProfesor)
   }
 
   getAsignaturas() {
@@ -293,7 +384,6 @@ export class ProfesoresResumenComponent {
 
 
   async getProfesorSeleccionadoRPdf() {
-    console.log(this.profesorSeleccionado)
     if (this.profesorSeleccionado !== undefined) {
       if (this.profesorSeleccionado === "todos") {
         for (let profesor of this.profesores) {
@@ -307,7 +397,7 @@ export class ProfesoresResumenComponent {
     } else {
       Swal.fire(
         'Generacion de Horario del Profesor Rechazado',
-        'Por favor, seleccione una opcion',
+        'Por favor, seleccione una opcion.',
         'error'
       )
     }
@@ -324,7 +414,6 @@ export class ProfesoresResumenComponent {
       this.friday,
       this.saturday
     ]
-
     let identAsignatura: any
     let profesoresArray = this.profesores;
     let profesorId: any = ''
@@ -359,6 +448,7 @@ export class ProfesoresResumenComponent {
 
           let currentElement = currentItem[l];
           if (currentElement.elementoType === 'asignatura') {
+
             let currentAsignaturaId = currentElement.item._id;
             let currentAsignatura = currentElement.item.nombre;
             let currentAsignaturaH = currentElement.item.horario;
@@ -367,11 +457,11 @@ export class ProfesoresResumenComponent {
             let currentProfesoresId = currentElement.item.profesor[0]._id;
             let currentProfesores = currentElement.item.profesor[0].nombre;
             let currentProfesoresContrato = currentElement.item.profesor[0].contrato;
+            let currentProfesoresObservacion = currentElement.item.profesor[0].observacion;
             let currentAsignaturaCreditos = currentElement.item.creditos;
-            console.log
 
             if (!asignaturasProfesores.some((ap: any) => ap.asigId === currentAsignaturaId && (ap.asignatura === currentAsignatura && ap.semestre === currentAsignaturaS) && ap.profesor === currentProfesores)) {
-              asignaturasProfesores.push({ profeId: currentProfesoresId, asigId: currentAsignaturaId, carrera: currentAsignaturaC, semestre: currentAsignaturaS, asignatura: currentAsignatura, horario: currentAsignaturaH, profesor: currentProfesores, profesorContrato: currentProfesoresContrato, horas: currentAsignaturaCreditos });
+              asignaturasProfesores.push({ profeId: currentProfesoresId, asigId: currentAsignaturaId, carrera: currentAsignaturaC, semestre: currentAsignaturaS, asignatura: currentAsignatura, horario: currentAsignaturaH, profesor: currentProfesores, profesorContrato: currentProfesoresContrato, horas: currentAsignaturaCreditos, profesorObservacion: currentProfesoresObservacion });
 
             }
 
@@ -388,20 +478,21 @@ export class ProfesoresResumenComponent {
     let asignaturasPorProfesorMedioTiempo: any = []
     let asignaturasPorProfesorTiempoCompleto: any = []
     let asignaturasPorProfesorTiempoParcial: any = []
-   
+
 
     for (let profesor of asignaturasProfesores) {
-      console.log(profesor)
+
       let profeId = profesor.profeId;
       let profesorNombre = profesor.profesor;
       let profesorContrato = profesor.profesorContrato;
+      let profesorObservacion = profesor.profesorObservacion;
       let profesorAsignatura = {
-       asignatura: profesor.asignatura,
-       horas:profesor.horas,
-       horario:profesor.horario,
-       carrera:profesor.carrera,
-      semestre: profesor.semestre
-      } 
+        asignatura: profesor.asignatura,
+        horas: profesor.horas,
+        horario: profesor.horario,
+        carrera: profesor.carrera,
+        semestre: profesor.semestre
+      }
 
 
       let asignaturasDelProfesor = asignaturasPorProfesor.find(
@@ -416,12 +507,13 @@ export class ProfesoresResumenComponent {
           profesornombre: profesorNombre,
           profesorContrato: profesorContrato,
           asignaturas: [profesorAsignatura],
+          profesorObservacion: profesorObservacion
         });
       }
 
 
     }
- 
+
     for (let asigPro of asignaturasPorProfesor) {
       // Agrupar asignaturas por tipo de contrato
       if (asigPro.profesorContrato === 'Tiempo Completo') {
@@ -433,11 +525,14 @@ export class ProfesoresResumenComponent {
       }
     }
 
-   
+
+
+
     this.asignaturasPorProfesorTiempoCompleto = new MatTableDataSource<any>(asignaturasPorProfesorTiempoCompleto);
     this.asignaturasPorProfesorMedioTiempo = new MatTableDataSource<any>(asignaturasPorProfesorMedioTiempo);
     this.asignaturasPorProfesorTiempoParcial = new MatTableDataSource<any>(asignaturasPorProfesorTiempoParcial);
-    console.log(asignaturasPorProfesorTiempoCompleto)
+    
+
   }
 
   getSumaHoras(asignaturas: any[]): number {
@@ -450,7 +545,6 @@ export class ProfesoresResumenComponent {
 
 
   async getProfesorSeleccionadoRExcel() {
-    console.log(this.profesorSeleccionado)
     if (this.profesorSeleccionado !== undefined) {
       if (this.profesorSeleccionado === "todos") {
         for (let profesor of this.profesores) {
@@ -473,51 +567,290 @@ export class ProfesoresResumenComponent {
 
 
   exportarProfePdf(profesor?: any) {
-
-    console.log(this.horarioProfesor)
     // Crear una instancia de jsPDF
     let doc = new jsPDF('landscape', 'mm', 'a4');
 
-    // Agregar el título al PDF
+
+    var pageWidth = doc.internal.pageSize.width;
+
     doc.setFontSize(10);
-    // Agregar el título al PDF
+    doc.setFont('helvetica', 'bold');
+
+    var titleText = "UNIVERSIDAD IBEROAMERICANA DEL ECUADOR";
+    var titleWidth = doc.getTextWidth(titleText);
+
+    var titleX = (pageWidth - titleWidth) / 2;
+
+    doc.text(titleText, titleX, 10);
+
     doc.setFontSize(10);
-    doc.text("Horario del profesor: " + profesor, 100, 10);
+    doc.setFont('helvetica', 'normal');
+
+    var descriptionText = "MATRIZ DEL HORARIO DEL PROFESOR";
+    var descriptionWidth = doc.getTextWidth(descriptionText);
+
+    var descriptionX = (pageWidth - descriptionWidth) / 2;
+
+    doc.text(descriptionText, descriptionX, 15);
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+
+    var professorText = "Profesor: " + profesor;
+    var professorInfoWidth = doc.getTextWidth(professorText);
+
+    var professorInfoX = (pageWidth - professorInfoWidth) / 2;
+
+    doc.text(professorText, professorInfoX, 20);
 
 
     let days
     let DataAdicional = [];
     let asignaturasProfesores: any[] = [];
+
+    let asignaturasProfesoresNocturnoCicloUno: any[] = [];
+    let asignaturasProfesoresNocturnoCicloDos: any[] = [];
+    let asignaturasProfesoresDiurno: any[] = [];
+    let rowDataHead: any = [];
+    let rowDataHead2: any = [];
+    let rowDataHead3: any = [];
+    let rowDataHead4: any = [];
     let rowData: any = [];
-    let hoursPDF = this.hours
-    this.hours = []
-    let cellSize
-    DataAdicional.push(['Asignaturas', 'N° Horas'])
+    let rowDataC1: any = [];
+    let rowDataC2: any = [];
+    let hoursPDF = []
+    hoursPDF = this.hours
+    let cellSize: any = ""
+    rowDataHead4.push([{ title: 'Asignaturas', styles: { halign: 'center', fillColor: '#00AFF0' } },
+    { title: 'N° Horas', styles: { halign: 'center', fillColor: '#00AFF0' } },
+    { title: 'Modalidad', styles: { halign: 'center', fillColor: '#00AFF0' } }])
 
     cellSize = 38
 
-    this.hours = this.hoursnight
     days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+    rowDataHead.push([{ title: "Horario Diurno", colSpan: 6, styles: { halign: 'center', fillColor: '#00AFF0' } }])
+    rowDataHead2.push([{ title: "Horario Nocturno Ciclo 1", colSpan: 7, styles: { halign: 'center', fillColor: '#00AFF0' } }])
+    rowDataHead3.push([{ title: "Horario Nocturno Ciclo 2", colSpan: 7, styles: { halign: 'center', fillColor: '#00AFF0' } }])
+    rowData.push(['Horas', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']);
+    rowDataC1.push(['Horas', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sabado']);
+    rowDataC2.push(['Horas', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sabado']);
 
-    rowData.push(['Horas', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sabado']);
+    let identAsignatura: any = ""
+
+    asignaturasProfesoresDiurno = this.horarioProfesor.map(item => item.filter(item => {
+      if (item.elementoType === 'asignatura' && item.item.horario === 'Diurno' && item.item.profesor) {
+
+        identAsignatura = item.identificador.substring(0, 2)
+        return true;
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura) {
+        return true;
+      } else {
+        return false;
+      }
+
+    }))
+
+    identAsignatura = ""
+
+    asignaturasProfesoresNocturnoCicloUno = this.horarioProfesor.map(item => item.filter(item => {
+      if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.semestre[0] === "1" && item.item.profesor) {
+
+        identAsignatura = item.identificador.substring(0, 2)
+        return true;
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura) {
+        return true;
+      } else {
+        return false;
+      }
+
+    }))
+    identAsignatura = ""
+    asignaturasProfesoresNocturnoCicloDos = this.horarioProfesor.map(item => item.filter(item => {
+      if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.semestre[0] === "2" && item.item.profesor) {
+
+        identAsignatura = item.identificador.substring(0, 2)
+        return true;
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura) {
+        return true;
+      } else {
+        return false;
+      }
+
+    }))
 
 
-    // Agregar las horas y los datos de cada celda
-    for (let i = 0; i < this.hours.length; i++) {
-      let row = [this.hours[i]];
+    let row = []
+    let agrupaciones: any = [];
+    for (let i = 0; i < hoursPDF.length; i++) {
+      row = [hoursPDF[i]];
 
-      // Iterar sobre los arreglos correspondientes a cada día de la semana
       for (let j = 0; j < days.length; j++) {
 
         // Buscar el item correspondiente a esta celda
-        for (let k = 0; k < this.horarioProfesor.length; k++) {
-          let currentItem = this.horarioProfesor[k];
-
-          currentItem.sort((a, b) => a.identificador.localeCompare(b.identificador));
+        let currentItem = []
+        for (let k = 0; k < asignaturasProfesoresDiurno.length; k++) {
+          currentItem = asignaturasProfesoresDiurno[k];
+          currentItem.sort((a: any, b: any) => a.identificador.localeCompare(b.identificador));
 
           for (let l = 0; l < currentItem.length; l++) {
 
             let currentElement = currentItem[l];
+
+            if (currentElement.elementoType === 'asignatura') {
+
+              let currentAsignaturaId = currentElement.item._id;
+              let currentAsignatura = currentElement.item.nombre;
+              let currentAsignaturaH = currentElement.item.horario;
+              let currentAsignaturaC = currentElement.carrera;
+              let currentAsignaturaS = currentElement.semestre;
+              let currentProfesores = currentElement.item.profesor[0].nombre;
+              let currentAsignaturaCreditos = currentElement.item.creditos;
+
+
+              if (!asignaturasProfesores.some(ap => ap.asigId === currentAsignaturaId && (ap.asignatura === currentAsignatura && ap.semestre === currentAsignaturaS) && ap.profesores === currentProfesores)) {
+                asignaturasProfesores.push({ asigId: currentAsignaturaId, carrera: currentAsignaturaC, semestre: currentAsignaturaS, asignatura: currentAsignatura, horario: currentAsignaturaH, profesores: currentProfesores, horas: currentAsignaturaCreditos });
+
+              }
+
+
+            }
+
+            // Obtener la hora del elemento actual
+            let elementHourStart = currentElement.hourStart;
+            let elementHourEnd = currentElement.hourEnd;
+
+            // Comprobar si las horas son iguales
+            let rowIndex = i + 1; // Sumar 1 para evitar reemplazar la primera fila (encabezado)
+            let colIndex = j + 1; // Sumar 1 para evitar reemplazar la primera columna (horario)
+
+            // Insertar el valor en la celda correspondiente
+
+            if (i === hoursPDF.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
+
+
+
+              if (typeof row[colIndex] === 'undefined') {
+                row[colIndex] = '';
+              }
+              if (currentElement.elementoType === 'aula') {
+                agrupaciones.push(currentElement)
+                row[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
+
+              } else {
+                agrupaciones.push(currentElement)
+                row[colIndex] += currentElement.item.nombre.trim();
+                row[colIndex] += "\n( " + currentElement.semestre + ' semestre' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )"
+              }
+
+
+
+            }
+
+
+
+
+          }
+
+        }
+      }
+
+
+
+      rowData.push(row);
+    }
+
+
+
+
+
+    let rowC1 = []
+
+    for (let i = 0; i < this.hoursnight.length; i++) {
+      rowC1 = [this.hoursnight[i]];
+
+      for (let j = 0; j < days.length; j++) {
+
+        // Buscar el item correspondiente a esta celda
+        let currentItem = []
+        for (let k = 0; k < asignaturasProfesoresNocturnoCicloUno.length; k++) {
+          currentItem = asignaturasProfesoresNocturnoCicloUno[k];
+          currentItem.sort((a: any, b: any) => a.identificador.localeCompare(b.identificador));
+
+          for (let l = 0; l < currentItem.length; l++) {
+
+            let currentElement = currentItem[l];
+
+            if (currentElement.elementoType === 'asignatura') {
+              let currentAsignaturaId = currentElement.item._id;
+              let currentAsignatura = currentElement.item.nombre;
+              let currentAsignaturaH = currentElement.item.horario;
+              let currentAsignaturaC = currentElement.carrera;
+              let currentAsignaturaS = currentElement.semestre;
+              let currentProfesores = currentElement.item.profesor[0].nombre;
+              let currentAsignaturaCreditos = currentElement.item.creditos;
+
+              if (!asignaturasProfesores.some(ap => ap.asigId === currentAsignaturaId && (ap.asignatura === currentAsignatura && ap.semestre === currentAsignaturaS) && ap.profesores === currentProfesores)) {
+                asignaturasProfesores.push({ asigId: currentAsignaturaId, carrera: currentAsignaturaC, semestre: currentAsignaturaS, asignatura: currentAsignatura, horario: currentAsignaturaH, profesores: currentProfesores, horas: currentAsignaturaCreditos });
+
+              }
+
+
+            }
+            // Obtener la hora del elemento actual
+            let elementHourStart = currentElement.hourStart;
+            let elementHourEnd = currentElement.hourEnd;
+
+            // Comprobar si las horas son iguales
+            let rowIndex = i + 1; // Sumar 1 para evitar reemplazar la primera fila (encabezado)
+            let colIndex = j + 1; // Sumar 1 para evitar reemplazar la primera columna (horario)
+
+
+
+            if (i === hoursPDF.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
+
+              if (typeof rowC1[colIndex] === 'undefined') {
+                rowC1[colIndex] = '';
+              }
+              if (currentElement.elementoType === 'aula') {
+                agrupaciones.push(currentElement)
+                rowC1[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
+
+              } else {
+                agrupaciones.push(currentElement)
+                rowC1[colIndex] += currentElement.item.nombre.trim();
+                rowC1[colIndex] += "\n( " + currentElement.semestre + ' ciclo' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )"
+              }
+
+
+
+            }
+
+
+          }
+
+        }
+      }
+
+
+      rowDataC1.push(rowC1);
+    }
+    let rowC2 = []
+
+    for (let i = 0; i < this.hoursnight.length; i++) {
+      rowC2 = [this.hoursnight[i]];
+
+      for (let j = 0; j < days.length; j++) {
+
+        // Buscar el item correspondiente a esta celda
+        let currentItem = []
+        for (let k = 0; k < asignaturasProfesoresNocturnoCicloDos.length; k++) {
+          currentItem = asignaturasProfesoresNocturnoCicloDos[k];
+          currentItem.sort((a: any, b: any) => a.identificador.localeCompare(b.identificador));
+
+          for (let l = 0; l < currentItem.length; l++) {
+
+            let currentElement = currentItem[l];
+
             if (currentElement.elementoType === 'asignatura') {
               let currentAsignaturaId = currentElement.item._id;
               let currentAsignatura = currentElement.item.nombre;
@@ -544,23 +877,25 @@ export class ProfesoresResumenComponent {
 
             // Insertar el valor en la celda correspondiente
 
-            if (i === this.hours.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
+            if (i === hoursPDF.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
 
-              if (typeof row[colIndex] === 'undefined') {
-                row[colIndex] = '';
+              if (typeof rowC2[colIndex] === 'undefined') {
+                rowC2[colIndex] = '';
               }
               if (currentElement.elementoType === 'aula') {
-                row[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
+                agrupaciones.push(currentElement)
+                rowC2[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
 
               } else {
-                row[colIndex] += currentElement.item.nombre.trim();
-                row[colIndex] += " ( " + currentElement.semestre + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )"
+                agrupaciones.push(currentElement)
+                rowC2[colIndex] += currentElement.item.nombre.trim();
+                rowC2[colIndex] += "\n( " + currentElement.semestre + ' ciclo' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )"
               }
 
 
 
             }
-            // Encontrar la posición exacta de la celda correspondiente
+
 
           }
 
@@ -568,36 +903,149 @@ export class ProfesoresResumenComponent {
       }
 
 
-      rowData.push(row);
+      rowDataC2.push(rowC2);
     }
+
+
+    // Crear un objeto para almacenar los resultados agrupados
+    let resultadoAgrupado: any = [];
+
+    // Recorrer el array original y agrupar las asignaturas y aulas
+
+    let asignaturaId: string | number;
+
+    agrupaciones.forEach((item: { elementoType: string; item: { _id: any; }; carrera: any; dayName: any; hourEnd: any; hourStart: any; identificador: any; semestre: any; }) => {
+      if (item.elementoType === "asignatura") {
+        asignaturaId = item.item._id;
+        if (!resultadoAgrupado[asignaturaId]) {
+          resultadoAgrupado[asignaturaId] = {
+            carrera: item.carrera,
+            dayName: item.dayName,
+            elementoType: item.elementoType,
+            hourEnd: item.hourEnd,
+            hourStart: item.hourStart,
+            identificador: item.identificador,
+            item: item.item,
+            semestre: item.semestre,
+            aulas: []
+          };
+        }
+      } else if (item.elementoType === "aula") {
+
+        if (resultadoAgrupado[asignaturaId]) {
+
+          resultadoAgrupado[asignaturaId].aulas.push(item);
+        }
+      }
+    });
+
+
+    // Convertir el objeto resultadoAgrupado en un array de resultados
+    let resultadoFinal = Object.values(resultadoAgrupado);
+
+    resultadoFinal.forEach((resultado: any) => {
+      let todasSonZoom = true;
+      let algunaEsZoom = false;
+
+      resultado.aulas.forEach((aula: { item: { nombre: string; }; }) => {
+        if (aula.item.nombre.toLowerCase() !== "zoom") {
+          todasSonZoom = false;
+        } else {
+          algunaEsZoom = true;
+        }
+      });
+
+      if (todasSonZoom) {
+        resultado.modalidad = "Virtual";
+      } else if (!algunaEsZoom) {
+        resultado.modalidad = "Presencial";
+      } else {
+        resultado.modalidad = "Mixto (Virtual y Presencial)";
+      }
+    });
+
+    // Verificar la modalidad de las aulas y agregar el campo "modalidad" en resultadoFinal
+
+
     let totalHoras = 0;
 
+
+
+    asignaturasProfesores.forEach((elemento1, index) => {
+      let resultado = resultadoFinal[index] as { modalidad?: string };
+
+      if (resultado && resultado.modalidad) {
+        elemento1.modalidad = resultado.modalidad;
+      }
+    });
+
     asignaturasProfesores.forEach(ap => {
-      DataAdicional.push([ap.asignatura + ' ( ' + ap.semestre + ' - ' + ap.carrera + ' ) ' + '( ' + ap.horario + ' )', ap.horas]);
+      let tipoPeriodo: any
+      if (ap.horario === "Diurno") {
+        tipoPeriodo = "Semestre"
+      } else {
+        tipoPeriodo = "Ciclo"
+      }
+      DataAdicional.push([ap.asignatura + ' ( ' + ap.semestre + ' ' + tipoPeriodo + ' - ' + ap.carrera + ' ) ' + '( ' + ap.horario + ' )', ap.horas, ap.modalidad]);
       totalHoras += parseInt(ap.horas);
     });
+
+
 
     DataAdicional.push(['Total de horas', totalHoras]);
 
 
-
     // Agregar la tabla al PDF
     autoTable(doc, {
+      head: rowDataHead,
       body: rowData,
       theme: 'grid',
       styles: {
         cellWidth: cellSize,
         minCellHeight: 5,
-        fontSize: 8,
+        fontSize: 7,
+        textColor: [0, 0, 0]
+      },
+      margin: { top: 30, left: 34, right: 34 }
+    });
+    doc.addPage();
+
+    autoTable(doc, {
+      head: rowDataHead2,
+      body: rowDataC1,
+      theme: 'grid',
+      styles: {
+        cellWidth: cellSize,
+        minCellHeight: 5,
+        fontSize: 7,
+        textColor: [0, 0, 0]
+      },
+
+      margin: { top: 30 }
+    });
+
+    doc.addPage();
+
+    autoTable(doc, {
+      head: rowDataHead3,
+      body: rowDataC2,
+      theme: 'grid',
+      styles: {
+        cellWidth: cellSize,
+        minCellHeight: 5,
+        fontSize: 7,
         textColor: [0, 0, 0]
 
-      }
+      },
+
+      margin: { top: 30 }
     });
 
     // Agregar una nueva página al PDF
     doc.addPage();
 
     autoTable(doc, {
+      head: rowDataHead4,
       body: DataAdicional,
       theme: 'grid',
       styles: {
@@ -605,7 +1053,8 @@ export class ProfesoresResumenComponent {
         fontSize: 8,
         textColor: [0, 0, 0]
       },
-      margin: { top: 50, right: 50, bottom: 50, left: 30 },
+
+      margin: { top: 30 }
 
     });
 
@@ -615,7 +1064,7 @@ export class ProfesoresResumenComponent {
 
   exportarProfeExcel(profesor?: any) {
 
-  
+
 
     // Crear una instancia de ExcelJS Workbook
     let workbook = new ExcelJS.Workbook();
@@ -626,19 +1075,21 @@ export class ProfesoresResumenComponent {
     worksheet.pageSetup.paperSize = 9;
     worksheet.pageSetup.fitToPage = true;
 
-    let cellSize
-    let cellSizeBorder
-    let days
-    let indiceCell
-    let indiceCellBorder
-    let indiceCellList: number
-    days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
-    indiceCell = 7
-    indiceCellBorder = 19
-    indiceCellList = 21
-    cellSize = 19
-    cellSizeBorder = 6
 
+    let cellSize: any = ""
+    let cellSizeBorder: any = ""
+    let days: any = ""
+    let daysN: any = ""
+    let indiceCell: any = ""
+    let indiceCellBorder: any = ""
+    let indiceCellList: number = 0
+    days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+    daysN = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+    indiceCell = 7
+    indiceCellBorder = 15
+    indiceCellList = 43
+    cellSize = 19
+    cellSizeBorder = 5
 
     worksheet.getColumn('A').width = cellSize;
     worksheet.getColumn('B').width = cellSize;
@@ -648,8 +1099,8 @@ export class ProfesoresResumenComponent {
     worksheet.getColumn('F').width = cellSize;
     worksheet.getColumn('G').width = cellSize;
 
-    for (var row = 1; row <= cellSizeBorder; row++) {
-      for (var col = 1; col <= cellSizeBorder + 1; col++) {
+    for (let row = 1; row <= cellSizeBorder; row++) {
+      for (let col = 1; col <= cellSizeBorder + 2; col++) {
         var cell = worksheet.getCell(`${String.fromCharCode(64 + col)}${row}`);
         cell.border = {
           top: { style: 'medium', color: { argb: 'FFC0C0C0' } },
@@ -663,7 +1114,50 @@ export class ProfesoresResumenComponent {
 
 
 
+    let identAsignatura: any = ""
+    let asignaturasProfesoresNocturnoCicloUno: any[] = [];
+    let asignaturasProfesoresNocturnoCicloDos: any[] = [];
+    let asignaturasProfesoresDiurno: any[] = [];
+    asignaturasProfesoresDiurno = this.horarioProfesor.map(item => item.filter(item => {
+      if (item.elementoType === 'asignatura' && item.item.horario === 'Diurno' && item.item.profesor) {
 
+        identAsignatura = item.identificador.substring(0, 2)
+        return true;
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura) {
+        return true;
+      } else {
+        return false;
+      }
+
+    }))
+
+    identAsignatura = ""
+
+    asignaturasProfesoresNocturnoCicloUno = this.horarioProfesor.map(item => item.filter(item => {
+      if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.semestre[0] === "1" && item.item.profesor) {
+
+        identAsignatura = item.identificador.substring(0, 2)
+        return true;
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura) {
+        return true;
+      } else {
+        return false;
+      }
+
+    }))
+    identAsignatura = ""
+    asignaturasProfesoresNocturnoCicloDos = this.horarioProfesor.map(item => item.filter(item => {
+      if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.semestre[0] === "2" && item.item.profesor) {
+
+        identAsignatura = item.identificador.substring(0, 2)
+        return true;
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura) {
+        return true;
+      } else {
+        return false;
+      }
+
+    }))
 
     worksheet.mergeCells('B1:E1'); // Fusionar 4 celdas en la primera fila
     let texto1 = worksheet.getCell(1, 2); // Seleccionar la celda B1
@@ -691,8 +1185,13 @@ export class ProfesoresResumenComponent {
 
     let asignaturasProfesores: any[] = [];
 
-
+    worksheet.getCell('A6').value = 'Horario Diurno';
+    worksheet.getCell('A6').font = { size: 14, bold: true };
+    worksheet.getCell('A6').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00AFF0' } };
+    worksheet.getCell('A6').alignment = { horizontal: 'center' };
+    worksheet.mergeCells('A6:F6');
     // Pintar encabezado y agregar encabezado de horario
+
     worksheet.spliceRows(indiceCell, 0, ['Horas', ...days]);
     worksheet.getRow(indiceCell).eachCell({ includeEmpty: true }, function (cell, colNumber) {
       cell.font = {
@@ -705,23 +1204,22 @@ export class ProfesoresResumenComponent {
       };
     });
 
-    // Agregar las horas y los datos de cada celda
-    let hoursPDF = this.hours
-    this.hours = []
-    this.hours = this.hoursnight
 
+
+    let row: number | string[] = []
+    let agrupaciones: any = [];
     for (let i = 0; i < this.hours.length; i++) {
-      let row = [this.hours[i]];
+      row = [this.hours[i]];
 
       // Iterar sobre los arreglos correspondientes a cada día de la semana
       for (let j = 0; j < days.length; j++) {
 
 
         // Buscar el item correspondiente a esta celda
-        for (let k = 0; k < this.horarioProfesor.length; k++) {
-          let currentItem = this.horarioProfesor[k];
+        for (let k = 0; k < asignaturasProfesoresDiurno.length; k++) {
+          let currentItem = asignaturasProfesoresDiurno[k];
 
-          currentItem.sort((a, b) => a.identificador.localeCompare(b.identificador));
+          currentItem.sort((a: any, b: any) => a.identificador.localeCompare(b.identificador));
 
           for (let l = 0; l < currentItem.length; l++) {
 
@@ -760,11 +1258,140 @@ export class ProfesoresResumenComponent {
                 row[colIndex] = '';
               }
               if (currentElement.elementoType === 'aula') {
+                agrupaciones.push(currentElement)
                 row[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
 
               } else {
+                agrupaciones.push(currentElement)
                 row[colIndex] += currentElement.item.nombre.trim();
-                row[colIndex] += " ( " + currentElement.semestre + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )"
+                row[colIndex] += " ( " + currentElement.semestre + ' semestre' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )"
+
+
+              }
+
+
+            }
+
+
+
+          }
+
+        }
+      }
+
+      worksheet.addRow(row).eachCell({ includeEmpty: true }, function (cell) {
+        cell.font = { size: 7 };
+
+      });
+
+    }
+
+    for (let i = 7; i <= indiceCellBorder; i++) {
+      const rowTablaHorarioItem = worksheet.getRow(i);
+      rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Opcional: alinear el contenido
+      rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Activar el ajuste de texto
+    }
+
+    for (let row = 6; row <= indiceCellBorder; row++) {
+      for (let col = 1; col <= indiceCell - 1; col++) {
+        var cell = worksheet.getCell(`${String.fromCharCode(64 + col)}${row}`);
+        cell.border = {
+          top: { style: 'thin', color: { argb: '000000' } },
+          left: { style: 'thin', color: { argb: '000000' } },
+          bottom: { style: 'thin', color: { argb: '000000' } },
+          right: { style: 'thin', color: { argb: '000000' } }
+        };
+
+      }
+    }
+
+    let indiceColumn: any
+    indiceCell = 18
+    indiceColumn = 7
+    indiceCellBorder = 28
+
+
+    worksheet.getCell('A17').value = 'Horario Nocturno Ciclo 1';
+    worksheet.getCell('A17').font = { size: 14, bold: true };
+    worksheet.getCell('A17').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00AFF0' } };
+    worksheet.getCell('A17').alignment = { horizontal: 'center' };
+    worksheet.mergeCells('A17:G17');
+    // Pintar encabezado y agregar encabezado de horario
+
+    worksheet.spliceRows(indiceCell, 0, ['Horas', ...daysN]);
+    worksheet.getRow(indiceCell).eachCell({ includeEmpty: true }, function (cell, colNumber) {
+      cell.font = {
+        bold: true
+      }
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '00aae4 ' } // aquí se define el color celeste
+      };
+    });
+
+
+
+    let rowC1 = []
+    for (let i = 0; i < this.hoursnight.length; i++) {
+      rowC1 = [this.hoursnight[i]];
+
+      // Iterar sobre los arreglos correspondientes a cada día de la semana
+      for (let j = 0; j < days.length; j++) {
+
+
+        // Buscar el item correspondiente a esta celda
+        for (let k = 0; k < asignaturasProfesoresNocturnoCicloUno.length; k++) {
+          let currentItem = asignaturasProfesoresNocturnoCicloUno[k];
+
+          currentItem.sort((a: any, b: any) => a.identificador.localeCompare(b.identificador));
+
+          for (let l = 0; l < currentItem.length; l++) {
+
+            let currentElement = currentItem[l];
+
+            if (currentElement.elementoType === 'asignatura') {
+              let currentAsignaturaId = currentElement.item._id;
+              let currentAsignatura = currentElement.item.nombre;
+              let currentAsignaturaH = currentElement.item.horario;
+              let currentAsignaturaC = currentElement.carrera;
+              let currentAsignaturaS = currentElement.semestre;
+              let currentProfesores = currentElement.item.profesor[0].nombre;
+              let currentAsignaturaCreditos = currentElement.item.creditos;
+
+
+              if (!asignaturasProfesores.some(ap => ap.asigId === currentAsignaturaId && (ap.asignatura === currentAsignatura && ap.semestre === currentAsignaturaS) && ap.profesores === currentProfesores)) {
+                asignaturasProfesores.push({ asigId: currentAsignaturaId, carrera: currentAsignaturaC, semestre: currentAsignaturaS, asignatura: currentAsignatura, horario: currentAsignaturaH, profesores: currentProfesores, horas: currentAsignaturaCreditos });
+
+              }
+
+            }
+
+            // Obtener la hora del elemento actual
+            let elementHourStart = currentElement.hourStart;
+            let elementHourEnd = currentElement.hourEnd;
+
+            // Comprobar si las horas son iguales
+            let rowIndex = i + 1; // Sumar 1 para evitar reemplazar la primera fila (encabezado)
+            let colIndex = j + 1; // Sumar 1 para evitar reemplazar la primera columna (horario)
+
+            // Insertar el valor en la celda correspondiente
+
+            if (i === this.hours.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
+
+              if (typeof rowC1[colIndex] === 'undefined') {
+                rowC1[colIndex] = '';
+              }
+              if (currentElement.elementoType === 'aula') {
+                agrupaciones.push(currentElement)
+                rowC1[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
+
+              } else {
+                agrupaciones.push(currentElement)
+                rowC1[colIndex] += currentElement.item.nombre.trim();
+                rowC1[colIndex] += " ( " + currentElement.semestre + ' semestre' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )"
+
+
               }
 
 
@@ -784,14 +1411,14 @@ export class ProfesoresResumenComponent {
 
     }
 
-    for (let i = 7; i <= indiceCellBorder; i++) {
+    for (let i = 18; i <= indiceCellBorder; i++) {
       const rowTablaHorarioItem = worksheet.getRow(i);
       rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Opcional: alinear el contenido
       rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Activar el ajuste de texto
     }
 
-    for (var row = 6; row <= indiceCellBorder; row++) {
-      for (var col = 1; col <= indiceCell; col++) {
+    for (let row = 17; row <= indiceCellBorder; row++) {
+      for (let col = 1; col <= indiceColumn; col++) {
         var cell = worksheet.getCell(`${String.fromCharCode(64 + col)}${row}`);
         cell.border = {
           top: { style: 'thin', color: { argb: '000000' } },
@@ -803,7 +1430,135 @@ export class ProfesoresResumenComponent {
       }
     }
 
-    worksheet.insertRow(indiceCellList, ['Asignaturas', 'N° Horas',]);
+    /* NOCTURNO CICLO 2 */
+    indiceCell = ""
+    indiceCell = 31
+    indiceColumn = 7
+    indiceCellBorder = 41
+
+
+    worksheet.getCell('A30').value = 'Horario Nocturno Ciclo 2';
+    worksheet.getCell('A30').font = { size: 14, bold: true };
+    worksheet.getCell('A30').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00AFF0' } };
+    worksheet.getCell('A30').alignment = { horizontal: 'center' };
+    worksheet.mergeCells('A30:G30');
+    // Pintar encabezado y agregar encabezado de horario
+
+    worksheet.spliceRows(indiceCell, 0, ['Horas', ...daysN]);
+    worksheet.getRow(indiceCell).eachCell({ includeEmpty: true }, function (cell, colNumber) {
+      cell.font = {
+        bold: true
+      }
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '00aae4 ' } // aquí se define el color celeste
+      };
+    });
+
+
+
+
+    for (let i = 0; i < this.hoursnight.length; i++) {
+      let row = [this.hoursnight[i]];
+
+      // Iterar sobre los arreglos correspondientes a cada día de la semana
+      for (let j = 0; j < days.length; j++) {
+
+
+        // Buscar el item correspondiente a esta celda
+        for (let k = 0; k < asignaturasProfesoresNocturnoCicloDos.length; k++) {
+          let currentItem = asignaturasProfesoresNocturnoCicloDos[k];
+
+          currentItem.sort((a: any, b: any) => a.identificador.localeCompare(b.identificador));
+
+          for (let l = 0; l < currentItem.length; l++) {
+
+            let currentElement = currentItem[l];
+
+            if (currentElement.elementoType === 'asignatura') {
+              let currentAsignaturaId = currentElement.item._id;
+              let currentAsignatura = currentElement.item.nombre;
+              let currentAsignaturaH = currentElement.item.horario;
+              let currentAsignaturaC = currentElement.carrera;
+              let currentAsignaturaS = currentElement.semestre;
+              let currentProfesores = currentElement.item.profesor[0].nombre;
+              let currentAsignaturaCreditos = currentElement.item.creditos;
+
+
+              if (!asignaturasProfesores.some(ap => ap.asigId === currentAsignaturaId && (ap.asignatura === currentAsignatura && ap.semestre === currentAsignaturaS) && ap.profesores === currentProfesores)) {
+                asignaturasProfesores.push({ asigId: currentAsignaturaId, carrera: currentAsignaturaC, semestre: currentAsignaturaS, asignatura: currentAsignatura, horario: currentAsignaturaH, profesores: currentProfesores, horas: currentAsignaturaCreditos });
+
+              }
+
+            }
+
+            // Obtener la hora del elemento actual
+            let elementHourStart = currentElement.hourStart;
+            let elementHourEnd = currentElement.hourEnd;
+
+            // Comprobar si las horas son iguales
+            let rowIndex = i + 1; // Sumar 1 para evitar reemplazar la primera fila (encabezado)
+            let colIndex = j + 1; // Sumar 1 para evitar reemplazar la primera columna (horario)
+
+            // Insertar el valor en la celda correspondiente
+
+            if (i === this.hours.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
+
+              if (typeof row[colIndex] === 'undefined') {
+                row[colIndex] = '';
+              }
+              if (currentElement.elementoType === 'aula') {
+                agrupaciones.push(currentElement)
+                row[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
+
+              } else {
+                agrupaciones.push(currentElement)
+                row[colIndex] += currentElement.item.nombre.trim();
+                row[colIndex] += " ( " + currentElement.semestre + ' semestre' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )"
+
+
+              }
+
+
+            }
+
+
+
+          }
+
+        }
+      }
+
+      worksheet.addRow(row).eachCell({ includeEmpty: true }, function (cell) {
+        cell.font = { size: 6 };
+
+      });
+
+    }
+
+    for (let i = 18; i <= indiceCellBorder; i++) {
+      const rowTablaHorarioItem = worksheet.getRow(i);
+      rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Opcional: alinear el contenido
+      rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Activar el ajuste de texto
+    }
+
+    for (let row = 30; row <= indiceCellBorder; row++) {
+      for (let col = 1; col <= indiceColumn; col++) {
+        var cell = worksheet.getCell(`${String.fromCharCode(64 + col)}${row}`);
+        cell.border = {
+          top: { style: 'thin', color: { argb: '000000' } },
+          left: { style: 'thin', color: { argb: '000000' } },
+          bottom: { style: 'thin', color: { argb: '000000' } },
+          right: { style: 'thin', color: { argb: '000000' } }
+        };
+
+      }
+    }
+
+
+
+    worksheet.insertRow(indiceCellList, ['Asignaturas', 'N° Horas', 'Modalidad']);
 
     worksheet.getRow(indiceCellList).eachCell({ includeEmpty: true }, function (cell) {
       cell.font = {
@@ -824,10 +1579,81 @@ export class ProfesoresResumenComponent {
     });
 
 
+    // Crear un objeto para almacenar los resultados agrupados
+    let resultadoAgrupado: any = [];
+
+    // Recorrer el array original y agrupar las asignaturas y aulas
+
+    let asignaturaId: string | number;
+
+    agrupaciones.forEach((item: { elementoType: string; item: { _id: any; }; carrera: any; dayName: any; hourEnd: any; hourStart: any; identificador: any; semestre: any; }) => {
+      if (item.elementoType === "asignatura") {
+        asignaturaId = item.item._id;
+        if (!resultadoAgrupado[asignaturaId]) {
+          resultadoAgrupado[asignaturaId] = {
+            carrera: item.carrera,
+            dayName: item.dayName,
+            elementoType: item.elementoType,
+            hourEnd: item.hourEnd,
+            hourStart: item.hourStart,
+            identificador: item.identificador,
+            item: item.item,
+            semestre: item.semestre,
+            aulas: []
+          };
+        }
+      } else if (item.elementoType === "aula") {
+
+        if (resultadoAgrupado[asignaturaId]) {
+
+          resultadoAgrupado[asignaturaId].aulas.push(item);
+        }
+      }
+    });
+
+
+    // Convertir el objeto resultadoAgrupado en un array de resultados
+    let resultadoFinal = Object.values(resultadoAgrupado);
+
+    resultadoFinal.forEach((resultado: any) => {
+      let todasSonZoom = true;
+      let algunaEsZoom = false;
+
+      resultado.aulas.forEach((aula: { item: { nombre: string; }; }) => {
+        if (aula.item.nombre.toLowerCase() !== "zoom") {
+          todasSonZoom = false;
+        } else {
+          algunaEsZoom = true;
+        }
+      });
+
+      if (todasSonZoom) {
+        resultado.modalidad = "Virtual";
+      } else if (!algunaEsZoom) {
+        resultado.modalidad = "Presencial";
+      } else {
+        resultado.modalidad = "Mixto (Virtual y Presencial)";
+      }
+    });
+
+    asignaturasProfesores.forEach((elemento1, index) => {
+      let resultado = resultadoFinal[index] as { modalidad?: string };
+
+      if (resultado && resultado.modalidad) {
+        elemento1.modalidad = resultado.modalidad;
+      }
+    });
+
 
     let totalHoras = 0;
     asignaturasProfesores.forEach(ap => {
-      worksheet.addRow([ap.asignatura + ' ( ' + ap.semestre + ' - ' + ap.carrera + ' ) ' + '( ' + ap.horario + ' )', ap.horas]).eachCell({ includeEmpty: true }, function (cell) {
+      let tipoPeriodo: any
+      if (ap.horario === "Diurno") {
+        tipoPeriodo = "Semestre"
+      } else {
+        tipoPeriodo = "Ciclo"
+      }
+      worksheet.addRow([ap.asignatura + ' ( ' + ap.semestre + ' ' + tipoPeriodo + ' - ' + ap.carrera + ' ) ' + '( ' + ap.horario + ' )', ap.horas, ap.modalidad]).eachCell({ includeEmpty: true }, function (cell) {
 
         cell.font = { size: 8 };
         cell.border = {
@@ -841,7 +1667,7 @@ export class ProfesoresResumenComponent {
       totalHoras += parseInt(ap.horas);
       indiceCellList++
     });
-    worksheet.insertRow(indiceCellList + 1, ['Total de horas', totalHoras]).eachCell({ includeEmpty: true }, function (cell) {
+    worksheet.insertRow(indiceCellList + 1, ['Total de horas', totalHoras, '']).eachCell({ includeEmpty: true }, function (cell) {
       cell.font = { size: 8 };
       cell.border = {
         top: { style: 'thin', color: { argb: '000000' } },
@@ -891,63 +1717,73 @@ export class ProfesoresResumenComponent {
     rowData3.push(['Docente', 'Asignaturas', 'N° Horas', 'Total de Horas', 'Observaciones', 'Faltan']);
 
     for (let profesorTCompleto of this.asignaturasPorProfesorTiempoCompleto.data) {
-      let row = this.asignaturasPorProfesorTiempoCompleto.data.length;
-      let asignaturasPorProfesor = [];
       let sumaHoras = 0;
       let isFirstRow = true;
 
       for (let asig of profesorTCompleto.asignaturas) {
         sumaHoras += parseInt(asig.horas);
       }
-
+      let periodoType: any
       for (let asignatura of profesorTCompleto.asignaturas) {
+        if (asignatura.horario === "Nocturno") {
+          periodoType = "Ciclo"
+        } else {
+          periodoType = "Semestre"
+        }
         if (isFirstRow) {
-          rowData.push([profesorTCompleto.profesornombre, asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras]);
+          rowData.push([profesorTCompleto.profesornombre, asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras, profesorTCompleto.profesorObservacion]);
           isFirstRow = false;
         } else {
-          rowData.push(['', asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )', asignatura.horas, '']);
+          rowData.push(['', asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, '']);
         }
       }
     }
 
     for (let profesorMTiempo of this.asignaturasPorProfesorMedioTiempo.data) {
-      let row = this.asignaturasPorProfesorMedioTiempo.data.length;
-      let asignaturasPorProfesor = [];
+
       let sumaHoras = 0;
       let isFirstRow = true;
 
       for (let asig of profesorMTiempo.asignaturas) {
         sumaHoras += parseInt(asig.horas);
       }
-
+      let periodoType: any
       for (let asignatura of profesorMTiempo.asignaturas) {
-        
-        console.log(asignatura)
+
+        if (asignatura.horario === "Nocturno") {
+          periodoType = "Ciclo"
+        } else {
+          periodoType = "Semestre"
+        }
         if (isFirstRow) {
-          rowData2.push([profesorMTiempo.profesornombre, asignatura.asignatura+ '\n ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras]);
+          rowData2.push([profesorMTiempo.profesornombre, asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras, profesorMTiempo.profesorObservacion]);
           isFirstRow = false;
         } else {
-          rowData2.push(['', asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )', asignatura.horas, '']);
+          rowData2.push(['', asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, '']);
         }
       }
     }
 
     for (let profesorTParcial of this.asignaturasPorProfesorTiempoParcial.data) {
-      let row = this.asignaturasPorProfesorTiempoParcial.data.length;
-      let asignaturasPorProfesor = [];
       let sumaHoras = 0;
       let isFirstRow = true;
 
       for (let asig of profesorTParcial.asignaturas) {
         sumaHoras += parseInt(asig.horas);
       }
-
+      let periodoType: any
       for (let asignatura of profesorTParcial.asignaturas) {
+        if (asignatura.horario === "Nocturno") {
+          periodoType = "Ciclo"
+        } else {
+          periodoType = "Semestre"
+        }
         if (isFirstRow) {
-          rowData3.push([profesorTParcial.profesornombre, asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras]);
+
+          rowData3.push([profesorTParcial.profesornombre, asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras, profesorTParcial.profesorObservacion]);
           isFirstRow = false;
         } else {
-          rowData3.push(['', asignatura.asignatura + '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )', asignatura.horas, '']);
+          rowData3.push(['', asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, '']);
         }
       }
     }
@@ -1031,7 +1867,7 @@ export class ProfesoresResumenComponent {
     sheet.getRow(6).alignment = { horizontal: 'center' };
 
     let rowIndex = 7;
-
+    let periodoType: any
     for (let profesorTCompleto of this.asignaturasPorProfesorTiempoCompleto.data) {
       let sumaHoras = 0;
 
@@ -1043,16 +1879,23 @@ export class ProfesoresResumenComponent {
       let isFirstRow = true;
 
       for (let i = 0; i < asignaturasCount; i++) {
+
         let rowIndexStart = rowIndex + i;
 
         if (isFirstRow) {
           sheet.getCell(`A${rowIndexStart}`).value = profesorTCompleto.profesornombre;
           sheet.getCell(`D${rowIndexStart}`).value = sumaHoras;
+          sheet.getCell(`E${rowIndexStart}`).value = profesorTCompleto.profesorObservacion;
           isFirstRow = false;
         }
 
         let asignatura = profesorTCompleto.asignaturas[i];
-        sheet.getCell(`B${rowIndexStart}`).value = asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )';
+        if (asignatura.horario === "Nocturno") {
+          periodoType = "Ciclo"
+        } else {
+          periodoType = "Semestre"
+        }
+        sheet.getCell(`B${rowIndexStart}`).value = asignatura.asignatura + '\n( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + '\n( ' + asignatura.horario + ' )';
         sheet.getCell(`C${rowIndexStart}`).value = asignatura.horas;
       }
 
@@ -1060,6 +1903,7 @@ export class ProfesoresResumenComponent {
         let rowIndexEnd = rowIndex + asignaturasCount - 1;
         sheet.mergeCells('A' + rowIndex + ':A' + rowIndexEnd);
         sheet.mergeCells('D' + rowIndex + ':D' + rowIndexEnd);
+        sheet.mergeCells('E' + rowIndex + ':E' + rowIndexEnd);
       }
 
       rowIndex += asignaturasCount;
@@ -1128,11 +1972,17 @@ export class ProfesoresResumenComponent {
         if (isFirstRow) {
           sheet.getCell(`A${rowIndexStart}`).value = profesorMTiempo.profesornombre;
           sheet.getCell(`D${rowIndexStart}`).value = sumaHoras;
+          sheet.getCell(`E${rowIndexStart}`).value = profesorMTiempo.profesorObservacion;
           isFirstRow = false;
         }
 
         let asignatura = profesorMTiempo.asignaturas[i];
-        sheet.getCell(`B${rowIndexStart}`).value = asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )';
+        if (asignatura.horario === "Nocturno") {
+          periodoType = "Ciclo"
+        } else {
+          periodoType = "Semestre"
+        }
+        sheet.getCell(`B${rowIndexStart}`).value = asignatura.asignatura + '\n( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + '\n( ' + asignatura.horario + ' )';
         sheet.getCell(`C${rowIndexStart}`).value = asignatura.horas;
       }
 
@@ -1140,6 +1990,7 @@ export class ProfesoresResumenComponent {
         let rowIndexEnd = (segundaTablaInicio + 2) + asignaturasCount - 1;
         sheet.mergeCells('A' + (segundaTablaInicio + 2) + ':A' + rowIndexEnd);
         sheet.mergeCells('D' + (segundaTablaInicio + 2) + ':D' + rowIndexEnd);
+        sheet.mergeCells('E' + (segundaTablaInicio + 2) + ':E' + rowIndexEnd);
       }
 
       segundaTablaInicio += asignaturasCount;
@@ -1148,7 +1999,7 @@ export class ProfesoresResumenComponent {
 
     // Aplicar bordes oscuros a la tabla
     startRowIndex = primeraTablaFinal + 1;
-    endRowIndex = segundaTablaInicio + this.asignaturasPorProfesorMedioTiempo.data.length ;
+    endRowIndex = segundaTablaInicio + this.asignaturasPorProfesorMedioTiempo.data.length;
     startColumnIndex = 1;
     endColumnIndex = 6;
 
@@ -1201,11 +2052,17 @@ export class ProfesoresResumenComponent {
         if (isFirstRow) {
           sheet.getCell(`A${rowIndexStart}`).value = profesorTParcial.profesornombre;
           sheet.getCell(`D${rowIndexStart}`).value = sumaHoras;
+          sheet.getCell(`E${rowIndexStart}`).value = profesorTParcial.profesorObservacion;
           isFirstRow = false;
         }
 
         let asignatura = profesorTParcial.asignaturas[i];
-        sheet.getCell(`B${rowIndexStart}`).value = asignatura.asignatura+ '\n  ( ' + asignatura.semestre + ' - ' + asignatura.carrera + ' ) ' + '( ' + asignatura.horario + ' )';
+        if (asignatura.horario === "Nocturno") {
+          periodoType = "Ciclo"
+        } else {
+          periodoType = "Semestre"
+        }
+        sheet.getCell(`B${rowIndexStart}`).value = asignatura.asignatura + '\n( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + '\n( ' + asignatura.horario + ' )';
         sheet.getCell(`C${rowIndexStart}`).value = asignatura.horas;
       }
 
@@ -1213,6 +2070,7 @@ export class ProfesoresResumenComponent {
         let rowIndexEnd = (terceraTablaInicio + 2) + asignaturasCount - 1;
         sheet.mergeCells('A' + (terceraTablaInicio + 2) + ':A' + rowIndexEnd);
         sheet.mergeCells('D' + (terceraTablaInicio + 2) + ':D' + rowIndexEnd);
+        sheet.mergeCells('E' + (terceraTablaInicio + 2) + ':E' + rowIndexEnd);
       }
 
       terceraTablaInicio += asignaturasCount;
@@ -1221,7 +2079,7 @@ export class ProfesoresResumenComponent {
 
     // Aplicar bordes oscuros a la tabla
     startRowIndex = segundaTablaFinal + 3;
-    endRowIndex = terceraTablaInicio + this.asignaturasPorProfesorMedioTiempo.data.length ;
+    endRowIndex = terceraTablaInicio + this.asignaturasPorProfesorMedioTiempo.data.length;
     startColumnIndex = 1;
     endColumnIndex = 6;
 

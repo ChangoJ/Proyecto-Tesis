@@ -21,106 +21,111 @@ import { LoginComponent } from './components/login/login.component';
 import { UsuariosComponent } from './components/usuarios/usuarios.component';
 import { UsuarioEditComponent } from './components/usuario-edit/usuario-edit.component';
 import { UsuarioNuevoComponent } from './components/usuario-nuevo/usuario-nuevo.component';
+import { AuthGuard } from './components/services/auth.guard';
+import { LoginGuard } from './components/services/login.guard';
+import { AdminGuard } from './components/services/admin.guard';
 
 const routes: Routes = [
-  { path: 'login', component: LoginComponent },
-
-  { path: '', redirectTo: '/home', pathMatch: 'full' },
   {
-    path: 'home', component: HomeComponent
+    path: 'login', component: LoginComponent, canActivate: [LoginGuard]
+  },
+
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  {
+    path: 'home', component: HomeComponent, canActivate: [AuthGuard]
   },
 
   {
-    path: 'horarios', component: ItemsHorarioComponent
+    path: 'horarios', component: ItemsHorarioComponent, canActivate: [AuthGuard]
   },
   {
     path: 'home/creacion/:opcion1/:opcion2/:opcion3',
-    component: HomeComponent,
+    component: HomeComponent, canActivate: [AuthGuard]
   },
 
   {
-    path: 'especificacion', component: EspecificacionComponent,
+    path: 'especificacion', component: EspecificacionComponent, canActivate: [AuthGuard],
     children: [
       {
         path: 'asignaturas',
-        component: AsignaturasComponent,
+        component: AsignaturasComponent, canActivate: [AuthGuard]
 
       },
       {
         path: 'asignaturas/search/:search1/:search2',
-        component: AsignaturasComponent,
+        component: AsignaturasComponent, canActivate: [AuthGuard]
       },
       {
         path: 'asignaturas/search/:search',
-        component: AsignaturasComponent,
+        component: AsignaturasComponent, canActivate: [AuthGuard]
       },
 
       {
         path: 'asignaturas/crearAsignatura',
-        component: AsignaturaNuevoComponent
+        component: AsignaturaNuevoComponent, canActivate: [AuthGuard]
       },
       {
         path: 'asignaturas/editarAsignatura/:id',
-        component: AsignaturaEditComponent
+        component: AsignaturaEditComponent, canActivate: [AuthGuard]
       },
       {
         path: 'aulas',
-        component: AulasComponent,
+        component: AulasComponent, canActivate: [AuthGuard]
 
       },
       {
         path: 'aulas/searchAula/:search1',
-        component: AulasComponent,
+        component: AulasComponent, canActivate: [AuthGuard]
       },
 
       {
         path: 'aulas/crearAula',
-        component: AulaNuevoComponent
+        component: AulaNuevoComponent, canActivate: [AuthGuard]
       },
       {
         path: 'aulas/editarAula/:id',
-        component: AulaEditComponent
+        component: AulaEditComponent, canActivate: [AuthGuard]
       },
       {
         path: 'profesores',
-        component: ProfesoresComponent
+        component: ProfesoresComponent, canActivate: [AuthGuard]
       },
       {
         path: 'profesores/resumen-profesores',
-        component: ProfesoresResumenComponent
+        component: ProfesoresResumenComponent, canActivate: [AuthGuard]
       },
       {
         path: 'profesores/searchProfesor/:search1',
-        component: ProfesoresComponent,
+        component: ProfesoresComponent, canActivate: [AuthGuard]
       },
 
       {
         path: 'profesores/editarProfesor/:id',
-        component: ProfesorEditComponent
+        component: ProfesorEditComponent, canActivate: [AuthGuard]
       },
 
       {
         path: 'profesores/crearProfesor',
-        component: ProfesorNuevoComponent
+        component: ProfesorNuevoComponent, canActivate: [AuthGuard]
       },
-      
+
       {
         path: 'usuarios',
-        component: UsuariosComponent
+        component: UsuariosComponent, canActivate: [AdminGuard]
       },
       {
         path: 'usuarios/editarUsuario/:id',
-        component: UsuarioEditComponent
+        component: UsuarioEditComponent, canActivate: [AdminGuard]
       },
 
       {
         path: 'usuarios/crearUsuario',
-        component: UsuarioNuevoComponent
+        component: UsuarioNuevoComponent, canActivate: [AdminGuard]
       }
     ]
   },
-  { path: 'horarios/editarHorario/:id', component: HorarioComponent },
-  { path: '**', component: ErrorComponent }
+  { path: 'horarios/editarHorario/:id', component: HorarioComponent, canActivate: [AuthGuard] },
+  { path: '**', component: ErrorComponent, canActivate: [AuthGuard] }
 ];
 
 @NgModule({

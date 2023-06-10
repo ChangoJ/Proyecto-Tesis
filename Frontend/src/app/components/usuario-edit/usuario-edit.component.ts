@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { UsuarioService } from '../services/usuario.service';
 import { Usuario } from '../models/usuario';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Global } from '../services/global';
 import Swal from 'sweetalert2';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-usuario-edit',
@@ -13,6 +14,7 @@ import Swal from 'sweetalert2';
   providers: [UsuarioService]
 })
 export class UsuarioEditComponent {
+  @ViewChild('usuarioForm', { static: false }) usuarioForm!: NgForm;
   public user!: Usuario
   public status!: string
   public is_edit!: boolean
@@ -49,7 +51,7 @@ export class UsuarioEditComponent {
     private _usuarioService: UsuarioService,
     private _router: Router
   ) {
-    this.user = new Usuario('', '', '', '', '', '')
+    this.user = new Usuario('', '', '', '', '', '', '')
     this.page_title = "Editar Usuario"
     this.is_edit = true;
     this.url = Global.url
@@ -67,43 +69,71 @@ export class UsuarioEditComponent {
   }
 
 
-  onSubmit() {
-    this.user.rol = ''
+  async onSubmit() {
+    let controles: string[] = []
+    Object.values(this.usuarioForm.controls).forEach(control => {
+      control.markAsTouched();
+      controles.push(control.status)
+    });
+    if (this.selectedRol.length !== 0) {
+      this.user.rol = ''
+      this.user.rol = this.selectedRol[0].textField
+    }
+    if (this.user.ci === ""
+      || this.user.nombre === ""
+      || this.user.email === ""
+      || this.user.rol === ""
+      || this.user.username === ""
+      || this.user.contrasena === ""
+      || this.user.phoneNumber === undefined
+      || this.user.phoneNumber === ""
+      || controles.includes("INVALID")
+    ) {
+      Swal.fire(
+        'Usuario no se ha modificado',
+        'Por favor, rellene los datos correctamente.',
+        'error'
+      )
 
+    } else {
+      this._usuarioService.update(this.user._id, this.user).subscribe(
+        response => {
+          console.log(response)
+          if (response.status == 'success') {
+            this.status = 'success'
+            this.user = response.profesor
 
-    this.user.rol = this.itemRolEdit[0].textField
-
-    this._usuarioService.update(this.user._id, this.user).subscribe(
-      response => {
-
-        if (response.status == 'success') {
-          this.status = 'success'
-          this.user = response.profesor
-
+            Swal.fire(
+              'Usuario modificada',
+              'El Usuario se ha modificado correctamente.',
+              'success'
+            )
+            setTimeout(() => {
+              this._router.navigate(['/especificacion/usuarios']);
+            }, 1200);
+          } else {
+            Swal.fire(
+              'Usuario no se ha modificado',
+              'Por favor, rellene los datos correctamente.',
+              'error'
+            )
+            this.status = 'error'
+            setTimeout(() => {
+              location.reload();
+            }, 1200);
+          }
+        },
+        error => {
+          console.log(error)
           Swal.fire(
-            'Usuario modificada',
-            'El Usuario se ha modificado correctamente',
-            'success'
-          )
-          setTimeout(() => {
-            this._router.navigate(['/especificacion/usuarios']);
-          }, 1200);
-        } else {
-          Swal.fire(
-            'Usuario no se ha modificado',
-            'Por favor, rellene los datos correctamente',
+            error.error.message,
+            'Por favor, rellene los datos correctamente.',
             'error'
           )
           this.status = 'error'
-          setTimeout(() => {
-            location.reload();
-          }, 1200);
         }
-      },
-      error => {
-        this.status = 'error'
-      }
-    )
+      )
+    }
   }
 
   ngOnInit() {

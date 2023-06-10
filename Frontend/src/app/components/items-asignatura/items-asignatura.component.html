@@ -60,10 +60,32 @@
                 <td [matTooltip]="item.carrera" mat-cell *matCellDef="let item"> {{item.carrera.length > 1 ?
                     item.carrera.slice(0,1)+ '...(' + (item.carrera.length)+ ')' : item.carrera }}</td>
             </ng-container>
+
+            <ng-container matColumnDef="Periodo">
+                <th mat-header-cell *matHeaderCellDef>Período</th>
+                <td mat-cell *matCellDef="let item">
+                    <ng-container *ngIf="item.tipoHorario === 'Horario Nocturno'">
+                        {{ item.semestre }} ciclo
+                    </ng-container>
+                    <ng-container *ngIf="item.tipoHorario === 'Horario Diurno'">
+                        {{ item.semestre }} semestre
+                    </ng-container>
+                </td>
+            </ng-container>
             <ng-container matColumnDef="Semestre">
                 <th mat-header-cell *matHeaderCellDef>Semestre</th>
-                <td [matTooltip]="item.semestre" mat-cell *matCellDef="let item">{{item.semestre.length > 1 ?
-                    item.semestre.slice(0,1)+ '...(' + (item.semestre.length)+ ')' : item.semestre }}</td>
+                <td [matTooltip]="item.semestre" mat-cell *matCellDef="let item">
+                   
+                    <ng-container *ngIf="item.horario === 'Nocturno'">
+                        {{item.semestre.length > 1 ?
+                            item.semestre.slice(0,1)+ '...(' + (item.semestre.length)+ ')' : item.semestre }} Ciclo
+                    </ng-container>
+                    <ng-container *ngIf="item.horario === 'Diurno'">
+                        {{item.semestre.length > 1 ?
+                            item.semestre.slice(0,1)+ '...(' + (item.semestre.length)+ ')' : item.semestre }} Semestre
+                    </ng-container>
+                
+                </td>
             </ng-container>
             <ng-container matColumnDef="Profesor">
                 <th mat-header-cell *matHeaderCellDef>Profesor</th>

@@ -5,12 +5,10 @@ var Schema = mongoose.Schema;
 
 var UsuarioScheme = Schema({
     nombre: String,
-    usuario: String,
-    email: String,
-    phoneNumber: {
-        type: String,
-        required: false
-    },
+    username: { type: String, unique: true },
+    email: { type: String, unique: true },
+    ci: { type: String, unique: true },
+    phoneNumber: { type: String, unique: true, required: false },
     contrasena: String,
     rol: String,
 });

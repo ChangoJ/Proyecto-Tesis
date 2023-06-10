@@ -2,9 +2,10 @@ import { Global } from './../services/global';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AulaService } from './../services/aula.service';
 import { Aula } from './../models/aula';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import Swal from 'sweetalert2';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-aula-edit',
@@ -13,6 +14,7 @@ import { IDropdownSettings } from 'ng-multiselect-dropdown';
   providers: [AulaService]
 })
 export class AulaEditComponent {
+  @ViewChild('aulaForm', { static: false }) aulaForm!: NgForm;
   public aula!: Aula
   public status!: string
   public is_edit!: boolean
@@ -25,7 +27,8 @@ export class AulaEditComponent {
   public itemUbicacionEdit: any;
   ubicaciones: any[] = [
     { id: 1, textField: 'Campus Norte' },
-    { id: 2, textField: 'Campus Colon' }
+    { id: 2, textField: 'Campus Colon' },
+    { id: 3, textField: 'ZOOM' }
   ];
 
   constructor(
@@ -54,16 +57,35 @@ export class AulaEditComponent {
 
   onSubmit() {
     this.aula.ubicacion = ''
-
+    let controles: string[] = []
+    Object.values(this.aulaForm.controls).forEach(control => {
+      control.markAsTouched();
+      controles.push(control.status)
+    });
+    if (this.itemUbicacionEdit.length !== 0) {
     this.aula.ubicacion = this.itemUbicacionEdit[0].textField
 
-    console.log(this.aula.ubicacion)
+  }
 
     if (this.isChecked === undefined || this.isChecked === false) {
       this.aula.compartida = "No"
     } else {
       this.aula.compartida = "Si"
     }
+    if (this.aula.compartida === ""
+    || this.aula.nombre === ""
+    || this.aula.abreviatura === ""
+    || this.aula.color === ""
+    || this.aula.ubicacion === ""
+    || controles.includes("INVALID")
+  ) {
+    Swal.fire(
+      'Aula no se ha modificada',
+      'Por favor, rellene los datos correctamente.',
+      'error'
+    )
+
+  } else {
     this._aulaService.update(this.aula._id, this.aula).subscribe(
       response => {
         if (response.status == 'success') {
@@ -72,7 +94,7 @@ export class AulaEditComponent {
 
           Swal.fire(
             'Aula modificada',
-            'La Asignatura se ha modificado correctamente',
+            'La Aula se ha modificado correctamente.',
             'success'
           )
           setTimeout(() => {
@@ -81,7 +103,7 @@ export class AulaEditComponent {
         } else {
           Swal.fire(
             'Aula no se ha modificado',
-            'Por favor, rellene los datos correctamente',
+            'Por favor, rellene los datos correctamente.',
             'error'
           )
           this.status = 'error'
@@ -94,6 +116,7 @@ export class AulaEditComponent {
         this.status = 'error'
       }
     )
+  }
   }
 
   ngOnInit() {

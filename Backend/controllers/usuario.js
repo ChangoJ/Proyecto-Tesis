@@ -5,20 +5,25 @@ var usuario = require('../models/usuario');
 var fs = require('fs');
 var path = require('path');
 const { default: mongoose } = require('mongoose');
+const bcrypt = require('bcrypt');
+
+const saltRounds = 10;
 
 var controller = {
 
-    save: (req, res) => {
+    save: async (req, res) => {
         // Recoger parametros por post
         var params = req.body;
 
         // Validar datos (validator)
         try {
-            var validate_nombre = !validator.isEmpty(params.nombre);  
-            var validate_usuario = !validator.isEmpty(params.usuario);
-            var validate_email = !validator.isEmpty(params.email);  
-            var validate_contrasena = !validator.isEmpty(params.contrasena);  
+            var validate_nombre = !validator.isEmpty(params.nombre);
+            var validate_usuario = !validator.isEmpty(params.username);
+            var validate_email = !validator.isEmpty(params.email);
+            var validate_ci = !validator.isEmpty(params.ci);
+            var validate_contrasena = !validator.isEmpty(params.contrasena);
             var validate_rol = !validator.isEmpty(params.rol);
+
 
 
         } catch (err) {
@@ -28,48 +33,67 @@ var controller = {
             });
         }
 
-        if (validate_nombre &&  validate_usuario && validate_email && validate_contrasena && validate_rol) {
+        var existingUser = await usuario.findOne({
+            $or: [
+                { email: params.email },
+                { username: params.username },
+                { phoneNumber: params.phoneNumber },
+                { ci: params.ci }
+            ]
+        });
 
-            
-            //Crear el objeto a guardar
-            var usuario1 = new usuario();
+        if (!existingUser) {
 
 
-            //asignar valores
-            usuario1.nombre = params.nombre;
-            usuario1.usuario = params.usuario;
-            usuario1.email = params.email;
-            usuario1.phoneNumber = params.phoneNumber;
-            usuario1.contrasena = params.contrasena;
-            usuario1.rol = params.rol;
-        
+            if (validate_nombre && validate_ci && validate_usuario && validate_email && validate_contrasena && validate_rol) {
 
-            //guardar el articulo
-            usuario1.save().then( (usuarioStored) => {
 
-                if (!usuarioStored) {
-                    return res.status(404).send({
-                        status: 'error',
-                        message: 'El usuario no se ha guardado.'
+                //Crear el objeto a guardar
+                var usuario1 = new usuario();
+
+
+                //asignar valores
+                usuario1.nombre = params.nombre;
+                usuario1.username = params.username;
+                usuario1.email = params.email;
+                usuario1.ci = params.ci;
+                usuario1.phoneNumber = params.phoneNumber;
+                usuario1.contrasena = await bcrypt.hash(params.contrasena, saltRounds);
+                usuario1.rol = params.rol;
+
+
+                //guardar el articulo
+                usuario1.save().then((usuarioStored) => {
+
+                    if (!usuarioStored) {
+                        return res.status(404).send({
+                            status: 'error',
+                            message: 'El usuario no se ha guardado.'
+                        });
+                    }
+
+                    // devolder respuesta
+                    return res.status(200).send({
+                        status: 'success',
+                        usuario: usuarioStored
                     });
-                }
 
-                // devolder respuesta
-                return res.status(200).send({
-                    status: 'success',
-                    usuario: usuarioStored
                 });
 
-            });
 
 
-
+            } else {
+                return res.status(200).send({
+                    status: 'error',
+                    message: 'Los datos no son validos'
+                });
+            }
         } else {
-            return res.status(200).send({
-                status: 'error',
-                message: 'Los datos no son validos'
-            });
+            return res.status(200).json({ message: 'El Nombre de usuario, CI, N° Celular o Email ya existen' });
+
+
         }
+
     },
 
     getUsuarios: (req, res) => {
@@ -81,6 +105,8 @@ var controller = {
         if (last || last != undefined) {
             query.limit(5);
         }
+
+
 
         //find 
         query.sort('-_id').then((usuarios) => {
@@ -108,96 +134,170 @@ var controller = {
         var usuarioId = req.params.id
         var usuarioIdValid = mongoose.Types.ObjectId.isValid(usuarioId);
         //comprobar que existe
-        if(usuarioIdValid){
+        if (usuarioIdValid) {
 
-        
-        if (!usuarioId || usuario == null) {
-            return res.status(404).send({
-                status: 'error',
-                message: 'No existe el usuario'
-            });
-        } else {
-            usuario.findById(usuarioId).then((usuario) => {
 
-                if (!usuario) {
-                    return res.status(404).send({
-                        status: 'error',
-                        message: 'No existe el usuario'
-                    });
-                }
-
-                return res.status(200).send({
-                    status: 'success',
-                    usuario
+            if (!usuarioId || usuario == null) {
+                return res.status(404).send({
+                    status: 'error',
+                    message: 'No existe el usuario'
                 });
+            } else {
+                usuario.findById(usuarioId).then((usuario) => {
 
-            });
-        }
-    } else {
-        return res.status(200).send({
-            status: 'error',
-            message: 'La validacion no es correcta'
-        });
-    }
-    },
+                    if (!usuario) {
+                        return res.status(404).send({
+                            status: 'error',
+                            message: 'No existe el usuario'
+                        });
+                    }
 
-    update: (req, res) => {
-        //recoger el id del articulo por la url
-        var usuarioId = req.params.id
-
-        //recoger datos del put
-
-        var params = req.body;
-        
-        var usuarioIdValid = mongoose.Types.ObjectId.isValid(usuarioId);
-        //validar datos
-        try {
-            var validate_nombre = !validator.isEmpty(params.nombre);  
-            var validate_usuario = !validator.isEmpty(params.usuario);
-            var validate_email = !validator.isEmpty(params.email);  
-            var validate_contrasena = !validator.isEmpty(params.contrasena);  
-            var validate_rol = !validator.isEmpty(params.rol);
-
-        } catch (err) {
-            return res.status(200).send({
-                status: 'error',
-                message: 'Faltan datos por enviar'
-            });
-        }
-
-        if ( usuarioId.match(/^[0-9a-fA-F]{24}$/) && validate_nombre && validate_usuario && validate_email && validate_contrasena && validate_rol) {
-           
-            usuario.findOneAndUpdate({ _id: usuarioId }, params, { new: true }).then( (usuarioUpdated) => {
-                
-                if (!usuarioUpdated) {
-                    return res.status(404).send({
-                        status: 'error',
-                        message: 'No existe el usuario'
+                    return res.status(200).send({
+                        status: 'success',
+                        usuario
                     });
-                }
 
-                return res.status(200).send({
-                    status: 'success',
-                    usuario: usuarioUpdated
                 });
-
-            });
+            }
         } else {
             return res.status(200).send({
                 status: 'error',
                 message: 'La validacion no es correcta'
             });
         }
-
     },
 
+    update: async (req, res) => {
+        // Recoger el id del usuario por la URL
+        var usuarioId = req.params.id;
+    
+        // Recoger los datos del body
+        var params = req.body;
+    
+        // Validar el id del usuario
+        var usuarioIdValid = mongoose.Types.ObjectId.isValid(usuarioId);
+    
+        // Validar los datos
+        try {
+            var validate_nombre = !validator.isEmpty(params.nombre);
+            var validate_usuario = !validator.isEmpty(params.username);
+            var validate_email = !validator.isEmpty(params.email);
+            var validate_ci = !validator.isEmpty(params.ci);
+            var validate_contrasena = !validator.isEmpty(params.contrasena);
+            var validate_rol = !validator.isEmpty(params.rol);
+        } catch (err) {
+            return res.status(400).send({
+                status: 'error',
+                message: 'Faltan datos por enviar'
+            });
+        }
+    
+        if (
+            usuarioId.match(/^[0-9a-fA-F]{24}$/) &&
+            validate_nombre &&
+            validate_usuario &&
+            validate_email &&
+            validate_ci &&
+            validate_rol
+        ) {
+            // Encriptar la nueva contraseña
+            if (validate_contrasena) {
+                bcrypt.hash(params.contrasena, 10, function (err, hash) {
+                    if (err) {
+                        return res.status(500).send({
+                            status: 'error',
+                            message: 'Error al encriptar la contraseña'
+                        });
+                    }
+    
+                    params.contrasena = hash; // Reemplazar la contraseña con el hash
+                    
+                    usuario
+                        .findOne({
+                            _id: { $ne: usuarioId },
+                            $or: [
+                                { email: params.email },
+                                { username: params.username },
+                                { phoneNumber: params.phoneNumber },
+                                { ci: params.ci }
+                            ]
+                        })
+                        .then(existingUser => {
+                            if (existingUser) {
+                                return res.status(400).send({
+                                    status: 'error',
+                                    message: 'Se encontraron datos duplicadas con otro usuario al actualizar el usuario'
+                                });
+                            }
+    
+                            usuario
+                                .findOneAndUpdate({ _id: usuarioId }, params, { new: true })
+                                .then(usuarioUpdated => {
+                                    if (!usuarioUpdated) {
+                                        return res.status(404).send({
+                                            status: 'error',
+                                            message: 'No existe el usuario'
+                                        });
+                                    }
+    
+                                    return res.status(200).send({
+                                        status: 'success',
+                                        usuario: usuarioUpdated
+                                    });
+                                });
+                        });
+                });
+            } else {
+                // Si la contraseña no se proporciona para actualizarla, simplemente actualizar otros campos sin encriptación
+                usuario
+                    .findOne({
+                        _id: { $ne: usuarioId },
+                        $or: [
+                            { email: params.email },
+                            { username: params.username },
+                            { phoneNumber: params.phoneNumber },
+                            { ci: params.ci }
+                        ]
+                    })
+                    .then(existingUser => {
+                        if (existingUser) {
+                            return res.status(400).send({
+                                status: 'error',
+                                message: 'Se encontraron datos duplicadas con otro usuario al actualizar el usuario'
+                            });
+                        }
+    
+                        usuario
+                            .findOneAndUpdate({ _id: usuarioId }, params, { new: true })
+                            .then(usuarioUpdated => {
+                                if (!usuarioUpdated) {
+                                    return res.status(404).send({
+                                        status: 'error',
+                                        message: 'No existe el usuario'
+                                    });
+                                }
+    
+                                return res.status(200).send({
+                                    status: 'success',
+                                    usuario: usuarioUpdated
+                                });
+                            });
+                    });
+            }
+        } else {
+            return res.status(400).send({
+                status: 'error',
+                message: 'La validación no es correcta'
+            });
+        }
+    },
     delete: (req, res) => {
 
         var usuarioId = req.params.id;
 
 
         usuario.findByIdAndDelete({ _id: usuarioId }).then((usuarioRemoved) => {
-            
+
             if (!usuarioRemoved) {
                 return res.status(404).send({
                     status: 'error',
@@ -222,21 +322,24 @@ var controller = {
         usuario.find({
             "$or": [
                 {
-                    "nombre": { "$regex": searchString, "$options": "i"}
+                    "nombre": { "$regex": searchString, "$options": "i" }
                 }
                 ,
                 {
-                    "usuario": { "$regex": searchString, "$options": "i"}
+                    "username": { "$regex": searchString, "$options": "i" }
                 },
                 {
-                    "email": { "$regex": searchString, "$options": "i"}
+                    "ci": { "$regex": searchString, "$options": "i" }
                 },
                 {
-                    "ROL": { "$regex": searchString, "$options": "i"}
+                    "email": { "$regex": searchString, "$options": "i" }
+                },
+                {
+                    "ROL": { "$regex": searchString, "$options": "i" }
                 }
             ]
         })
-           .sort([['date', 'descending']])
+            .sort([['date', 'descending']])
             .then((usuarios) => {
                 if (!usuarios || usuarios.length <= 0) {
                     return res.status(404).send({
@@ -254,8 +357,8 @@ var controller = {
     },
 
 
-   
-            
+
+
 
 
 }; //end controller

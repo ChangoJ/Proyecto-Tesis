@@ -11,7 +11,7 @@
       </mat-select>
     </mat-form-field>
     <mat-form-field>
-      <mat-label>Semestre</mat-label>
+      <mat-label>{{periodoTIpo}}</mat-label>
       <mat-select [(value)]="selectedSemestre" >
         <mat-option *ngFor="let semestre of semestres" [value]="semestre.textField">
           {{ semestre.textField }}

@@ -73,9 +73,9 @@ export class ItemsProfesorComponent {
           }
         );
 
-        Swal.fire('Profesor borrada', 'El profesor ha sido borrado', 'success');
+        Swal.fire('Profesor borrada', 'El profesor ha sido borrado.', 'success');
       } else {
-        Swal.fire('Operación cancelada', 'El profesor no ha sido borrado', 'warning');
+        Swal.fire('Operación cancelada', 'El profesor no ha sido borrado.', 'warning');
       }
     });
 

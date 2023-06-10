@@ -37,7 +37,7 @@ export class ItemsHorarioComponent {
 
   }
 
-  columnas = ['N°','Carrera', 'Semestre', 'Tipo', 'Acciones'];
+  columnas = ['N°','Carrera', 'Periodo', 'Tipo', 'Acciones'];
 
   filtrarHorarios() {
     let terminosBusqueda = this.terminoBusquedaHorario.split(' ').join('|');
@@ -57,6 +57,8 @@ export class ItemsHorarioComponent {
             this.horarios = response.horarios;
             this.horariosFiltrados = new MatTableDataSource<any>(this.horarios)
             this.horariosFiltrados.paginator = this.paginator
+            
+           
           }
         },
         error => {
