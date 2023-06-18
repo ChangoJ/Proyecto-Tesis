@@ -24,16 +24,16 @@
         <h2 sty>Buscador</h2>
         <input id="buscadorAsignatura" [(ngModel)]="terminoBusquedaAsignatura" type="text"
             placeholder="Buscar por nombre, profesor o creditos" (input)="filtrarAsignaturas()">
-        <div id="matselectBusquedaAsignatura">
-            <mat-form-field>
-                <mat-label>Seleccionar Carrera</mat-label>
-                <mat-select [(ngModel)]="selectedCarrera" (selectionChange)="filtrarAsignaturas()">
+        <div id="matselectBusquedaAsignatura" *ngIf="is_admin || is_aprobador">
+            <mat-form-field id="matselectCarrera">
+                <mat-label >Seleccionar Carrera</mat-label>
+                <mat-select [(ngModel)]="selectedCarrera" (selectionChange)="filtrarAsignaturas()" >
                     <mat-option [value]="'Todas'">Todas</mat-option>
                     <mat-option *ngFor="let carrera of carreras" [value]="carrera">{{ carrera }}</mat-option>
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field id="matselectSemestre">
+            <mat-form-field id="matselectSemestre" >
                 <mat-label>Seleccionar Semestre</mat-label>
                 <mat-select [(ngModel)]="selectedSemestre" (selectionChange)="filtrarAsignaturas()">
                     <mat-option [value]="'Todas'">Todas</mat-option>

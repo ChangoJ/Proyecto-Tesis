@@ -18,27 +18,67 @@ export class ItemsProfesorComponent {
   public url: string
   public profesoresFiltrados!: MatTableDataSource<any>;
   public terminoBusquedaProfesor: string = '';
+  public is_admin!: boolean
+  public is_aprobador!: boolean
+  authToken!: any;
+  UserData!: any;
+  carrerasFiltradas: any[] = [];
 
   @Input() profesores!: Profesor[]
   columnas = ['N°', 'Nombre', 'Contrato', 'Carreras', 'Acciones'];
   profesoresObtenidos: any[] = [];
 
+  rolesCarreras: any = {
+    enfermeria: 'Enfermeria',
+    fisioterapia: 'Fisioterapia',
+    nutricion: 'Nutricion',
+    psicologia: 'Psicologia',
+    educacionBasica: 'Educacion Basica',
+    produccionAudiovisual: 'Produccion Audiovisual',
+    contabilidad: 'Contabilidad',
+    derecho: 'Derecho',
+    economia: 'Economia',
+    software: 'Software',
+    administracionEmpresas: 'Administracion de Empresas',
+    gastronomia: 'Gastronomia',
+    turismo: 'Turismo'
+  };
+
   constructor(private _profesorService: ProfesorService,
     private _route: ActivatedRoute,
     private _router: Router) {
     this.url = Global.url
+    this.is_admin = false
+    this.is_aprobador = false
 
   }
 
   @ViewChild('paginatorP', { static: false }) paginator!: MatPaginator;
 
   ngOnInit() {
-    
+
+    this.getProfesores()
+    this.authToken = localStorage.getItem('datosUsuario');
+    this.UserData = JSON.parse(this.authToken!)
+  }
+
+  getProfesores() {
+
     this._profesorService.getProfesores().subscribe(
       response => {
         if (response.profesores) {
           this.profesoresObtenidos = response.profesores
-          this.profesoresFiltrados = new MatTableDataSource<any>(this.profesoresObtenidos);
+          let carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+
+          this.carrerasFiltradas = [];
+
+          if (carreraActual) {
+            this.carrerasFiltradas = this.profesoresObtenidos.filter(elemento => elemento.carrera.includes(carreraActual));
+          } else {
+            this.carrerasFiltradas = this.profesoresObtenidos;
+          }
+
+          this.profesoresFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas);
           this.profesoresFiltrados.paginator = this.paginator;
         }
       },
@@ -46,7 +86,6 @@ export class ItemsProfesorComponent {
         console.log(error)
       }
     )
-
   }
 
   delete(id: string) {
@@ -82,12 +121,12 @@ export class ItemsProfesorComponent {
 
   }
 
- 
+
   filtrarProfesores() {
     let terminosBusqueda = this.terminoBusquedaProfesor.split(' ').join(' | ');
     console.log(terminosBusqueda)
     let regexBusqueda = new RegExp(terminosBusqueda, 'gi');
-    this.profesoresFiltrados = new MatTableDataSource<any>(this.profesoresObtenidos.filter(profesor =>
+    this.profesoresFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas.filter(profesor =>
       profesor.nombre.toString().toLowerCase().match(regexBusqueda) ||
       profesor.carrera.toString().toLowerCase().match(regexBusqueda) ||
       profesor.contrato.toString().toLowerCase().match(regexBusqueda)

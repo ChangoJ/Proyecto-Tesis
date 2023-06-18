@@ -37,7 +37,7 @@ export class AulaEditComponent {
     private _router: Router
   ) {
     this.aula = new Aula('', '', '', '', '', '#000000')
-    this.page_title = "Editar Aula"
+    this.page_title = "Editar Aula/Laboratorio"
     this.is_edit = true;
     this.url = Global.url
 
@@ -186,6 +186,5 @@ export class AulaEditComponent {
 
    allAulas(){
     this._router.navigate(['/especificacion/aulas'])
-    location.reload();
   }
 }

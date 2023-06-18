@@ -21,7 +21,7 @@
 
         <h2 class="subheader">{{page_title}}</h2>
      
-        <form class="mid-form" #asignaturaForm="ngForm" (ngSubmit)="onSubmit()">
+        <form class="mid-form" #asignaturaForm="ngForm" (ngSubmit)="onSubmit()" *ngIf="carrerasFiltradas.length !== 0">
             <div class="form-group">
                 <label for="nombre">Nombre de la Asignatura: </label>
                 <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="asignatura.nombre" (keyup)="onKeyUp()"
@@ -50,7 +50,7 @@
             <div class="form-group" *ngIf="!is_edit">
                 <label for="horario">Horario: </label>
                 <ng-multiselect-dropdown [placeholder]="'Seleccione el Horario'" [settings]="dropdownHorarios"
-                    [data]="horariosType" [(ngModel)]="selectedHorarios" [ngModelOptions]="{standalone: true}">
+                    [data]="horariosType" [(ngModel)]="selectedHorarios" [ngModelOptions]="{standalone: true}" (ngModelChange)="onItemHorariosSelect($event)">
                 </ng-multiselect-dropdown>
             </div>
 
@@ -79,14 +79,6 @@
 
            
 
-          <!--   <div class="form-group" *ngIf="is_edit">
-
-                <label for="periodo">Periodo: </label>
-                <ng-multiselect-dropdown [placeholder]="'Selecciona los semestres'" [settings]="dropdownSemestres"
-                    [data]="semestres" [(ngModel)]="selectedSemestres" (ngModelChange)="onItemSemestreSelect($event)"
-                    [ngModelOptions]="{standalone: true}">
-                </ng-multiselect-dropdown>
-            </div> -->
 
             <div class="form-group" *ngIf="is_edit && selectedHorarios && selectedHorarios.length > 0 && selectedHorarios[0].textField === 'Nocturno'">
                 <label for="periodo">Ciclos: </label>
@@ -106,7 +98,7 @@
 
                 <label for="profesor">Profesores: </label>
                 <ng-multiselect-dropdown [placeholder]="'Selecciona los Profesor'" [settings]="dropdownProfesores"
-                    [data]="profesores" [(ngModel)]="asignatura.profesor"
+                    [data]="carrerasFiltradas" [(ngModel)]="asignatura.profesor"
                     (ngModelChange)="onItemProfesoresSelect($event)" [ngModelOptions]="{standalone: true}">
                 </ng-multiselect-dropdown>
             </div>
@@ -115,7 +107,7 @@
 
                 <label for="profesor">Profesores: </label>
                 <ng-multiselect-dropdown [placeholder]="'Selecciona los Profesores'" [settings]="dropdownProfesores"
-                    [data]="profesores" [(ngModel)]="selectedProfesores" [ngModelOptions]="{standalone: true}">
+                    [data]="carrerasFiltradas" [(ngModel)]="selectedProfesores" [ngModelOptions]="{standalone: true}">
                 </ng-multiselect-dropdown>
             </div>
 
@@ -151,6 +143,13 @@
         </form>
 
 
+</div>
+
+
+
+
+<div  class="loading" *ngIf="carrerasFiltradas && carrerasFiltradas.length === 0">
+    No hay ningun profesor creado. Para crear una nueva asignatura debe existir profesores.
 </div>
 
 <div class="clearfix"></div>

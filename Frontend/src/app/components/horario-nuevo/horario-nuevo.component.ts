@@ -1,3 +1,4 @@
+import { Usuario } from './../models/usuario';
 
 import * as ExcelJS from 'exceljs';
 import { Component, Input } from '@angular/core';
@@ -43,8 +44,11 @@ export class HorarioNuevoComponent {
   public isActiveBtn = false
   public isActiveBtnG = false
   public isActiveBtnV = true
-  verificarDiaPresencialVirtualBolean: boolean = false;
+  public verificarDiaPresencialVirtualBolean: boolean = false;
   public periodoTipo!: any
+  public usuario!: any;
+  public authToken!: any;
+  public UserData!: any;
 
   constructor(
     private _route: ActivatedRoute,
@@ -54,7 +58,7 @@ export class HorarioNuevoComponent {
     private _horarioService: HorarioService,
     private dialog: MatDialog
   ) {
-    this.horario = new Horario('', '', '', '', [], [], [], [])
+    this.horario = new Horario('','', '', '', '',[], [], [], [], this.usuario)
     this.existHorarioCarrera = false
     this.getHorarios()
   }
@@ -100,6 +104,8 @@ export class HorarioNuevoComponent {
     this.getHorarios()
     this.getAsignaturas()
     this.getAulas()
+    this.authToken = localStorage.getItem('datosUsuario');
+    this.UserData = JSON.parse(this.authToken!)
 
   }
 
@@ -517,7 +523,7 @@ export class HorarioNuevoComponent {
     await this.getHorarios()
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('', '', '', '', [], [], [], [])
+    this.horario = new Horario('','', '', '', '', [], [], [], [], this.usuario)
     const arreglosHorario = [
       this.monday,
       this.tuesday,
@@ -535,9 +541,11 @@ export class HorarioNuevoComponent {
     } else {
       this.horario.tipoHorario = "Horario Nocturno"
     }
+    this.horario.estado = "Pendiente (Creado)"
 
     this.horario.carrera = this.opcion2
     this.horario.semestre = this.opcion3
+    this.horario.creado_por = this.UserData
 
     let elementoComprobarTipo: any = []
     let elementoComprobarId: any = []
@@ -651,7 +659,6 @@ export class HorarioNuevoComponent {
     }
 
 
-
     Swal.fire({
       title: '¿Estás seguro?',
       text: 'El horarios se creará',
@@ -665,6 +672,7 @@ export class HorarioNuevoComponent {
         if (datosIguales && !this.existHorarioCarrera) {
           this._horarioService.create(this.horario).subscribe(
             response => {
+              
               if (response.status == 'success') {
                 this.status = 'success'
                 this.horario = response.horario
@@ -756,6 +764,7 @@ export class HorarioNuevoComponent {
     let carreraInfoX = (pageWidth - carreraInfoWidth) / 2;
 
     doc.text(carreraText, carreraInfoX, 20);
+    
     let periodoTipo: any
     if (this.opcion1 === "Horario Nocturno") {
       periodoTipo = "Ciclo"
@@ -1390,7 +1399,7 @@ export class HorarioNuevoComponent {
     await this.getHorarios()
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('', '', '', '', [], [], [], [])
+    this.horario = new Horario('','', '', '', '', [], [], [], [], this.usuario)
     let itemsHorarioArray = []
     let arreglosHorario = []
     arreglosHorario = [
@@ -1749,7 +1758,7 @@ export class HorarioNuevoComponent {
   async verificarDiaPresencialVirtual() {
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('', '', '', '', [], [], [], [])
+    this.horario = new Horario('','', '', '', '', [], [], [], [], this.usuario)
     let arreglosHorario = []
     arreglosHorario = [
       this.monday,

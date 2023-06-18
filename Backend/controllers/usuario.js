@@ -198,38 +198,32 @@ var controller = {
             validate_usuario &&
             validate_email &&
             validate_ci &&
-            validate_rol
+            validate_rol &&
+            validate_contrasena
         ) {
-            // Encriptar la nueva contraseña
-            if (validate_contrasena) {
-                bcrypt.hash(params.contrasena, 10, function (err, hash) {
-                    if (err) {
-                        return res.status(500).send({
+            // Buscar el usuario actual en la base de datos
+            usuario.findById(usuarioId)
+                .then(usuarioActual => {
+                    if (!usuarioActual) {
+                        return res.status(404).send({
                             status: 'error',
-                            message: 'Error al encriptar la contraseña'
+                            message: 'No existe el usuario'
                         });
                     }
     
-                    params.contrasena = hash; // Reemplazar la contraseña con el hash
-                    
-                    usuario
-                        .findOne({
-                            _id: { $ne: usuarioId },
-                            $or: [
-                                { email: params.email },
-                                { username: params.username },
-                                { phoneNumber: params.phoneNumber },
-                                { ci: params.ci }
-                            ]
-                        })
-                        .then(existingUser => {
-                            if (existingUser) {
-                                return res.status(400).send({
+                    // Verificar si la contraseña ha sido modificada
+                    if (params.contrasena && params.contrasena !== usuarioActual.contrasena) {
+                        // Encriptar la nueva contraseña
+                        bcrypt.hash(params.contrasena, 10, function (err, hash) {
+                            if (err) {
+                                return res.status(500).send({
                                     status: 'error',
-                                    message: 'Se encontraron datos duplicadas con otro usuario al actualizar el usuario'
+                                    message: 'Error al encriptar la contraseña'
                                 });
                             }
+                            params.contrasena = hash; // Reemplazar la contraseña con el hash
     
+                            // Actualizar el usuario en la base de datos
                             usuario
                                 .findOneAndUpdate({ _id: usuarioId }, params, { new: true })
                                 .then(usuarioUpdated => {
@@ -244,29 +238,16 @@ var controller = {
                                         status: 'success',
                                         usuario: usuarioUpdated
                                     });
+                                })
+                                .catch(error => {
+                                    return res.status(500).send({
+                                        status: 'error',
+                                        message: 'Datos duplicadas con otro usuario. Los datos (CI, USUARIO, EMAIL, N° Celular) deben ser únicos.'
+                                    });
                                 });
                         });
-                });
-            } else {
-                // Si la contraseña no se proporciona para actualizarla, simplemente actualizar otros campos sin encriptación
-                usuario
-                    .findOne({
-                        _id: { $ne: usuarioId },
-                        $or: [
-                            { email: params.email },
-                            { username: params.username },
-                            { phoneNumber: params.phoneNumber },
-                            { ci: params.ci }
-                        ]
-                    })
-                    .then(existingUser => {
-                        if (existingUser) {
-                            return res.status(400).send({
-                                status: 'error',
-                                message: 'Se encontraron datos duplicadas con otro usuario al actualizar el usuario'
-                            });
-                        }
-    
+                    } else {
+                        // Actualizar el usuario en la base de datos sin modificar la contraseña
                         usuario
                             .findOneAndUpdate({ _id: usuarioId }, params, { new: true })
                             .then(usuarioUpdated => {
@@ -281,9 +262,21 @@ var controller = {
                                     status: 'success',
                                     usuario: usuarioUpdated
                                 });
+                            })
+                            .catch(error => {
+                                return res.status(500).send({
+                                    status: 'error',
+                                    message: 'Datos duplicadas con otro usuario. Los datos (CI, Usuario, Email, N° Celular) deben ser únicos.'
+                                });
                             });
+                    }
+                })
+                .catch(error => {
+                    return res.status(500).send({
+                        status: 'error',
+                        message: 'Error al buscar el usuario en la base de datos'
                     });
-            }
+                });
         } else {
             return res.status(400).send({
                 status: 'error',
@@ -291,6 +284,7 @@ var controller = {
             });
         }
     },
+
     delete: (req, res) => {
 
         var usuarioId = req.params.id;

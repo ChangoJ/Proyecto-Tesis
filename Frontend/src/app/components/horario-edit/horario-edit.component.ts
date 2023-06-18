@@ -16,12 +16,13 @@ import autoTable from 'jspdf-autotable';
 import * as FileSaver from 'file-saver';
 import { v4 as uuidv4 } from 'uuid';
 import * as ExcelJS from 'exceljs';
+import { UsuarioService } from '../services/usuario.service';
 
 @Component({
   selector: 'app-horario-edit',
   templateUrl: './horario-edit.component.html',
   styleUrls: ['./horario-edit.component.css'],
-  providers: [HorarioService, AsignaturaService, AulaService, ProfesorService]
+  providers: [HorarioService, AsignaturaService, AulaService, ProfesorService, UsuarioService]
 })
 export class HorarioEditComponent {
 
@@ -47,8 +48,14 @@ export class HorarioEditComponent {
   public isActiveBtnV = false
   public opcionVerHorario = false
   verificarDiaPresencialVirtualBolean: boolean = false;
+  authToken!: any;
+  UserData!: any;
+  public usuario!: any;
 
   public periodoTipo!: any
+  public usuarios: any = [];
+  public revisador: any = [];
+  public aprobador: any = [];
 
 
 
@@ -58,9 +65,9 @@ export class HorarioEditComponent {
     private _asignaturaService: AsignaturaService,
     private _aulasService: AulaService,
     private _horarioService: HorarioService,
-    private dialog: MatDialog
+    private _usuarioService: UsuarioService,
   ) {
-    this.horario = new Horario('', '', '', '', [], [], [], [])
+    this.horario = new Horario('', '', '', '', '', [], [], [], [],this.usuario)
     this.existHorarioCarrera = false
   }
 
@@ -108,6 +115,9 @@ export class HorarioEditComponent {
     this.getHorario()
     this.getHorarios()
     this.verHorario()
+    this.getUsuarios()
+    this.authToken = localStorage.getItem('datosUsuario');
+    this.UserData = JSON.parse(this.authToken!)
   }
 
   verHorario() {
@@ -232,6 +242,28 @@ export class HorarioEditComponent {
       }
     )
 
+  }
+
+  getUsuarios() {
+    this._usuarioService.getUsuarios().subscribe(
+      response => {
+        if (response.usuarios) {
+          this.usuarios = response.usuarios
+          for (let usuario of this.usuarios) {
+            console.log(usuario)
+            if (usuario.rol === "Aprobador") {
+              this.aprobador = usuario
+            } else if (usuario.rol === "Revisador") {
+              this.revisador = usuario
+            }
+          }
+          console.log(this.aprobador)
+        }
+      },
+      error => {
+        console.log(error)
+      }
+    )
   }
 
   getDayData(day: number, hour: string): any[] {
@@ -470,7 +502,7 @@ export class HorarioEditComponent {
   async verificarDiaPresencialVirtual() {
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('', '', '', '', [], [], [], [])
+    this.horario = new Horario('', '', '', '', '', [], [], [], [],this.usuario)
     let arreglosHorario = []
     arreglosHorario = [
       this.monday,
@@ -651,6 +683,8 @@ export class HorarioEditComponent {
     });
   }
 
+
+
   getHorario() {
     this._route.params.subscribe(params => {
       let id = params['id'];
@@ -758,7 +792,7 @@ export class HorarioEditComponent {
     await this.getHorarios()
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('', '', '', '', [], [], [], [])
+    this.horario = new Horario('', '', '', '', '', [], [], [], [],this.usuario)
     const arreglosHorario = [
       this.monday,
       this.tuesday,
@@ -771,7 +805,7 @@ export class HorarioEditComponent {
     let identificadoresAulas = []
     let identificadoresAsignaturas = []
     let datosIguales: boolean = false
-
+    this.horario.estado = "Pendiente (Modificado)"
     this.horario.tipoHorario = this.opcion1
     this.horario.carrera = this.opcion2
     this.horario.semestre = this.opcion3
@@ -1000,14 +1034,6 @@ export class HorarioEditComponent {
 
     doc.text(semestreText, semestreInfoX, 25);
 
-    // Agregar texto al final de la página
-    doc.setFontSize(8);
-    doc.text('Elaborado por: ', 15, doc.internal.pageSize.height - 40);
-    doc.setLineWidth(0.2);
-    doc.line(15, doc.internal.pageSize.height - 25, 45, doc.internal.pageSize.height - 25);
-    doc.setFontSize(8);
-    doc.text('Mgs David Sosa', 15, doc.internal.pageSize.height - 20);
-    doc.text('Director de carrera', 15, doc.internal.pageSize.height - 15);
 
 
 
@@ -1246,9 +1272,36 @@ export class HorarioEditComponent {
         fontSize: 8,
         textColor: [0, 0, 0]
       },
-      margin: { top: 50, left: 30 },
+      margin: {  left: 30 },
 
     });
+
+
+    let rowDataHead3: any = [];
+
+    let DataFirmas: any = [];
+
+
+
+    rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:'])
+    DataFirmas.push(["", "", ""]);
+    DataFirmas.push(["Prof. " + this.horario.creado_por.nombre, "Prof. "+this.revisador.nombre, "Prof. "+this.aprobador.nombre]);
+    DataFirmas.push(["Director de Carrera", "Decana de Facultad", "Directora Académica "]);
+    
+    autoTable(doc, {
+      head: rowDataHead3,
+      body: DataFirmas,
+      theme: 'grid',
+      styles: {
+        cellWidth: 60,
+        minCellHeight: 10,
+        fontSize: 8,
+        textColor: [0, 0, 0]
+      },
+      margin: { left: 55 },
+
+    });
+
 
     // Descargar el PDF
     doc.save(this.opcion1 + '-' + this.opcion2 + '-' + this.opcion3 + '.pdf');
@@ -1575,11 +1628,11 @@ export class HorarioEditComponent {
     elaboradoPor.value = 'Elaborado por: ';
     elaboradoPor.font = { size: 8 };
 
-    let nombreDirector = worksheet.getCell(28, 2);
-    nombreDirector.value = 'Mgs David Sosa';
+    let nombreDirector = worksheet.getCell(29, 2);
+    nombreDirector.value = 'Prof. '+ this.horario.creado_por.nombre;
     nombreDirector.font = { size: 8 };
 
-    let directorCarrera = worksheet.getCell(29, 2);
+    let directorCarrera = worksheet.getCell(30, 2);
     directorCarrera.value = 'Director de carrera';
     directorCarrera.font = { size: 8 };
 
@@ -1589,11 +1642,11 @@ export class HorarioEditComponent {
     revisadoPor.value = 'Revisado por: ';
     revisadoPor.font = { size: 8 };
 
-    let nombreRevisador = worksheet.getCell(28, 4);
-    nombreRevisador.value = 'Ph.D. Alicia Elizundia';
+    let nombreRevisador = worksheet.getCell(29, 4);
+    nombreRevisador.value = 'Prof. '+this.revisador.nombre;
     nombreRevisador.font = { size: 8 };
 
-    let cargoRevisador = worksheet.getCell(29, 4);
+    let cargoRevisador = worksheet.getCell(30, 4);
     cargoRevisador.value = 'Decana de Facultad';
     cargoRevisador.font = { size: 8 };
 
@@ -1604,11 +1657,11 @@ export class HorarioEditComponent {
     aprobadorPor.value = 'Aprobado por: ';
     aprobadorPor.font = { size: 8 };
 
-    let nombreAprobador = worksheet.getCell(28, 6);
-    nombreAprobador.value = 'Ph.D Luisa Taborda';
+    let nombreAprobador = worksheet.getCell(29, 6);
+    nombreAprobador.value = "Prof. "+this.aprobador.nombre;
     nombreAprobador.font = { size: 8 };
 
-    let cargoAprobador = worksheet.getCell(29, 6);
+    let cargoAprobador = worksheet.getCell(30, 6);
     cargoAprobador.value = 'Directora Academica';
     cargoAprobador.font = { size: 8 };
 
@@ -1623,7 +1676,7 @@ export class HorarioEditComponent {
     await this.getHorarios
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('', '', '', '', [], [], [], [])
+    this.horario = new Horario('', '', '', '', '', [], [], [], [],this.usuario)
     let itemsHorarioArray = []
     let arreglosHorario = []
     arreglosHorario = [
@@ -1964,8 +2017,5 @@ export class HorarioEditComponent {
 
   }
 
-  deshabilitarTabla() {
-
-  }
 
 }

@@ -36,12 +36,12 @@ export class UsuarioNuevoComponent {
     { id: 6, textField: 'Nutricion' },
     { id: 7, textField: 'Psicologia' },
     { id: 8, textField: 'Educacion Basica' },
-    { id: 9, textField: 'Produccion Audiovisual' },
+    { id: 9, textField: 'produccionAudiovisual' },
     { id: 10, textField: 'Contabilidad' },
     { id: 11, textField: 'Derecho' },
     { id: 12, textField: 'Economia' },
     { id: 13, textField: 'Software' },
-    { id: 14, textField: 'Administracion de Empresas' },
+    { id: 14, textField: 'AadministracionEmpresas' },
     { id: 15, textField: 'Gastronomia' },
     { id: 16, textField: 'Turismo' }
   ];

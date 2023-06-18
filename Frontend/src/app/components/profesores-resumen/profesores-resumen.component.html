@@ -62,7 +62,7 @@
                         <mat-select [(ngModel)]="profesorSeleccionado">
                             <mat-option value="todos">Todos</mat-option>
                             <!-- Agrega esta línea para la opción "Todos" -->
-                            <mat-option *ngFor="let profesor of profesores" [value]="profesor">{{ profesor.nombre
+                            <mat-option *ngFor="let profesor of carrerasFiltradas" [value]="profesor">{{ profesor.nombre
                                 }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -179,7 +179,7 @@
                 *matRowDef="let asignatura; index as i; columns: ['nombre', 'asignaturas', 'N° Horas', 'Total Horas','Observación']">
             </tr>
         </table>
-        <mat-paginator #paginator [pageSizeOptions]="[1, 2, 20]" showFirstLastButtons
+        <mat-paginator #paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
             aria-label="Seleccione la pagina del resumen de profesores">
 
         </mat-paginator>
@@ -277,7 +277,7 @@
                 *matRowDef="let asignatura; index as i; columns: ['nombre', 'asignaturas', 'N° Horas', 'Total Horas','Observación']">
             </tr>
         </table>
-        <mat-paginator #paginator2 [pageSizeOptions]="[1, 2, 20]" showFirstLastButtons
+        <mat-paginator #paginator2 [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
             aria-label="Seleccione la pagina del resumen de profesores">
 
         </mat-paginator>

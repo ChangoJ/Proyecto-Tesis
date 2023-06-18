@@ -26,6 +26,26 @@ export class AsignaturaEditComponent {
   public page_title: string
   public url!: string
   public asignaturanumber!: number
+  carrerasFiltradas: any[] = [];
+  authToken!: any;
+  UserData!: any;
+
+
+  rolesCarreras: any = {
+    enfermeria: 'Enfermeria',
+    fisioterapia: 'Fisioterapia',
+    nutricion: 'Nutricion',
+    psicologia: 'Psicologia',
+    educacionBasica: 'Educacion Basica',
+    produccionAudiovisual: 'Produccion Audiovisual',
+    contabilidad: 'Contabilidad',
+    derecho: 'Derecho',
+    economia: 'Economia',
+    software: 'Software',
+    administracionEmpresas: 'Administracion de Empresas',
+    gastronomia: 'Gastronomia',
+    turismo: 'Turismo'
+  };
 
   carreras: any[] = [
     { id: 1, textField: 'Enfermeria' },
@@ -239,6 +259,9 @@ export class AsignaturaEditComponent {
   ngOnInit() {
     this.getAsignatura();
     this.getProfesores();
+    
+    this.authToken = localStorage.getItem('datosUsuario');
+    this.UserData = JSON.parse(this.authToken!)
   }
 
 
@@ -247,6 +270,15 @@ export class AsignaturaEditComponent {
       response => {
         if (response.profesores) {
           this.profesores = response.profesores;
+          let carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+
+          this.carrerasFiltradas = [];
+
+          if (carreraActual) {
+            this.carrerasFiltradas = this.profesores.filter(elemento => elemento.carrera.includes(carreraActual));
+          } else {
+            this.carrerasFiltradas = this.profesores;
+          }
         }
       },
       error => {
@@ -254,6 +286,8 @@ export class AsignaturaEditComponent {
       }
     )
   }
+
+  
 
 
   getAsignatura() {
@@ -296,6 +330,7 @@ export class AsignaturaEditComponent {
   }
 
   onItemHorariosSelect(item: any) {
+    this.selectedSemestres = []
     this.itemHorarioEdit = item
   }
 

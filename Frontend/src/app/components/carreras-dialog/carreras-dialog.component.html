@@ -5,7 +5,7 @@
     <mat-form-field>
       <mat-label>Carrera</mat-label>
       <mat-select [(value)]="selectedCarrera" >
-        <mat-option *ngFor="let carrera of carreras" [value]="carrera.textField">
+        <mat-option *ngFor="let carrera of carrerasFiltradas" [value]="carrera.textField">
           {{ carrera.textField }}
         </mat-option>
       </mat-select>

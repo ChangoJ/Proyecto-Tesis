@@ -15,6 +15,7 @@ var controller = {
             var validate_tipoHorario = !validator.isEmpty(params.tipoHorario);
             var validate_carrera = !validator.isEmpty(params.carrera);
             var validate_semestre = !validator.isEmpty(params.semestre);
+            var validate_estado = !validator.isEmpty(params.estado);
 
 
         } catch (err) {
@@ -24,9 +25,10 @@ var controller = {
             });
         }
 
-        if (validate_tipoHorario && validate_carrera && validate_semestre
+        if (validate_tipoHorario && validate_carrera && validate_estado && validate_semestre
             && params.dia.length !== 0 && params.idTabla.length !== 0
-            && params.horas.length !== 0 && params.item.length !== 0) {
+            && params.horas.length !== 0 && params.item.length !== 0
+            && (params.creado_por  !== undefined || params.creado_por !== null)) {
 
 
             //Crear el objeto a guardar
@@ -35,12 +37,15 @@ var controller = {
 
             //asignar valores
             horario1.tipoHorario = params.tipoHorario;
+            horario1.estado = params.estado;
             horario1.carrera = params.carrera;
             horario1.semestre = params.semestre;
             horario1.dia = params.dia;
             horario1.idTabla = params.idTabla;
             horario1.horas = params.horas;
             horario1.item = params.item
+            horario1.creado_por = params.creado_por
+            horario1.observacion = params.observacion
 
 
             //guardar el articulo
@@ -154,6 +159,7 @@ var controller = {
             var validate_tipoHorario = !validator.isEmpty(params.tipoHorario);
             var validate_carrera = !validator.isEmpty(params.carrera);
             var validate_semestre = !validator.isEmpty(params.semestre);
+            var validate_estado = !validator.isEmpty(params.estado);
 
 
         } catch (err) {
@@ -163,9 +169,10 @@ var controller = {
             });
         }
 
-        if (validate_tipoHorario && validate_carrera && validate_semestre
+        if (validate_tipoHorario && validate_carrera && validate_estado && validate_semestre
             && params.dia.length !== 0 && params.idTabla.length !== 0
-            && params.horas.length !== 0 && params.item.length !== 0) {
+            && params.horas.length !== 0 && params.item.length !== 0
+            && (params.creado_por  !== undefined || params.creado_por !== null)) {
 
             horario.findOneAndUpdate({ _id: horarioId }, params, { new: true }).then((horarioUpdated) => {
 
@@ -231,6 +238,12 @@ var controller = {
                 },
                 {
                     "semestre": { "$regex": searchString, "$options": "i" }
+                },
+                {
+                    "estado": { "$regex": searchString, "$options": "i" }
+                },
+                {
+                    "observacion": { "$regex": searchString, "$options": "i" }
                 }
             ]
         })

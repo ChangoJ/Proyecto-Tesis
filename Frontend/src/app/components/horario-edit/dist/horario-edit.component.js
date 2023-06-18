@@ -75,14 +75,15 @@ var jspdf_autotable_1 = require("jspdf-autotable");
 var FileSaver = require("file-saver");
 var uuid_1 = require("uuid");
 var ExcelJS = require("exceljs");
+var usuario_service_1 = require("../services/usuario.service");
 var HorarioEditComponent = /** @class */ (function () {
-    function HorarioEditComponent(_route, _router, _asignaturaService, _aulasService, _horarioService, dialog) {
+    function HorarioEditComponent(_route, _router, _asignaturaService, _aulasService, _horarioService, _usuarioService) {
         this._route = _route;
         this._router = _router;
         this._asignaturaService = _asignaturaService;
         this._aulasService = _aulasService;
         this._horarioService = _horarioService;
-        this.dialog = dialog;
+        this._usuarioService = _usuarioService;
         this.profesores = [];
         this.listaA = [];
         this.opcion1 = "";
@@ -97,6 +98,9 @@ var HorarioEditComponent = /** @class */ (function () {
         this.isActiveBtnV = false;
         this.opcionVerHorario = false;
         this.verificarDiaPresencialVirtualBolean = false;
+        this.usuarios = [];
+        this.revisador = [];
+        this.aprobador = [];
         this.hours = [
             '07:00 - 08:00',
             '08:00 - 09:00',
@@ -129,7 +133,7 @@ var HorarioEditComponent = /** @class */ (function () {
         this.asignaturasFiltradas = [];
         this.asignaturasColocadas = [];
         this.aulasFiltradas = [];
-        this.horario = new horario_1.Horario('', '', '', '', [], [], [], []);
+        this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
         this.existHorarioCarrera = false;
     }
     HorarioEditComponent.prototype.ngOnInit = function () {
@@ -137,6 +141,9 @@ var HorarioEditComponent = /** @class */ (function () {
         this.getHorario();
         this.getHorarios();
         this.verHorario();
+        this.getUsuarios();
+        this.authToken = localStorage.getItem('datosUsuario');
+        this.UserData = JSON.parse(this.authToken);
     };
     HorarioEditComponent.prototype.verHorario = function () {
         var _this = this;
@@ -238,6 +245,27 @@ var HorarioEditComponent = /** @class */ (function () {
                 }
                 // Agregar los objetos restantes del segundo array al arrayUnico
                 (_a = _this.asignaturasFiltradas).push.apply(_a, _this.asignaturasColocadas);
+            }
+        }, function (error) {
+            console.log(error);
+        });
+    };
+    HorarioEditComponent.prototype.getUsuarios = function () {
+        var _this = this;
+        this._usuarioService.getUsuarios().subscribe(function (response) {
+            if (response.usuarios) {
+                _this.usuarios = response.usuarios;
+                for (var _i = 0, _a = _this.usuarios; _i < _a.length; _i++) {
+                    var usuario = _a[_i];
+                    console.log(usuario);
+                    if (usuario.rol === "Aprobador") {
+                        _this.aprobador = usuario;
+                    }
+                    else if (usuario.rol === "Revisador") {
+                        _this.revisador = usuario;
+                    }
+                }
+                console.log(_this.aprobador);
             }
         }, function (error) {
             console.log(error);
@@ -450,7 +478,7 @@ var HorarioEditComponent = /** @class */ (function () {
                     case 0:
                         this.aulaHorario = [];
                         this.asignaturaHorario = [];
-                        this.horario = new horario_1.Horario('', '', '', '', [], [], [], []);
+                        this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
                         arreglosHorario = [];
                         arreglosHorario = [
                             this.monday,
@@ -738,7 +766,7 @@ var HorarioEditComponent = /** @class */ (function () {
                         _c.sent();
                         this.aulaHorario = [];
                         this.asignaturaHorario = [];
-                        this.horario = new horario_1.Horario('', '', '', '', [], [], [], []);
+                        this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
                         arreglosHorario = [
                             this.monday,
                             this.tuesday,
@@ -750,6 +778,7 @@ var HorarioEditComponent = /** @class */ (function () {
                         identificadoresAulas = [];
                         identificadoresAsignaturas = [];
                         datosIguales = false;
+                        this.horario.estado = "Pendiente (Modificado)";
                         this.horario.tipoHorario = this.opcion1;
                         this.horario.carrera = this.opcion2;
                         this.horario.semestre = this.opcion3;
@@ -948,14 +977,6 @@ var HorarioEditComponent = /** @class */ (function () {
         var semestreInfoWidth = doc.getTextWidth(semestreText);
         var semestreInfoX = (pageWidth - semestreInfoWidth) / 2;
         doc.text(semestreText, semestreInfoX, 25);
-        // Agregar texto al final de la página
-        doc.setFontSize(8);
-        doc.text('Elaborado por: ', 15, doc.internal.pageSize.height - 40);
-        doc.setLineWidth(0.2);
-        doc.line(15, doc.internal.pageSize.height - 25, 45, doc.internal.pageSize.height - 25);
-        doc.setFontSize(8);
-        doc.text('Mgs David Sosa', 15, doc.internal.pageSize.height - 20);
-        doc.text('Director de carrera', 15, doc.internal.pageSize.height - 15);
         var days;
         var DataAdicional = [];
         var asignaturasProfesores = [];
@@ -1149,7 +1170,25 @@ var HorarioEditComponent = /** @class */ (function () {
                 fontSize: 8,
                 textColor: [0, 0, 0]
             },
-            margin: { top: 50, left: 30 }
+            margin: { left: 30 }
+        });
+        var rowDataHead3 = [];
+        var DataFirmas = [];
+        rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:']);
+        DataFirmas.push(["", "", ""]);
+        DataFirmas.push(["Prof. " + this.horario.creado_por.nombre, "Prof. " + this.revisador.nombre, "Prof. " + this.aprobador.nombre]);
+        DataFirmas.push(["Director de Carrera", "Decana de Facultad", "Directora Académica "]);
+        jspdf_autotable_1["default"](doc, {
+            head: rowDataHead3,
+            body: DataFirmas,
+            theme: 'grid',
+            styles: {
+                cellWidth: 60,
+                minCellHeight: 10,
+                fontSize: 8,
+                textColor: [0, 0, 0]
+            },
+            margin: { left: 55 }
         });
         // Descargar el PDF
         doc.save(this.opcion1 + '-' + this.opcion2 + '-' + this.opcion3 + '.pdf');
@@ -1420,30 +1459,30 @@ var HorarioEditComponent = /** @class */ (function () {
         var elaboradoPor = worksheet.getCell(26, 2);
         elaboradoPor.value = 'Elaborado por: ';
         elaboradoPor.font = { size: 8 };
-        var nombreDirector = worksheet.getCell(28, 2);
-        nombreDirector.value = 'Mgs David Sosa';
+        var nombreDirector = worksheet.getCell(29, 2);
+        nombreDirector.value = 'Prof. ' + this.horario.creado_por.nombre;
         nombreDirector.font = { size: 8 };
-        var directorCarrera = worksheet.getCell(29, 2);
+        var directorCarrera = worksheet.getCell(30, 2);
         directorCarrera.value = 'Director de carrera';
         directorCarrera.font = { size: 8 };
         // Agregar texto al final de la página
         var revisadoPor = worksheet.getCell(26, 4);
         revisadoPor.value = 'Revisado por: ';
         revisadoPor.font = { size: 8 };
-        var nombreRevisador = worksheet.getCell(28, 4);
-        nombreRevisador.value = 'Ph.D. Alicia Elizundia';
+        var nombreRevisador = worksheet.getCell(29, 4);
+        nombreRevisador.value = 'Prof. ' + this.revisador.nombre;
         nombreRevisador.font = { size: 8 };
-        var cargoRevisador = worksheet.getCell(29, 4);
+        var cargoRevisador = worksheet.getCell(30, 4);
         cargoRevisador.value = 'Decana de Facultad';
         cargoRevisador.font = { size: 8 };
         // Agregar texto al final de la página
         var aprobadorPor = worksheet.getCell(26, 6);
         aprobadorPor.value = 'Aprobado por: ';
         aprobadorPor.font = { size: 8 };
-        var nombreAprobador = worksheet.getCell(28, 6);
-        nombreAprobador.value = 'Ph.D Luisa Taborda';
+        var nombreAprobador = worksheet.getCell(29, 6);
+        nombreAprobador.value = "Prof. " + this.aprobador.nombre;
         nombreAprobador.font = { size: 8 };
-        var cargoAprobador = worksheet.getCell(29, 6);
+        var cargoAprobador = worksheet.getCell(30, 6);
         cargoAprobador.value = 'Directora Academica';
         cargoAprobador.font = { size: 8 };
         workbook.xlsx.writeBuffer().then(function (buffer) {
@@ -1462,7 +1501,7 @@ var HorarioEditComponent = /** @class */ (function () {
                         _d.sent();
                         this.aulaHorario = [];
                         this.asignaturaHorario = [];
-                        this.horario = new horario_1.Horario('', '', '', '', [], [], [], []);
+                        this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
                         itemsHorarioArray = [];
                         arreglosHorario = [];
                         arreglosHorario = [
@@ -1730,8 +1769,6 @@ var HorarioEditComponent = /** @class */ (function () {
             });
         });
     };
-    HorarioEditComponent.prototype.deshabilitarTabla = function () {
-    };
     __decorate([
         core_1.Input()
     ], HorarioEditComponent.prototype, "asignaturas");
@@ -1740,7 +1777,7 @@ var HorarioEditComponent = /** @class */ (function () {
             selector: 'app-horario-edit',
             templateUrl: './horario-edit.component.html',
             styleUrls: ['./horario-edit.component.css'],
-            providers: [horario_service_1.HorarioService, asignatura_service_1.AsignaturaService, aula_service_1.AulaService, profesor_service_1.ProfesorService]
+            providers: [horario_service_1.HorarioService, asignatura_service_1.AsignaturaService, aula_service_1.AulaService, profesor_service_1.ProfesorService, usuario_service_1.UsuarioService]
         })
     ], HorarioEditComponent);
     return HorarioEditComponent;

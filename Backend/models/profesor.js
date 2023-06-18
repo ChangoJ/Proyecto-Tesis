@@ -10,4 +10,4 @@ var ProfesorScheme = Schema({
     observacion: { type: String, required: false },
 });
 
-module.exports = mongoose.model('Profesor', ProfesorScheme);
+module.exports = mongoose.model('Profesores', ProfesorScheme);

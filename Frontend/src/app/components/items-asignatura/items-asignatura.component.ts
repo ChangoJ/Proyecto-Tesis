@@ -24,27 +24,75 @@ export class ItemsAsignaturaComponent {
   public selectedSemestre!: any
 
   @Input() asignaturas!: Asignatura[]
-  columnas = ['N°', 'Nombre', 'Carrera', 'Semestre', 'Profesor','Horario', 'Creditos', 'Color', 'Acciones'];
-  carreras = ["Enfermeria", "Fisioterapia", "Nutricion", "Psicologia", " Educacion Basica", "Produccion Audiovisual", "Contabilidad", "Derecho", "Economia", "Software", "Administracion de Empresas",
+  columnas = ['N°', 'Nombre', 'Carrera', 'Semestre', 'Profesor', 'Horario', 'Creditos', 'Color', 'Acciones'];
+  carreras = ["Enfermeria", "Fisioterapia", "Nutricion", "Psicologia", "Educacion Basica", "Produccion Audiovisual", "Contabilidad", "Derecho", "Economia", "Software", "Administracion de Empresas",
     "Gastronomia", "Turismo"];
-  semestres = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", " 12"];
+  semestres = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10",];
   asignaturasObtenidos: any[] = [];
+  authToken!: any;
+  UserData!: any;
+  carrerasFiltradas: any[] = [];
+  public is_admin!: boolean
+  public is_aprobador!: boolean
+
+  rolesCarreras: any = {
+    enfermeria: 'Enfermeria',
+    fisioterapia: 'Fisioterapia',
+    nutricion: 'Nutricion',
+    psicologia: 'Psicologia',
+    educacionBasica: 'Educacion Basica',
+    produccionAudiovisual: 'Produccion Audiovisual',
+    contabilidad: 'Contabilidad',
+    derecho: 'Derecho',
+    economia: 'Economia',
+    software: 'Software',
+    administracionEmpresas: 'Administracion de Empresas',
+    gastronomia: 'Gastronomia',
+    turismo: 'Turismo'
+  };
 
   constructor(private _asignaturaService: AsignaturaService,
     private _route: ActivatedRoute,
     private _router: Router) {
     this.url = Global.url
+
+    this.is_admin = false
+    this.is_aprobador = false
   }
 
   @ViewChild('paginatorAs', { static: false }) paginator!: MatPaginator;
 
 
+
   ngOnInit() {
+
+    this.getAsignaturas()
+    this.authToken = localStorage.getItem('datosUsuario');
+    this.UserData = JSON.parse(this.authToken!)
+    if (this.UserData.rol === "Administrador" || this.UserData.rol === "Aprobador") {
+      this.is_admin = true
+      this.is_aprobador = true
+    }
+
+
+  }
+
+  getAsignaturas() {
     this._asignaturaService.getAsignaturas().subscribe(
       response => {
         if (response.asignaturas) {
           this.asignaturasObtenidos = response.asignaturas
-          this.asignaturasFiltrados = new MatTableDataSource<any>(this.asignaturasObtenidos);
+          let carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+
+          this.carrerasFiltradas = [];
+
+          if (carreraActual) {
+            this.carrerasFiltradas = this.asignaturasObtenidos.filter(elemento => elemento.carrera.includes(carreraActual));
+          } else {
+            this.carrerasFiltradas = this.asignaturasObtenidos;
+          }
+          
+          this.asignaturasFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas);
           this.asignaturasFiltrados.paginator = this.paginator;
         }
       },
@@ -52,8 +100,9 @@ export class ItemsAsignaturaComponent {
         console.log(error)
       }
     )
-
   }
+
+  
 
   delete(id: string) {
 
@@ -92,7 +141,7 @@ export class ItemsAsignaturaComponent {
 
     let terminosBusqueda = this.terminoBusquedaAsignatura.trim().toLowerCase();
 
-    let asignaturasFiltrados = this.asignaturasObtenidos;
+    let asignaturasFiltrados = this.carrerasFiltradas;
 
     if (this.selectedCarrera !== undefined) {
       asignaturasFiltrados = asignaturasFiltrados.filter(asignatura => {
@@ -107,7 +156,7 @@ export class ItemsAsignaturaComponent {
     }
 
     if (this.selectedCarrera === "Todas" || this.selectedSemestre === "Todas") {
-      asignaturasFiltrados = this.asignaturasObtenidos;
+      asignaturasFiltrados = this.carrerasFiltradas;
     }
 
     if (terminosBusqueda !== '') {
@@ -123,7 +172,7 @@ export class ItemsAsignaturaComponent {
       if (asignaturasFiltrados.length === 0) {
         let terminosBusquedaSeparados = terminosBusqueda.split(' ');
         regexBusqueda = new RegExp(`(${terminosBusquedaSeparados.join('|')})`, 'gi');
-        asignaturasFiltrados = this.asignaturasObtenidos.filter(asignaturas =>
+        asignaturasFiltrados = this.carrerasFiltradas.filter(asignaturas =>
           asignaturas.nombre.toString().toLowerCase().match(regexBusqueda) ||
           asignaturas.profesor[0].nombre.toString().toLowerCase().match(regexBusqueda) ||
           asignaturas.creditos.toString().toLowerCase().match(regexBusqueda) ||

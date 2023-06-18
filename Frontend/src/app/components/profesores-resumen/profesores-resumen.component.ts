@@ -52,6 +52,27 @@ export class ProfesoresResumenComponent {
   public saturday: any[] = [];
   public profesorSeleccionado!: any
   editingProfesor: any = null;
+  carrerasFiltradas: any[] = [];
+  asignaturasFiltradas: any[] = [];
+  authToken!: any;
+  UserData!: any;
+
+
+  rolesCarreras: any = {
+    enfermeria: 'Enfermeria',
+    fisioterapia: 'Fisioterapia',
+    nutricion: 'Nutricion',
+    psicologia: 'Psicologia',
+    educacionBasica: 'Educacion Basica',
+    produccionAudiovisual: 'Produccion Audiovisual',
+    contabilidad: 'Contabilidad',
+    derecho: 'Derecho',
+    economia: 'Economia',
+    software: 'Software',
+    administracionEmpresas: 'Administracion de Empresas',
+    gastronomia: 'Gastronomia',
+    turismo: 'Turismo'
+  };
 
 
   public hours = [
@@ -99,6 +120,9 @@ export class ProfesoresResumenComponent {
     this.getProfesores()
     this.getAsignaturas()
     this.getAulas()
+    this.authToken = localStorage.getItem('datosUsuario');
+    this.UserData = JSON.parse(this.authToken!)
+
   }
 
   getProfesores() {
@@ -106,6 +130,15 @@ export class ProfesoresResumenComponent {
       response => {
         if (response.profesores) {
           this.profesores = response.profesores;
+          let carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+
+          this.carrerasFiltradas = [];
+
+          if (carreraActual) {
+            this.carrerasFiltradas = this.profesores.filter(elemento => elemento.carrera.includes(carreraActual));
+          } else {
+            this.carrerasFiltradas = this.profesores;
+          }
         }
       },
       error => {
@@ -369,7 +402,17 @@ export class ProfesoresResumenComponent {
       response => {
         if (response.asignaturas) {
           this.asignaturas = response.asignaturas
-          this.agruparAsignaturasPorProfesor(this.asignaturas)
+          let carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+
+          this.asignaturasFiltradas = [];
+
+          if (carreraActual) {
+            this.asignaturasFiltradas = this.asignaturas.filter(elemento => elemento.carrera.includes(carreraActual));
+          } else {
+            this.asignaturasFiltradas = this.asignaturas;
+          }
+          console.log(this.asignaturasFiltradas)
+          this.agruparAsignaturasPorProfesor(this.asignaturasFiltradas)
           this.asignaturasPorProfesorTiempoCompleto.paginator = this.paginator
           this.asignaturasPorProfesorMedioTiempo.paginator = this.paginator2
           this.asignaturasPorProfesorTiempoParcial.paginator = this.paginator2
@@ -386,7 +429,7 @@ export class ProfesoresResumenComponent {
   async getProfesorSeleccionadoRPdf() {
     if (this.profesorSeleccionado !== undefined) {
       if (this.profesorSeleccionado === "todos") {
-        for (let profesor of this.profesores) {
+        for (let profesor of this.carrerasFiltradas) {
           await this.getProfesorHorarioImprimir(profesor._id);
           await this.exportarProfePdf(profesor.nombre);
         }
@@ -415,7 +458,7 @@ export class ProfesoresResumenComponent {
       this.saturday
     ]
     let identAsignatura: any
-    let profesoresArray = this.profesores;
+    let profesoresArray = this.carrerasFiltradas;
     let profesorId: any = ''
     let horariosProfesores: any = []
 
@@ -547,7 +590,7 @@ export class ProfesoresResumenComponent {
   async getProfesorSeleccionadoRExcel() {
     if (this.profesorSeleccionado !== undefined) {
       if (this.profesorSeleccionado === "todos") {
-        for (let profesor of this.profesores) {
+        for (let profesor of this.carrerasFiltradas) {
           await this.getProfesorHorarioImprimir(profesor._id);
           await this.exportarProfeExcel(profesor.nombre);
         }
@@ -1070,6 +1113,8 @@ export class ProfesoresResumenComponent {
     let workbook = new ExcelJS.Workbook();
     let worksheet = workbook.addWorksheet(profesor);
 
+    
+
     // Establecer la orientación horizontal y el tamaño del papel
     worksheet.pageSetup.orientation = 'landscape';
     worksheet.pageSetup.paperSize = 9;
@@ -1178,7 +1223,7 @@ export class ProfesoresResumenComponent {
     worksheet.mergeCells('A4:F4'); // Fusionar 5 celdas en la primera fila
     let titulo = worksheet.getCell(4, 1);
 
-    titulo.value = 'Profesor: ' + profesor; // Establecer el valor de la celda
+    titulo.value = 'PROFESOR: ' + profesor; // Establecer el valor de la celda
     titulo.font = { size: 10, bold: true }; // Establecer el formato de la fuente
     titulo.alignment = { horizontal: 'center' };
 
@@ -1700,9 +1745,39 @@ export class ProfesoresResumenComponent {
     // Crear una instancia de jsPDF
     let doc = new jsPDF('landscape', 'mm', 'a4');
 
-    // Agregar el título al PDF
+    let pageWidth = doc.internal.pageSize.width;
+
     doc.setFontSize(10);
-    doc.text("Resumen de Profesores", 130, 10);
+    doc.setFont('helvetica', 'bold');
+
+    let titleText = "UNIVERSIDAD IBEROAMERICANA DEL ECUADOR";
+    let titleWidth = doc.getTextWidth(titleText);
+
+    let titleX = (pageWidth - titleWidth) / 2;
+
+    doc.text(titleText, titleX, 10);
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+
+    let descriptionText = "MATRIZ RESUMEN DE PROFESORES POR CARRERA";
+    let descriptionWidth = doc.getTextWidth(descriptionText);
+
+    let descriptionX = (pageWidth - descriptionWidth) / 2;
+
+    doc.text(descriptionText, descriptionX, 15);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+
+    let carreraText = "CARRERA: " + this.UserData.rol.toUpperCase();
+    let carreraInfoWidth = doc.getTextWidth(carreraText);
+
+    let carreraInfoX = (pageWidth - carreraInfoWidth) / 2;
+    doc.text(carreraText, carreraInfoX, 20);
+    
+    doc.setFont('helvetica', 'normal');
+
     let rowDataHead: any = [];
     let rowDataHead2: any = [];
     let rowDataHead3: any = [];
@@ -1799,7 +1874,8 @@ export class ProfesoresResumenComponent {
         fontSize: 8,
         textColor: [0, 0, 0]
 
-      }
+      },
+      margin: { top: 25 },
     });
 
     // Agregar la tabla al PDF
@@ -1851,10 +1927,16 @@ export class ProfesoresResumenComponent {
     sheet.getCell('A1').alignment = { horizontal: 'center' };
     sheet.mergeCells('A1:F1');
 
-    sheet.getCell('A3').value = 'Resumen de Profesores';
+    sheet.getCell('A2').value = 'MATRIZ RESUMEN DE PROFESORES POR CARRERA';
+    sheet.getCell('A2').font = { size: 14, bold: true };
+    sheet.getCell('A2').alignment = { horizontal: 'center' };
+    sheet.mergeCells('A2:F2');
+
+    sheet.getCell('A3').value = 'CARRERA: '+this.UserData.rol.toUpperCase();
     sheet.getCell('A3').font = { size: 14, bold: true };
     sheet.getCell('A3').alignment = { horizontal: 'center' };
     sheet.mergeCells('A3:F3');
+
 
     // Agregar encabezados de columna
     sheet.getCell('A5').value = 'Profesores Tiempo Completo';

@@ -16,8 +16,7 @@ export class CarrerasDialogComponent {
   public datoRecibido!: any;
   public selectedCarrera!: string;
   public selectedSemestre!: string;
-  public periodoTIpo!:any
-
+  public periodoTIpo!: any
   public horarios: Horario[] = []
 
   carreras: any[] = [
@@ -35,6 +34,22 @@ export class CarrerasDialogComponent {
     { id: 12, textField: 'Gastronomia' },
     { id: 13, textField: 'Turismo' }
   ];
+
+  rolesCarreras: any = {
+    enfermeria: 'Enfermeria',
+    fisioterapia: 'Fisioterapia',
+    nutricion: 'Nutricion',
+    psicologia: 'Psicologia',
+    educacionBasica: 'Educacion Basica',
+    produccionAudiovisual: 'Produccion Audiovisual',
+    contabilidad: 'Contabilidad',
+    derecho: 'Derecho',
+    economia: 'Economia',
+    software: 'Software',
+    administracionEmpresas: 'Administracion de Empresas',
+    gastronomia: 'Gastronomia',
+    turismo: 'Turismo'
+  };
 
 
   semestres: any[] = [
@@ -60,6 +75,9 @@ export class CarrerasDialogComponent {
   selectedSemestres: any[] = [];
   dropdownCarreras: IDropdownSettings = {};
   dropdownSemestres: IDropdownSettings = {};
+  authToken!: any;
+  UserData!: any;
+  carrerasFiltradas: any[] = [];
 
 
   constructor(
@@ -67,8 +85,8 @@ export class CarrerasDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _router: Router,
     private _route: ActivatedRoute, private _horarioService: HorarioService) {
-      
-    
+
+
 
     this.dropdownCarreras = {
       singleSelection: false,
@@ -94,14 +112,30 @@ export class CarrerasDialogComponent {
 
   ngOnInit() {
     this.getHorarios()
-    if(this.datoRecibido === "Horarios Nocturnos"){
+    if (this.datoRecibido === "Horarios Nocturnos") {
       this.semestres = this.ciclos
       this.periodoTIpo = "Ciclo"
-      }else{
-        
+    } else {
+
       this.periodoTIpo = "Semestre"
-      }
     }
+    this.authToken = localStorage.getItem('datosUsuario');
+    this.UserData = JSON.parse(this.authToken!)
+    this.getRolCarrera()
+  }
+
+  getRolCarrera() {
+
+    let carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+
+    this.carrerasFiltradas = [];
+
+    if (carreraActual) {
+      this.carrerasFiltradas = this.carreras.filter(carrera => carrera.textField.toLowerCase() === carreraActual.toLowerCase());
+    } else {
+      this.carrerasFiltradas = this.carreras;
+    }
+  }
 
   getHorarios() {
     this._horarioService.getHorarios().subscribe(
@@ -122,16 +156,16 @@ export class CarrerasDialogComponent {
     console.log(this.datoRecibido)
     let existHorarioCarrera: boolean = false
 
-    if(this.datoRecibido === "Horarios Nocturnos"){
+    if (this.datoRecibido === "Horarios Nocturnos") {
       this.datoRecibido = "Horario Nocturno"
       this.periodoTIpo = "Ciclo"
-    }else{
+    } else {
       this.datoRecibido = "Horario Diurno"
       this.periodoTIpo = "Semestre"
     }
 
     for (const horario of this.horarios) {
-      if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre && horario.tipoHorario === this.datoRecibido ) {
+      if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre && horario.tipoHorario === this.datoRecibido) {
         existHorarioCarrera = true
       }
     }
@@ -144,7 +178,7 @@ export class CarrerasDialogComponent {
       }, 400);
     } else {
       Swal.fire(
-        'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + this.periodoTIpo +' ya existe',
+        'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + this.periodoTIpo + ' ya existe',
         'Por favor, si desea modificar vaya a la sección de horarios',
         'error'
       )

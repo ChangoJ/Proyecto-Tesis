@@ -42,7 +42,7 @@ export class AulaNuevoComponent {
     private _router: Router
   ) { 
     this.aula = new Aula('', '', '','','','#000000')
-    this.page_title = "Nueva Aula"
+    this.page_title = "Nueva Aula/Laboratorio"
     this.is_edit = false;
     this.url = Global.url
     

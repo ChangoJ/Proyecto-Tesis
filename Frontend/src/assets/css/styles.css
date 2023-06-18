@@ -36,32 +36,32 @@ body {
     justify-content: center;
 }
 
-.logo img{
-    width: 70%; 
+.logo img {
+    width: 70%;
     margin-bottom: 1rem;
 }
 
 
 
-.login-container .mat-mdc-form-field{
+.login-container .mat-mdc-form-field {
     width: 298px;
-   
+
 }
 
-.login-container .mat-mdc-raised-button:not(:disabled){
+.login-container .mat-mdc-raised-button:not(:disabled) {
     background-color: #00498C !important;
-   
+
 }
 
-.login-container a{
+.login-container a {
     margin-bottom: 10px;
-        text-decoration: none;
-        color: black;
+    text-decoration: none;
+    color: black;
 
 }
 
-.login-container a:hover{
-    color: #0778e2 
+.login-container a:hover {
+    color: #0778e2
 }
 
 #header {
@@ -703,7 +703,7 @@ h2#listasTitulo.Subheader {
 }
 
 .mat-grid-list.CajaHorario {
-    padding-bottom: calc(2 * ((21% - 0.9px) * 1) + 0px + 1px) !important;
+    padding-bottom: calc(2 * ((23% - 0.9px) * 1) + 0px + 1px) !important;
 }
 
 .mat-cell {
@@ -762,6 +762,8 @@ h2#listasTitulo.Subheader {
     color: white;
 
     margin-left: 100px !important;
+
+    display: flex !important;
 }
 
 .cdk-drag-box {
@@ -774,15 +776,24 @@ h2#listasTitulo.Subheader {
 
 .cdk-drop-listAsignaturas {
     border: solid 1px #ccc;
-    min-height: 200px;
+    min-height: 320px;
     background: white;
     border-radius: 4px;
     overflow: hidden;
     display: block;
 }
 
+.cdk-drop-listAulas {
+    border: solid 1px #ccc;
+    min-height: 320px;
+    background: white;
+    border-radius: 4px;
+    display: block;
+}
+
+
 .contenedor-listas {
-    max-height: 393px;
+    max-height: 50px;
     /* Puedes ajustar esta altura máxima según tus necesidades */
     overflow-y: auto;
     padding: 7px;
@@ -811,14 +822,7 @@ h2#listasTitulo.Subheader {
     /* Color del thumb al pasar el cursor sobre él (azul más oscuro) */
 }
 
-.cdk-drop-listAulas {
-    border: solid 1px #ccc;
-    min-height: 30px;
-    background: white;
-    border-radius: 4px;
-    overflow: hidden;
-    display: block;
-}
+
 
 
 
@@ -1088,7 +1092,242 @@ th {
     padding: 30px;
 }
 
+/*RESPONSIVE*/
 
-/* PRUEBAS TALBA */
 
-/* Estilos para la tabla de horarios */
+
+@media (max-width: 1296px) {
+    /* se ejecutaran estos estilos*/
+
+
+
+    #content {
+        min-height: 900px;
+    }
+
+    .mat-grid-tile {
+        overflow: visible !important;
+
+        font-size: 8px !important
+    }
+
+    .listaMaterias {
+        width: 119px !important;
+        display: flex !important;
+    }
+
+    .listaAulas {
+        width: 142px !important;
+        margin-left: 47px !important;
+    }
+
+    .contenedor-listas {
+        max-height: 317px;
+    }
+
+
+    .cdk-drop-listAsignaturas {
+        min-height: 234px;
+    }
+
+    #menu ul {
+        width: 62%;
+    }
+
+
+    #busquedaAsignatura {
+        width: 100% !important;
+    }
+
+    #busquedaHorario {
+        width: 50% !important;
+    }
+
+   
+
+    #buscadorHorario {
+        width: 164% !important;
+        margin-top: -21px;
+        margin-bottom: 17px;
+    }
+
+    #matselectBusquedaAsignatura {
+        display: block;
+    }
+
+
+    mat-form-field#matselectSemestre {
+        margin-left: 0px;
+        width: 100%;
+    }
+
+    mat-form-field#matselectCarrera {
+        margin-left: 0px;
+        width: 100%;
+    }
+
+}
+
+
+@media (max-width: 890px) {
+    /* se ejecutaran estos estilos*/
+
+    #header {
+        height: 190px;
+    }
+
+    #logo {
+        margin-top: 41px;
+        float: none;
+        width: 100%;
+    }
+
+    #logo img {
+        display: inline-block;
+        float: none;
+    }
+
+    #menu {
+        display: flex;
+        display: inline-block;
+
+        width: 100%;
+    }
+
+    #menu ul {
+        width: 100%;
+    }
+
+
+    #menu ul li {
+        display: inline-block;
+        float: none;
+        margin-left: 0;
+
+    }
+
+    #submenuHorario {
+        top: -79px;
+        display: inline-block;
+        width: 100%;
+
+        position: initial;
+    }
+
+    #submenuHorario ul {
+        display: inline-block;
+        float: none;
+        margin-left: 0;
+    }
+
+    #submenu {
+        margin-bottom: 0px;
+    }
+
+    #submenu ul {
+        display: inline-block;
+    }
+
+
+
+    .contenedor-listas {
+        max-height: 232px;
+    }
+
+
+    .cdk-drop-listAulas {
+        border: solid 1px #ccc;
+        min-height: 30px;
+        background: white;
+        border-radius: 4px;
+        display: block;
+    }
+
+
+}
+
+@media (max-width: 769px) {
+
+    .tablaDocentesResumen {
+        overflow-x: auto;
+      }
+      
+    .contenedor-listas {
+        max-height: 232px;
+    }
+
+    .listaAulas {
+        width: 66px  !important;
+        margin-left: 29px !important;
+    }
+
+    .listaMaterias {
+        width: 66px  !important;
+        display: flex !important;
+    }
+
+    .h2Materias{
+        font-size: 14px !important
+    }
+
+    .mat-grid-tile {
+        overflow: visible !important;
+
+        font-size: 5px !important
+    }
+
+
+    .cdk-drop-listAulas {
+        border: solid 1px #ccc;
+        min-height: 30px;
+        background: white;
+        border-radius: 4px;
+        display: block;
+    }
+
+    .cdk-drop-listAulas {
+        border: solid 1px #ccc;
+        min-height: 30px;
+        background: white;
+        border-radius: 4px;
+        display: block;
+    }
+
+    #submenu ul li {
+        position: relative;
+        float: none;
+        display: inline-block;
+        margin: none;
+        padding: none;
+        height: 0px;
+        margin-left: 0;
+        margin-right: 5;
+    }
+
+
+
+}
+
+
+@media (max-width: 590px) {
+    #menu ul li {
+        margin-right: 0;
+
+    }
+
+    #submenuHorario ul li {
+        margin-right: 0;
+    }
+
+    #submenu ul li {
+        position: relative;
+        float: none;
+        display: inline-block;
+        margin: none;
+        padding: none;
+        height: 78px;
+        margin-left: 0;
+        margin-right: 5;
+    }
+
+}

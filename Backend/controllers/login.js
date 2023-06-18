@@ -7,23 +7,23 @@
 var controller = {
 
   login: async  (req, res) => {
-    const { username, password } = req.body;
+    console.log(req.body)
+    let { username, password } = req.body;
                 
     try {
-      const user = await User.findOne({ username });
-  
+      let user = await User.findOne({ $or: [{ username: username }, { ci: username }] });
       if (!user) {
         return res.status(200).json({ message: 'Usuario no encontrado' });
       }
   
-      const isPasswordMatch = await bcrypt.compare(password, user.contrasena);
+      let isPasswordMatch = await bcrypt.compare(password, user.contrasena);
   
       if (!isPasswordMatch) {
         return res.status(200).json({ message: 'Contraseña incorrecta' });
       }
   
       // La contraseña coincide, puedes generar el token de autenticación y enviarlo al cliente
-      const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
+      let token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
   
       res.json({ token });
     } catch (error) {

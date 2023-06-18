@@ -123,7 +123,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
         this.terminoBusquedaAula = '';
         this.asignaturasFiltradas = [];
         this.aulasFiltradas = [];
-        this.horario = new horario_1.Horario('', '', '', '', [], [], [], []);
+        this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
         this.existHorarioCarrera = false;
         this.getHorarios();
     }
@@ -133,6 +133,8 @@ var HorarioNuevoComponent = /** @class */ (function () {
                 this.getHorarios();
                 this.getAsignaturas();
                 this.getAulas();
+                this.authToken = localStorage.getItem('datosUsuario');
+                this.UserData = JSON.parse(this.authToken);
                 return [2 /*return*/];
             });
         });
@@ -489,7 +491,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
                         _d.sent();
                         this.aulaHorario = [];
                         this.asignaturaHorario = [];
-                        this.horario = new horario_1.Horario('', '', '', '', [], [], [], []);
+                        this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
                         arreglosHorario = [
                             this.monday,
                             this.tuesday,
@@ -507,8 +509,10 @@ var HorarioNuevoComponent = /** @class */ (function () {
                         else {
                             this.horario.tipoHorario = "Horario Nocturno";
                         }
+                        this.horario.estado = "Pendiente (Creado)";
                         this.horario.carrera = this.opcion2;
                         this.horario.semestre = this.opcion3;
+                        this.horario.creado_por = this.UserData;
                         elementoComprobarTipo = [];
                         elementoComprobarId = [];
                         asig = 0;
@@ -1226,7 +1230,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
                         _d.sent();
                         this.aulaHorario = [];
                         this.asignaturaHorario = [];
-                        this.horario = new horario_1.Horario('', '', '', '', [], [], [], []);
+                        this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
                         itemsHorarioArray = [];
                         arreglosHorario = [];
                         arreglosHorario = [
@@ -1508,7 +1512,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
                     case 0:
                         this.aulaHorario = [];
                         this.asignaturaHorario = [];
-                        this.horario = new horario_1.Horario('', '', '', '', [], [], [], []);
+                        this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
                         arreglosHorario = [];
                         arreglosHorario = [
                             this.monday,

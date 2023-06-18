@@ -54,6 +54,7 @@ import { ItemsUsuarioComponent } from './components/items-usuario/items-usuario.
 import { UsuarioEditComponent } from './components/usuario-edit/usuario-edit.component';
 import { UsuarioNuevoComponent } from './components/usuario-nuevo/usuario-nuevo.component';
 import { AuthService } from './components/services/auth.service';
+import { HorarioObservacionDialogComponent } from './components/horario-observacion-dialog/horario-observacion-dialog.component';
 
 @NgModule({
   
@@ -89,7 +90,8 @@ import { AuthService } from './components/services/auth.service';
     UsuariosComponent,
     ItemsUsuarioComponent,
     UsuarioEditComponent,
-    UsuarioNuevoComponent
+    UsuarioNuevoComponent,
+    HorarioObservacionDialogComponent
   ],
   imports: [
     BrowserModule,

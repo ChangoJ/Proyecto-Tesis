@@ -26,6 +26,26 @@ export class AsignaturaNuevoComponent {
   public page_title: string
   public url!: string
   public asignaturanumber!: number
+  carrerasFiltradas: any[] = [];
+  authToken!: any;
+  UserData!: any;
+
+
+  rolesCarreras: any = {
+    enfermeria: 'Enfermeria',
+    fisioterapia: 'Fisioterapia',
+    nutricion: 'Nutricion',
+    psicologia: 'Psicologia',
+    educacionBasica: 'Educacion Basica',
+    produccionAudiovisual: 'Produccion Audiovisual',
+    contabilidad: 'Contabilidad',
+    derecho: 'Derecho',
+    economia: 'Economia',
+    software: 'Software',
+    administracionEmpresas: 'Administracion de Empresas',
+    gastronomia: 'Gastronomia',
+    turismo: 'Turismo'
+  };
 
   carreras: any[] = [
     { id: 1, textField: 'Enfermeria' },
@@ -122,7 +142,7 @@ export class AsignaturaNuevoComponent {
       allowSearchFilter: true
     };
 
-   
+
 
     this.dropdownProfesores = {
       singleSelection: false,
@@ -148,10 +168,25 @@ export class AsignaturaNuevoComponent {
 
 
   ngOnInit() {
+    this.authToken = localStorage.getItem('datosUsuario');
+    this.UserData = JSON.parse(this.authToken!)
+    this.getProfesores()
+  }
+
+  getProfesores() {
     this._profesorService.getProfesores().subscribe(
       response => {
         if (response.profesores) {
           this.profesores = response.profesores;
+          let carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+
+          this.carrerasFiltradas = [];
+
+          if (carreraActual) {
+            this.carrerasFiltradas = this.profesores.filter(elemento => elemento.carrera.includes(carreraActual));
+          } else {
+            this.carrerasFiltradas = this.profesores;
+          }
         }
       },
       error => {
@@ -202,26 +237,26 @@ export class AsignaturaNuevoComponent {
     }
 
     if (this.selectedHorarios.length !== 0) {
-    this.asignatura.horario = this.selectedHorarios[0].textField
+      this.asignatura.horario = this.selectedHorarios[0].textField
     }
     if (this.asignatura.nombre === ""
-    || this.asignatura.abreviatura === ""
-    || this.asignatura.color === ""
-    || this.asignatura.creditos === 0
-    || this.asignatura.carrera.length === 0
-    || this.asignatura.horario === ""
-    || this.asignatura.profesor.length ===0
-    || this.asignatura.semestre.length ===0
-    || controles.includes("INVALID")
-  ) {
-    Swal.fire(
-      'Asignatura no creada',
-      'Por favor, rellene los datos correctamente.',
-      'error'
-    )
+      || this.asignatura.abreviatura === ""
+      || this.asignatura.color === ""
+      || this.asignatura.creditos === 0
+      || this.asignatura.carrera.length === 0
+      || this.asignatura.horario === ""
+      || this.asignatura.profesor.length === 0
+      || this.asignatura.semestre.length === 0
+      || controles.includes("INVALID")
+    ) {
+      Swal.fire(
+        'Asignatura no creada',
+        'Por favor, rellene los datos correctamente.',
+        'error'
+      )
 
-  } else {
-     this._asignaturaService.create(this.asignatura).subscribe(
+    } else {
+      this._asignaturaService.create(this.asignatura).subscribe(
         response => {
           if (response.status == 'success') {
             this.status = 'success'
@@ -249,7 +284,7 @@ export class AsignaturaNuevoComponent {
           this.status = 'error'
         }
       )
-  }
+    }
   }
 
 
@@ -268,6 +303,7 @@ export class AsignaturaNuevoComponent {
   }
 
   onItemHorariosSelect(item: any) {
+    this.selectedSemestres = []
   }
 
   onKeyUp() {
