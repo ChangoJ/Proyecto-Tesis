@@ -2,16 +2,17 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from "rxjs";
 import { Asignatura } from "../models/asignatura";
-import { Global } from "./global";
+import { DetalleService } from '../services/detalle.service';
 
 @Injectable()
 export class AsignaturaService {
     public url: string
 
     constructor(
-        private _http: HttpClient
+        private _http: HttpClient,
+        private _detalleService: DetalleService
     ) {
-        this.url = Global.url;
+        this.url = this._detalleService.Global.url;
 
     }
 

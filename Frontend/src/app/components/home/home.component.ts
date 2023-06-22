@@ -4,6 +4,7 @@ import { AulaService } from '../services/aula.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Asignatura } from '../models/asignatura';
 import { UsuarioService } from '../services/usuario.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-home',
@@ -17,9 +18,9 @@ export class HomeComponent {
   public indiceHora!: string
   public listaA: any[] = []
   public is_horario: boolean
-  public authToken!:any
-  public nombreUsuario!:any
- userData:any
+  public authToken!: any
+  public nombreUsuario!: any
+  public userData: any
 
 
   constructor(private _usuarioService: UsuarioService,
@@ -29,7 +30,7 @@ export class HomeComponent {
     this.is_horario = false
     this.authToken = localStorage.getItem('authToken');
     this.userData = localStorage.getItem('datosUsuario');
-    
+
   }
 
   ngOnInit() {
@@ -55,29 +56,45 @@ export class HomeComponent {
   }
 
   getAsignaturas() {
-    
+    let periodoTipo: any
     this._route.params.subscribe(params => {
-      var opcion2 = params['opcion2'];
-      if (opcion2 !== undefined) {
-        var opcion2 = params['opcion2'];
-        opcion2 = opcion2.replace('_', " ");
-        opcion2 = opcion2.replace('_', " ");
+      let opcion2 = params['opcion2'];
+      let opcion3 = params['opcion3'];
+
+
+      if (params['opcion1'] === "Horario_Nocturno") {
+        periodoTipo = "Ciclo"
+      } else {
+
+        periodoTipo = "semestre"
       }
-      if(opcion2){
-        this._asignaturaService.searchOne(opcion2).subscribe(
-          response => {
-            if (response.asignaturas) {
-              this.is_horario = true
-            } else {
-              this.is_horario = false
+      if (opcion2 !== undefined || opcion3 !== undefined) {
+        let opcion2 = params['opcion2'];
+        opcion2 = opcion2.replace(/_/g, " ");
+        let opcion3 = params['opcion3'];
+        opcion3 = opcion3.replace(/_/g, " ");
+
+        if (opcion2 && opcion3) {
+          this._asignaturaService.search(opcion2, opcion3).subscribe(
+            response => {
+              if (response.asignaturas) {
+                this.is_horario = true
+              } else {
+                this.is_horario = false
+              }
+
+            },
+            error => {
+              Swal.fire(
+                'Horario de la Carrera de ' + opcion2 + ' del ' + periodoTipo + ' ' + opcion3,
+                error.error.message,
+                'error'
+              )
             }
-          },
-          error => {
-            console.log(error)
-          }
-        )
+          )
+        }
       }
-     
+
     })
   }
 }

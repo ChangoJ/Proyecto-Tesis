@@ -2,18 +2,20 @@ import { Profesor } from './../models/profesor';
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from "rxjs";
-import { Global } from "./global";
+import { DetalleService } from './detalle.service';
 
 @Injectable()
 export class ProfesorService {
     public url: string
 
     constructor(
-        private _http: HttpClient
+        private _http: HttpClient,
+        private _detalleService: DetalleService
     ) {
-        this.url = Global.url;
+        this.url = this._detalleService.Global.url;
 
     }
+
 
     getProfesores(last:any = null):Observable<any>{
 

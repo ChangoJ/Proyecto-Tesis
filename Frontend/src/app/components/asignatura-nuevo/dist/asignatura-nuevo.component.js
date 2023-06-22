@@ -43,69 +43,22 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.AsignaturaNuevoComponent = void 0;
-var global_1 = require("./../services/global");
 var asignatura_1 = require("./../models/asignatura");
 var asignatura_service_1 = require("./../services/asignatura.service");
 var core_1 = require("@angular/core");
 var sweetalert2_1 = require("sweetalert2");
 var profesor_service_1 = require("../services/profesor.service");
+var detalle_service_1 = require("../services/detalle.service");
 var AsignaturaNuevoComponent = /** @class */ (function () {
-    function AsignaturaNuevoComponent(_route, _asignaturaService, _profesorService, _router) {
+    function AsignaturaNuevoComponent(_route, _asignaturaService, _profesorService, _router, _detalleService) {
         this._route = _route;
         this._asignaturaService = _asignaturaService;
         this._profesorService = _profesorService;
         this._router = _router;
+        this._detalleService = _detalleService;
         this.profesores = [];
         this.itemProfesores = [];
         this.carrerasFiltradas = [];
-        this.rolesCarreras = {
-            enfermeria: 'Enfermeria',
-            fisioterapia: 'Fisioterapia',
-            nutricion: 'Nutricion',
-            psicologia: 'Psicologia',
-            educacionBasica: 'Educacion Basica',
-            produccionAudiovisual: 'Produccion Audiovisual',
-            contabilidad: 'Contabilidad',
-            derecho: 'Derecho',
-            economia: 'Economia',
-            software: 'Software',
-            administracionEmpresas: 'Administracion de Empresas',
-            gastronomia: 'Gastronomia',
-            turismo: 'Turismo'
-        };
-        this.carreras = [
-            { id: 1, textField: 'Enfermeria' },
-            { id: 2, textField: 'Fisioterapia' },
-            { id: 3, textField: 'Nutricion' },
-            { id: 4, textField: 'Psicologia' },
-            { id: 5, textField: 'Educacion Basica' },
-            { id: 6, textField: 'Produccion Audiovisual' },
-            { id: 7, textField: 'Contabilidad' },
-            { id: 8, textField: 'Derecho' },
-            { id: 9, textField: 'Economia' },
-            { id: 10, textField: 'Software' },
-            { id: 11, textField: 'Administracion de Empresas' },
-            { id: 12, textField: 'Gastronomia' },
-            { id: 13, textField: 'Turismo' }
-        ];
-        this.semestres = [
-            { id: 1, textField: '1' },
-            { id: 2, textField: '2' },
-            { id: 3, textField: '3' },
-            { id: 4, textField: '4' },
-            { id: 5, textField: '5' },
-            { id: 6, textField: '6' },
-            { id: 7, textField: '7' },
-            { id: 8, textField: '8' }
-        ];
-        this.ciclos = [
-            { id: 1, textField: '1' },
-            { id: 2, textField: '2' },
-        ];
-        this.horariosType = [
-            { id: 1, textField: 'Diurno' },
-            { id: 2, textField: 'Nocturno' }
-        ];
         this.selectedCarreras = [];
         this.selectedSemestres = [];
         this.selectedProfesores = [];
@@ -117,11 +70,14 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
         this.asignatura = new asignatura_1.Asignatura('', '', [], [], [], '', 0, '', '#000000');
         this.page_title = "Crear Asignatura";
         this.is_edit = false;
-        this.url = global_1.Global.url;
+        this.url = this._detalleService.Global.url;
         this.asignatura.carrera = [];
         this.asignatura.semestre = [];
         this.asignatura.profesor = [];
         this.selectedHorarios = [];
+        this.authToken = this._detalleService.authToken;
+        this.userData = this._detalleService.userData;
+        this.horariosType = this._detalleService.horariosType;
         this.dropdownCarreras = {
             singleSelection: false,
             idField: 'id',
@@ -169,16 +125,30 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
         };
     }
     AsignaturaNuevoComponent.prototype.ngOnInit = function () {
-        this.authToken = localStorage.getItem('datosUsuario');
-        this.UserData = JSON.parse(this.authToken);
         this.getProfesores();
+        this.getDataDetalles();
+    };
+    AsignaturaNuevoComponent.prototype.getDataDetalles = function () {
+        var _this = this;
+        this._detalleService.getCarrerasIndex().subscribe(function (carreras) {
+            _this.carreras = carreras;
+        });
+        this._detalleService.getSemestresIndex().subscribe(function (semestres) {
+            _this.semestres = semestres;
+        });
+        this._detalleService.getCiclosIndex().subscribe(function (ciclos) {
+            _this.ciclos = ciclos;
+        });
+        this._detalleService.getRolesIndex().subscribe(function (roles) {
+            _this.rolesCarreras = roles;
+        });
     };
     AsignaturaNuevoComponent.prototype.getProfesores = function () {
         var _this = this;
         this._profesorService.getProfesores().subscribe(function (response) {
             if (response.profesores) {
                 _this.profesores = response.profesores;
-                var carreraActual_1 = _this.rolesCarreras[_this.UserData.rol.toLowerCase()];
+                var carreraActual_1 = _this.rolesCarreras[_this.userData.rol.toLowerCase().replace(/\s/g, "")];
                 _this.carrerasFiltradas = [];
                 if (carreraActual_1) {
                     _this.carrerasFiltradas = _this.profesores.filter(function (elemento) { return elemento.carrera.includes(carreraActual_1); });
@@ -218,6 +188,7 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
                     case 0:
                         this.asignatura.semestre = [];
                         this.asignatura.carrera = [];
+                        this.asignatura.profesor = [];
                         this.asignatura.horario = '';
                         controles = [];
                         Object.values(this.asignaturaForm.controls).forEach(function (control) {
@@ -248,6 +219,7 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
                         if (this.selectedHorarios.length !== 0) {
                             this.asignatura.horario = this.selectedHorarios[0].textField;
                         }
+                        console.log(this.asignatura);
                         if (this.asignatura.nombre === ""
                             || this.asignatura.abreviatura === ""
                             || this.asignatura.color === ""
@@ -321,7 +293,7 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
             selector: 'app-asignatura-nuevo',
             templateUrl: './asignatura-nuevo.component.html',
             styleUrls: ['./asignatura-nuevo.component.css'],
-            providers: [asignatura_service_1.AsignaturaService, profesor_service_1.ProfesorService]
+            providers: [asignatura_service_1.AsignaturaService, profesor_service_1.ProfesorService, detalle_service_1.DetalleService]
         })
     ], AsignaturaNuevoComponent);
     return AsignaturaNuevoComponent;

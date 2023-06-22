@@ -5,12 +5,13 @@ import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { HorarioService } from '../services/horario.service';
 import { Horario } from '../models/horario';
 import Swal from 'sweetalert2';
+import { DetalleService } from '../services/detalle.service';
 
 @Component({
   selector: 'app-carreras-dialog',
   templateUrl: './carreras-dialog.component.html',
   styleUrls: ['./carreras-dialog.component.css'],
-  providers: [HorarioService]
+  providers: [HorarioService, DetalleService]
 })
 export class CarrerasDialogComponent {
   public datoRecibido!: any;
@@ -18,73 +19,32 @@ export class CarrerasDialogComponent {
   public selectedSemestre!: string;
   public periodoTIpo!: any
   public horarios: Horario[] = []
-
-  carreras: any[] = [
-    { id: 1, textField: 'Enfermeria' },
-    { id: 2, textField: 'Fisioterapia' },
-    { id: 3, textField: 'Nutricion' },
-    { id: 4, textField: 'Psicologia' },
-    { id: 5, textField: 'Educacion Basica' },
-    { id: 6, textField: 'Produccion Audiovisual' },
-    { id: 7, textField: 'Contabilidad' },
-    { id: 8, textField: 'Derecho' },
-    { id: 9, textField: 'Economia' },
-    { id: 10, textField: 'Software' },
-    { id: 11, textField: 'Administracion de Empresas' },
-    { id: 12, textField: 'Gastronomia' },
-    { id: 13, textField: 'Turismo' }
-  ];
-
-  rolesCarreras: any = {
-    enfermeria: 'Enfermeria',
-    fisioterapia: 'Fisioterapia',
-    nutricion: 'Nutricion',
-    psicologia: 'Psicologia',
-    educacionBasica: 'Educacion Basica',
-    produccionAudiovisual: 'Produccion Audiovisual',
-    contabilidad: 'Contabilidad',
-    derecho: 'Derecho',
-    economia: 'Economia',
-    software: 'Software',
-    administracionEmpresas: 'Administracion de Empresas',
-    gastronomia: 'Gastronomia',
-    turismo: 'Turismo'
-  };
-
-
-  semestres: any[] = [
-    { id: 1, textField: '1' },
-    { id: 2, textField: '2' },
-    { id: 3, textField: '3' },
-    { id: 4, textField: '4' },
-    { id: 5, textField: '5' },
-    { id: 6, textField: '6' },
-    { id: 7, textField: '7' },
-    { id: 8, textField: '8' },
-    { id: 9, textField: '9' },
-    { id: 10, textField: '10' },
-  ];
-
-  ciclos: any[] = [
-    { id: 1, textField: '1' },
-    { id: 2, textField: '2' },
-  ];
-
-  selectedCarreras: any[] = [];
-
-  selectedSemestres: any[] = [];
-  dropdownCarreras: IDropdownSettings = {};
-  dropdownSemestres: IDropdownSettings = {};
-  authToken!: any;
-  UserData!: any;
-  carrerasFiltradas: any[] = [];
+  public selectedCarreras: any[] = [];
+  public selectedSemestres: any[] = [];
+  public dropdownCarreras: IDropdownSettings = {};
+  public dropdownSemestres: IDropdownSettings = {};
+  public authToken!: any;
+  public userData!: any;
+  public carrerasFiltradas: any[] = [];
+  public semestres: any;
+  public ciclos: any
+  public rolesCarreras: any;
+  public carreras: any
 
 
   constructor(
     public dialogRef: MatDialogRef<CarrerasDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _router: Router,
-    private _route: ActivatedRoute, private _horarioService: HorarioService) {
+    private _route: ActivatedRoute, 
+    private _horarioService: HorarioService,
+    private _detalleService: DetalleService
+    ) {
+
+
+    this.authToken = this._detalleService.authToken
+    this.userData = this._detalleService.userData
+
 
 
 
@@ -111,31 +71,68 @@ export class CarrerasDialogComponent {
   }
 
   ngOnInit() {
-    this.getHorarios()
-    if (this.datoRecibido === "Horarios Nocturnos") {
-      this.semestres = this.ciclos
-      this.periodoTIpo = "Ciclo"
-    } else {
 
-      this.periodoTIpo = "Semestre"
-    }
+    this.getHorarios()
+
     this.authToken = localStorage.getItem('datosUsuario');
-    this.UserData = JSON.parse(this.authToken!)
-    this.getRolCarrera()
+    this.userData = JSON.parse(this.authToken!)
+    this.getDataDetalles()
   }
 
-  getRolCarrera() {
+  getDataDetalles() {
 
-    let carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+    
+
+    this._detalleService.getRolesCarrera().subscribe(rolesCarrera => {
+      this.rolesCarreras = rolesCarrera
+    });
+
+    this._detalleService.getCarrerasIndex().subscribe(carreras => {
+      this.carreras = carreras
+      let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase().replace(/\s/g, "")];
+     
+
+      this.carrerasFiltradas = [];
+
+      if (carreraActual) {
+        this.carrerasFiltradas = this.carreras.filter((carrera: { textField: string; }) => carrera.textField.toLowerCase() === carreraActual.toLowerCase());
+      } else {
+        this.carrerasFiltradas = this.carreras;
+      }
+    });
+
+    this._detalleService.getSemestresIndex().subscribe(semestres => {
+      this.semestres = semestres
+    });
+
+
+    this._detalleService.getCiclosIndex().subscribe(ciclos => {
+      this.ciclos = ciclos
+      if (this.datoRecibido === "Horarios Nocturnos") {
+        this.semestres = this.ciclos
+        this.periodoTIpo = "Ciclo"
+      } else {
+
+        this.periodoTIpo = "Semestre"
+      }
+
+    });
+
+
+  }
+
+/*   getRolCarrera() {
+    let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase()];
 
     this.carrerasFiltradas = [];
 
     if (carreraActual) {
-      this.carrerasFiltradas = this.carreras.filter(carrera => carrera.textField.toLowerCase() === carreraActual.toLowerCase());
+      this.carrerasFiltradas = this.carreras.filter((carrera: { textField: string; }) => carrera.textField.toLowerCase() === carreraActual.toLowerCase());
     } else {
       this.carrerasFiltradas = this.carreras;
     }
-  }
+
+  } */
 
   getHorarios() {
     this._horarioService.getHorarios().subscribe(
@@ -173,12 +170,12 @@ export class CarrerasDialogComponent {
       let ruta = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre
       ruta = ruta.replace(/\s+/g, "_");
       this._router.navigate([ruta], { relativeTo: this._route })
-      setTimeout(() => {
+     setTimeout(() => {
         location.reload();
-      }, 400);
+      }, 350);
     } else {
       Swal.fire(
-        'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + this.periodoTIpo + ' ya existe',
+        'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre +' '+ this.periodoTIpo + ' ya fue creado.',
         'Por favor, si desea modificar vaya a la sección de horarios',
         'error'
       )

@@ -7,7 +7,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AsignaturaService } from '../services/asignatura.service';
 import { AulaService } from '../services/aula.service';
 import { HorarioService } from '../services/horario.service';
-import { MatDialog } from '@angular/material/dialog';
 import { Horario } from '../models/horario';
 import { Profesor } from '../models/profesor';
 import { ProfesorService } from '../services/profesor.service';
@@ -17,12 +16,13 @@ import * as FileSaver from 'file-saver';
 import { v4 as uuidv4 } from 'uuid';
 import * as ExcelJS from 'exceljs';
 import { UsuarioService } from '../services/usuario.service';
+import { DetalleService } from '../services/detalle.service';
 
 @Component({
   selector: 'app-horario-edit',
   templateUrl: './horario-edit.component.html',
   styleUrls: ['./horario-edit.component.css'],
-  providers: [HorarioService, AsignaturaService, AulaService, ProfesorService, UsuarioService]
+  providers: [HorarioService, AsignaturaService, AulaService, ProfesorService, UsuarioService, DetalleService]
 })
 export class HorarioEditComponent {
 
@@ -35,7 +35,6 @@ export class HorarioEditComponent {
   public opcion1: string = "";
   public opcion2: string = "";
   public opcion3: string = "";
-
   public idHorario: string = "";
   public status!: string;
   public horario!: Horario
@@ -47,15 +46,33 @@ export class HorarioEditComponent {
   public isActiveBtnG = true
   public isActiveBtnV = false
   public opcionVerHorario = false
-  verificarDiaPresencialVirtualBolean: boolean = false;
-  authToken!: any;
-  UserData!: any;
+  public verificarDiaPresencialVirtualBolean: boolean = false;
+  public verificarAulaUbicacionBolean: boolean = false;
+  public authToken!: any;
+  public userData!: any;
   public usuario!: any;
-
-  public periodoTipo!: any
+  public periodoTipo!: any;
   public usuarios: any = [];
   public revisador: any = [];
   public aprobador: any = [];
+  public hours!: any[];
+  public hoursnight!: any[];
+  public monday: any[] = [];
+  public tuesday: any[] = [];
+  public wednesday: any[] = [];
+  public thursday: any[] = [];
+  public friday: any[] = [];
+  public saturday: any[] = [];
+  public terminoBusquedaAsignatura: string = '';
+  public terminoBusquedaAsignaturaStatic: string = '';
+  public terminoBusquedaAsignaturaBoolean: boolean = false;
+  public terminoBusquedaAula: string = '';
+  public asignaturasFiltradas: any[] = [];
+  public asignaturasFiltradasDrop: any[] = [];
+  public asignaturasFiltradasDropReverse: any[] = [];
+  public asignaturasFiltradasDropReverseBEmpty: any[] = [];
+  public asignaturasColocadas: any[] = [];
+  public aulasFiltradas: any[] = [];
 
 
 
@@ -66,48 +83,13 @@ export class HorarioEditComponent {
     private _aulasService: AulaService,
     private _horarioService: HorarioService,
     private _usuarioService: UsuarioService,
+    private _detalleService: DetalleService
   ) {
-    this.horario = new Horario('', '', '', '', '', [], [], [], [],this.usuario)
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
     this.existHorarioCarrera = false
+    this.authToken = this._detalleService.authToken
+    this.userData = this._detalleService.userData
   }
-
-
-  hours = [
-    '07:00 - 08:00',
-    '08:00 - 09:00',
-    '09:00 - 10:00',
-    '10:00 - 11:00',
-    '11:00 - 12:00',
-    '12:00 - 13:00',
-    '13:00 - 14:00',
-    '14:00 - 15:00',];
-
-  hoursnight = [
-    '08:00 - 09:00',
-    '09:00 - 10:00',
-    '10:00 - 11:00',
-    '11:00 - 12:00',
-    '12:00 - 13:00',
-    '18:00 - 19:00',
-    '19:00 - 20:00',
-    '20:00 - 21:00',
-    '21:00 - 22:00',
-  ]
-
-
-  monday: any[] = [];
-  tuesday: any[] = [];
-  wednesday: any[] = [];
-  thursday: any[] = [];
-  friday: any[] = [];
-  saturday: any[] = [];
-
-  terminoBusquedaAsignatura: string = '';
-  terminoBusquedaAula: string = '';
-  asignaturasFiltradas: any[] = [];
-  asignaturasColocadas: any[] = [];
-
-  aulasFiltradas: any[] = [];
 
 
   ngOnInit() {
@@ -116,8 +98,17 @@ export class HorarioEditComponent {
     this.getHorarios()
     this.verHorario()
     this.getUsuarios()
-    this.authToken = localStorage.getItem('datosUsuario');
-    this.UserData = JSON.parse(this.authToken!)
+    this.getDataDetalles()
+  }
+
+  getDataDetalles() {
+    this._detalleService.getHorasDiurnas().subscribe(horasDiurnas => {
+      this.hours = horasDiurnas
+    });
+
+    this._detalleService.getHorasNocturnas().subscribe(horasNocturnas => {
+      this.hoursnight = horasNocturnas
+    });
   }
 
   verHorario() {
@@ -151,7 +142,60 @@ export class HorarioEditComponent {
   }
 
   filtrarAsignaturas() {
-    this.asignaturasFiltradas = this.asignaturas.filter(asignatura => asignatura.nombre.toLowerCase().includes(this.terminoBusquedaAsignatura.toLowerCase()));
+    console.log("hey")
+    if (this.terminoBusquedaAsignaturaStatic !== "") {
+      this.terminoBusquedaAsignaturaBoolean = true
+      this.asignaturasFiltradasDropReverseBEmpty = []
+    } else if (this.terminoBusquedaAsignaturaStatic === "") {
+      this.terminoBusquedaAsignaturaBoolean = false
+
+    }
+
+    if (this.terminoBusquedaAsignatura === "") {
+      this.terminoBusquedaAsignaturaBoolean = false
+    }
+
+
+    if (this.terminoBusquedaAsignaturaBoolean === false) {
+
+      this.asignaturas.push(...this.asignaturasFiltradasDropReverseBEmpty)
+
+
+      this.asignaturasFiltradasDropReverseBEmpty = []
+      this.asignaturasFiltradas = this.asignaturas.filter(asignatura => asignatura.nombre.toLowerCase().includes(this.terminoBusquedaAsignatura.toLowerCase()));
+
+      if (this.terminoBusquedaAsignatura === "") {
+        this.asignaturasFiltradasDropReverseBEmpty = []
+        this.terminoBusquedaAsignaturaStatic = ""
+
+        for (let i = 0; i < this.asignaturasFiltradasDrop.length; i++) {
+          let elemento2 = this.asignaturasFiltradasDrop[i];
+          // Buscar el elemento2 en array1
+          for (let j = 0; j < this.asignaturas.length; j++) {
+            let elemento1 = this.asignaturas[j];
+
+            // Comparar los elementos por su _id (puedes ajustar esto según tus necesidades)
+            if (elemento1._id === elemento2._id) {
+              // Eliminar el elemento coincidente de array1
+              this.asignaturas.splice(j, 1);
+              break; // Salir del bucle interno una vez que se haya eliminado el elemento
+            }
+          }
+
+
+        }
+        this.asignaturasFiltradasDrop = []
+        if (this.asignaturasFiltradasDropReverse.length !== 0) {
+
+          this.asignaturas.push(...this.asignaturasFiltradasDropReverse)
+        }
+
+        this.asignaturasFiltradas = this.asignaturas
+        this.asignaturasFiltradasDropReverse = []
+
+      }
+
+    }
 
   }
 
@@ -250,14 +294,12 @@ export class HorarioEditComponent {
         if (response.usuarios) {
           this.usuarios = response.usuarios
           for (let usuario of this.usuarios) {
-            console.log(usuario)
             if (usuario.rol === "Aprobador") {
               this.aprobador = usuario
             } else if (usuario.rol === "Revisador") {
               this.revisador = usuario
             }
           }
-          console.log(this.aprobador)
         }
       },
       error => {
@@ -297,20 +339,30 @@ export class HorarioEditComponent {
       this.isActiveBtnG = false
 
       this.isActiveBtnV = true
-      const daysOfWeek = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
-      const item: any = event.previousContainer.data[event.previousIndex];
-      const idParts: string[] = event.container.id.split('-');
-      const day: number = Number(idParts[0]);
-      const hourStart: string = idParts[1];
-      const hourEnd: string = idParts[2];
-      const dayName = daysOfWeek[day];
-      let identificador = Number(idParts[0]) + '' + '' + Number(idParts[3]);
+      let item: any = []
+      let idParts: any = []
+      let day: any = []
+      let hourStart: any = []
+      let hourEnd: any = []
+      let dayName: any = []
+      let identificador: any = []
+      this.isActiveBtnG = false
+      let daysOfWeek = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+      item = event.previousContainer.data[event.previousIndex];
+      idParts = event.container.id.split('-');
+      day = Number(idParts[0]);
+      hourStart = idParts[1];
+      hourEnd = idParts[2];
+      dayName = daysOfWeek[day];
+      identificador = Number(idParts[0]) + '' + '' + Number(idParts[3]);
 
 
 
       // listasignatura id
-      const idPartsAsignatura: string[] = event.item.element.nativeElement.id.split('-');
-      let elementoType: string = (idPartsAsignatura[0]);
+      let idPartsAsignatura: any[] = []
+      let elementoType: any = []
+      idPartsAsignatura = event.item.element.nativeElement.id.split('-');
+      elementoType = (idPartsAsignatura[0]);
 
 
       if (item.ubicacion) {
@@ -388,10 +440,13 @@ export class HorarioEditComponent {
       }
 
 
-      //Eliminar origen del array
-      const prevIdParts: string[] = event.previousContainer.id.split('-');
-      const prevDay: number = Number(prevIdParts[0]);
-      let preIdentificador = Number(prevIdParts[0]) + '' + '' + Number(prevIdParts[3]);
+      ///Eliminar origen del array
+      let prevIdParts: any = []
+      let prevDay: any = []
+      let preIdentificador: any = []
+      prevIdParts = event.previousContainer.id.split('-');
+      prevDay = Number(prevIdParts[0]);
+      preIdentificador = Number(prevIdParts[0]) + '' + '' + Number(prevIdParts[3]);
       if (item.ubicacion) {
         preIdentificador = preIdentificador + 'aula'
       } else if (!item.ubicacion) {
@@ -449,7 +504,8 @@ export class HorarioEditComponent {
 
       }
 
-      const newItem = { identificador, elementoType, dayName, hourStart, hourEnd, item: { ...item } };
+      let newItem: any = [];
+      newItem = { identificador, elementoType, dayName, hourStart, hourEnd, item: { ...item } };
 
       if (item.ubicacion) {
         newItem.elementoType = "aula"
@@ -492,9 +548,61 @@ export class HorarioEditComponent {
 
 
       this.verificarDiaPresencialVirtual()
+      this.verificarAulaUbicacion()
+
+      if (this.terminoBusquedaAsignatura === "" && newItem.dayName === undefined && !newItem.item.compartida) {
+
+        this.terminoBusquedaAsignaturaStatic = this.terminoBusquedaAsignatura
+        if (this.asignaturas.length === 0) {
+
+          this.asignaturasFiltradasDropReverseBEmpty.push(newItem.item)
+        }
+
+
+
+      } else if (this.terminoBusquedaAsignatura === "" && newItem.dayName !== undefined && !newItem.item.compartida) {
+        this.terminoBusquedaAsignaturaStatic = this.terminoBusquedaAsignatura
+
+
+        for (let i = 0; i < this.asignaturasFiltradasDropReverseBEmpty.length; i++) {
+          let elemento = this.asignaturasFiltradasDropReverseBEmpty[i];
+          if (elemento._id === newItem.item._id) {
+            this.asignaturasFiltradasDropReverseBEmpty.splice(i, 1);
+
+            break;
+          }
+        }
+      }
+
+
+      if (this.terminoBusquedaAsignatura !== "" && newItem.dayName !== undefined && !newItem.item.compartida) {
+        this.asignaturasFiltradasDrop.push(newItem.item)
+        this.terminoBusquedaAsignaturaStatic = this.terminoBusquedaAsignatura
+
+
+        this.asignaturasFiltradasDropReverseBEmpty = []
+
+      } else if (this.terminoBusquedaAsignatura !== "" && newItem.dayName === undefined && !newItem.item.compartida) {
+
+
+        this.asignaturasFiltradasDropReverseBEmpty = []
+        if (this.asignaturasFiltradasDrop.length === 0) {
+
+          this.asignaturasFiltradasDropReverse.push(newItem.item)
+        }
+        // Verificar si hay una coincidencia en this.asignaturasFiltradasDrop y eliminarla
+        for (let i = 0; i < this.asignaturasFiltradasDrop.length; i++) {
+          let elemento = this.asignaturasFiltradasDrop[i];
+          if (elemento._id === newItem.item._id) {
+            this.asignaturasFiltradasDrop.splice(i, 1);
+
+            break;
+          }
+        }
+
+      }
 
     }
-
 
 
   }
@@ -502,7 +610,7 @@ export class HorarioEditComponent {
   async verificarDiaPresencialVirtual() {
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('', '', '', '', '', [], [], [], [],this.usuario)
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
     let arreglosHorario = []
     arreglosHorario = [
       this.monday,
@@ -644,6 +752,162 @@ export class HorarioEditComponent {
     });
 
   }
+
+  async verificarAulaUbicacion() {
+    this.aulaHorario = []
+    this.asignaturaHorario = []
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
+    let arreglosHorario = []
+    arreglosHorario = [
+      this.monday,
+      this.tuesday,
+      this.wednesday,
+      this.thursday,
+      this.friday,
+      this.saturday
+    ]
+
+    let identificadoresAulas = []
+    let identificadoresAsignaturas = []
+    if (this.opcion1 == "Horario Diurno") {
+      this.horario.tipoHorario = "Horario Diurno"
+    } else {
+      this.horario.tipoHorario = "Horario Nocturno"
+    }
+
+    this.horario.carrera = this.opcion2
+    this.horario.semestre = this.opcion3
+
+    let elementoComprobarTipo: any = []
+    let elementoComprobarId: any = []
+    let asig: number = 0
+    let aula: number = 0
+
+    let grupoAsigPoId: any = []
+    for (const dias of arreglosHorario) {
+      dias.sort(function (a, b) {
+        // Convierte las horas de inicio y fin a objetos Date para poder compararlas
+        const dateAStart = new Date('1970/01/01 ' + a.hourStart.trim());
+        const dateBStart = new Date('1970/01/01 ' + b.hourStart.trim());
+        const dateAEnd = new Date('1970/01/01 ' + a.hourEnd.trim());
+        const dateBEnd = new Date('1970/01/01 ' + b.hourEnd.trim());
+
+        // Compara las horas de inicio y fin y devuelve el resultado de la comparación
+        if (dateAStart < dateBStart) {
+          return -1;
+        } else if (dateAStart > dateBStart) {
+          return 1;
+        } else if (dateAEnd < dateBEnd) {
+          return -1;
+        } else if (dateAEnd > dateBEnd) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
+      for (const objetoElementoType of dias) {
+        elementoComprobarTipo.push(objetoElementoType.elementoType)
+        elementoComprobarId.push(objetoElementoType.identificador)
+      }
+      for (let objetoElementoType of dias) {
+        let elemento = objetoElementoType;
+        let primerDigito = elemento.identificador.toString()[0];
+        if (objetoElementoType.identificador.includes("aula")) {
+
+
+          if (grupoAsigPoId[primerDigito]) {
+            grupoAsigPoId[primerDigito].push(elemento);
+          } else {
+            grupoAsigPoId[primerDigito] = [elemento];
+          }
+        }
+      }
+
+      for (const objeto of dias) {
+        if (objeto.identificador.includes("aula")) {
+          identificadoresAulas.push(objeto.identificador)
+          await this.getAulaId(objeto.item._id)
+        }
+
+        if (objeto.identificador.includes("asignatura")) {
+          this.horario.dia.push(objeto.dayName)
+          this.horario.horas.push({ horaInicio: objeto.hourStart, horaFin: objeto.hourEnd });
+          identificadoresAsignaturas.push(objeto.identificador)
+          await this.getAsignaturaId(objeto.item._id)
+        }
+      }
+    }
+
+
+
+    grupoAsigPoId.forEach((subArray: any[]) => {
+      let isValid = true; // Variable para verificar si el día es válido
+
+      let zoomExist = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() === 'zoom');
+
+      if (!zoomExist) {
+        let colon = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus colon');
+
+        if (colon) {
+          let norte = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus norte');
+          
+          if (norte) {
+            isValid = false;
+  
+          }
+        
+        }
+      }
+
+      let Dias: any = {
+        0: 'Lunes',
+        1: 'Martes',
+        2: 'Miércoles',
+        3: 'Jueves',
+        4: 'Viernes',
+        5: 'Sábado'
+      };
+
+      let dia: any
+      // Verificar si el día es válido
+      if (!this.verificarAulaUbicacionBolean) {
+        if (!isValid) {
+          subArray.forEach(element => {
+            if (element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'colon') {
+              dia = parseInt(element.identificador.toString()[0])
+            }
+          });
+
+          let swalPromise = new Promise((resolve, reject) => {
+            Swal.fire({
+              title: 'Advertencia',
+              text: 'Hay aulas en diferentes ubicaciones (norte y colon) en el mismo día: '+Dias[dia]+'.',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Aceptar',
+              cancelButtonText: 'Quitar Advertencia'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                resolve(false);
+              } else if (result.dismiss === Swal.DismissReason.cancel) {
+                resolve(true);
+              }
+            });
+          });
+
+          swalPromise.then((value: any) => {
+            this.verificarAulaUbicacionBolean = value;
+
+
+          });
+        }
+      }
+
+    });
+
+  }
+
 
 
   async getAulaId(id: any) {
@@ -792,7 +1056,7 @@ export class HorarioEditComponent {
     await this.getHorarios()
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('', '', '', '', '', [], [], [], [],this.usuario)
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
     const arreglosHorario = [
       this.monday,
       this.tuesday,
@@ -1184,16 +1448,18 @@ export class HorarioEditComponent {
       } else if (item.elementoType === "aula") {
 
         if (resultadoAgrupado[asignaturaId]) {
-
           resultadoAgrupado[asignaturaId].aulas.push(item);
+          resultadoAgrupado[asignaturaId].dayName = item.dayName
         }
       }
+      
     });
+
+    
 
 
     // Convertir el objeto resultadoAgrupado en un array de resultados
     let resultadoFinal = Object.values(resultadoAgrupado);
-
     resultadoFinal.forEach((resultado: any) => {
       let todasSonZoom = true;
       let algunaEsZoom = false;
@@ -1215,12 +1481,15 @@ export class HorarioEditComponent {
       }
     });
 
-    asignaturasProfesores.forEach((elemento1, index) => {
-      let resultado = resultadoFinal[index] as { modalidad?: string };
-
-      if (resultado && resultado.modalidad) {
-        elemento1.modalidad = resultado.modalidad;
-      }
+ 
+    asignaturasProfesores.forEach((elemento1) => {
+      elemento1.modalidad = ""; // Inicializamos la propiedad modalidad como un array vacío
+    
+      resultadoFinal.forEach((resultado:any) => {
+       if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
+          elemento1.modalidad = resultado.modalidad;
+        }
+      });
     });
 
     asignaturasProfesores.forEach(ap => {
@@ -1272,7 +1541,7 @@ export class HorarioEditComponent {
         fontSize: 8,
         textColor: [0, 0, 0]
       },
-      margin: {  left: 30 },
+      margin: { left: 30 },
 
     });
 
@@ -1281,13 +1550,14 @@ export class HorarioEditComponent {
 
     let DataFirmas: any = [];
 
+    doc.addPage();
 
 
     rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:'])
     DataFirmas.push(["", "", ""]);
-    DataFirmas.push(["Prof. " + this.horario.creado_por.nombre, "Prof. "+this.revisador.nombre, "Prof. "+this.aprobador.nombre]);
+    DataFirmas.push(["Prof. " + this.horario.creado_por.nombre, "Prof. " + this.revisador.nombre, "Prof. " + this.aprobador.nombre]);
     DataFirmas.push(["Director de Carrera", "Decana de Facultad", "Directora Académica "]);
-    
+
     autoTable(doc, {
       head: rowDataHead3,
       body: DataFirmas,
@@ -1568,6 +1838,7 @@ export class HorarioEditComponent {
         if (resultadoAgrupado[asignaturaId]) {
 
           resultadoAgrupado[asignaturaId].aulas.push(item);
+          resultadoAgrupado[asignaturaId].dayName = item.dayName
         }
       }
     });
@@ -1579,7 +1850,6 @@ export class HorarioEditComponent {
     resultadoFinal.forEach((resultado: any) => {
       let todasSonZoom = true;
       let algunaEsZoom = false;
-
       resultado.aulas.forEach((aula: { item: { nombre: string; }; }) => {
         if (aula.item.nombre.toLowerCase() !== "zoom") {
           todasSonZoom = false;
@@ -1597,12 +1867,15 @@ export class HorarioEditComponent {
       }
     });
 
-    asignaturasProfesores.forEach((elemento1, index) => {
-      let resultado = resultadoFinal[index] as { modalidad?: string };
-
-      if (resultado && resultado.modalidad) {
-        elemento1.modalidad = resultado.modalidad;
-      }
+  
+    asignaturasProfesores.forEach((elemento1) => {
+      elemento1.modalidad = ""; // Inicializamos la propiedad modalidad como un array vacío
+    
+      resultadoFinal.forEach((resultado:any) => {
+       if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
+          elemento1.modalidad = resultado.modalidad
+        }
+      });
     });
 
 
@@ -1629,7 +1902,7 @@ export class HorarioEditComponent {
     elaboradoPor.font = { size: 8 };
 
     let nombreDirector = worksheet.getCell(29, 2);
-    nombreDirector.value = 'Prof. '+ this.horario.creado_por.nombre;
+    nombreDirector.value = 'Prof. ' + this.horario.creado_por.nombre;
     nombreDirector.font = { size: 8 };
 
     let directorCarrera = worksheet.getCell(30, 2);
@@ -1643,7 +1916,7 @@ export class HorarioEditComponent {
     revisadoPor.font = { size: 8 };
 
     let nombreRevisador = worksheet.getCell(29, 4);
-    nombreRevisador.value = 'Prof. '+this.revisador.nombre;
+    nombreRevisador.value = 'Prof. ' + this.revisador.nombre;
     nombreRevisador.font = { size: 8 };
 
     let cargoRevisador = worksheet.getCell(30, 4);
@@ -1658,7 +1931,7 @@ export class HorarioEditComponent {
     aprobadorPor.font = { size: 8 };
 
     let nombreAprobador = worksheet.getCell(29, 6);
-    nombreAprobador.value = "Prof. "+this.aprobador.nombre;
+    nombreAprobador.value = "Prof. " + this.aprobador.nombre;
     nombreAprobador.font = { size: 8 };
 
     let cargoAprobador = worksheet.getCell(30, 6);
@@ -1676,7 +1949,7 @@ export class HorarioEditComponent {
     await this.getHorarios
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('', '', '', '', '', [], [], [], [],this.usuario)
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
     let itemsHorarioArray = []
     let arreglosHorario = []
     arreglosHorario = [
@@ -1808,78 +2081,78 @@ export class HorarioEditComponent {
       }
       index2 = (index2 + 1) % itemsIdent[0].length;
     }
+    if (this.asignaturasFiltradas.length === 0 && this.terminoBusquedaAsignatura === "") {
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Se empezará a verificar el horario',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#4CAF50',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Verificar',
+      }).then((result: any) => {
+        if (result.isConfirmed) {
 
-    Swal.fire({
-      title: '¿Estás seguro?',
-      text: 'Se empezará a verificar el horario',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#4CAF50',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Verificar',
-    }).then((result: any) => {
-      if (result.isConfirmed) {
+          let itemsBDHorario = []
+          let itemsHorario = null
+          let mensaje = "";
 
-        let itemsBDHorario = []
-        let itemsHorario = null
-        let mensaje = "";
+          if (datosIguales && parejas.length !== 0) {
+            console.log(this.horario)
+            itemsBDHorario = this.horarios.map(verify => ({
+              carrera: verify.carrera,
+              semestre: verify.semestre,
+              dia: verify.dia,
+              tipoHorario: verify.tipoHorario,
+              idAsignaturaTableVerify: verify.idTabla.map(idTabla => idTabla.idAsignatura),
+              idAulaTableVerify: verify.idTabla.map(idTabla => idTabla.idAula),
+              itemverifyAsignatura: verify.item.map(item => item.asignatura._id),
+              itemverifyAsignaturaNombre: verify.item.map(item => item.asignatura.nombre),
+              itemverifyAula: verify.item.map(item => item.aula._id),
+              itemverifyAulaNombre: verify.item.map(item => item.aula.nombre),
+              itemverifyAulaCompartida: verify.item.map(item => item.aula.compartida),
+              itemHorasInico: verify.horas.map(item => item.horaInicio),
+              itemHorasFin: verify.horas.map(item => item.horaFin),
+              itemverifyprofesor: verify.item.map(item => item.asignatura.profesor[0]._id),
+              itemverifyprofesorNombre: verify.item.map(item => item.asignatura.profesor[0].nombre),
 
-        if (datosIguales && parejas.length !== 0) {
-          console.log(this.horario)
-          itemsBDHorario = this.horarios.map(verify => ({
-            carrera: verify.carrera,
-            semestre: verify.semestre,
-            dia: verify.dia,
-            tipoHorario: verify.tipoHorario,
-            idAsignaturaTableVerify: verify.idTabla.map(idTabla => idTabla.idAsignatura),
-            idAulaTableVerify: verify.idTabla.map(idTabla => idTabla.idAula),
-            itemverifyAsignatura: verify.item.map(item => item.asignatura._id),
-            itemverifyAsignaturaNombre: verify.item.map(item => item.asignatura.nombre),
-            itemverifyAula: verify.item.map(item => item.aula._id),
-            itemverifyAulaNombre: verify.item.map(item => item.aula.nombre),
-            itemverifyAulaCompartida: verify.item.map(item => item.aula.compartida),
-            itemHorasInico: verify.horas.map(item => item.horaInicio),
-            itemHorasFin: verify.horas.map(item => item.horaFin),
-            itemverifyprofesor: verify.item.map(item => item.asignatura.profesor[0]._id),
-            itemverifyprofesorNombre: verify.item.map(item => item.asignatura.profesor[0].nombre),
-
-          }));
-
-
-          itemsBDHorario = itemsBDHorario.filter(item => !(item.carrera === this.opcion2 && item.semestre === this.opcion3 && item.tipoHorario === this.opcion1));
+            }));
 
 
-          itemsHorario = {
-            dia: this.horario.dia,
-            idAsignaturaTableVerify: this.horario.idTabla.map(idTabla => idTabla.idAsignatura),
-            idAulaTableVerify: this.horario.idTabla.map(idTabla => idTabla.idAula),
-            itemverifyAsignatura: this.horario.item.map(item => item.asignatura._id),
-            itemverifyAula: this.horario.item.map(item => item.aula._id),
-            itemverifyAulaNombre: this.horario.item.map(item => item.aula.nombre),
-            itemverifyAulaCompartida: this.horario.item.map(item => item.aula.compartida),
-            itemverifyprofesor: this.horario.item.map(item => item.asignatura.profesor[0]._id),
-            itemverifyprofesorNombre: this.horario.item.map(item => item.asignatura.profesor[0].nombre),
-          };
+            itemsBDHorario = itemsBDHorario.filter(item => !(item.carrera === this.opcion2 && item.semestre === this.opcion3 && item.tipoHorario === this.opcion1));
 
 
+            itemsHorario = {
+              dia: this.horario.dia,
+              idAsignaturaTableVerify: this.horario.idTabla.map(idTabla => idTabla.idAsignatura),
+              idAulaTableVerify: this.horario.idTabla.map(idTabla => idTabla.idAula),
+              itemverifyAsignatura: this.horario.item.map(item => item.asignatura._id),
+              itemverifyAula: this.horario.item.map(item => item.aula._id),
+              itemverifyAulaNombre: this.horario.item.map(item => item.aula.nombre),
+              itemverifyAulaCompartida: this.horario.item.map(item => item.aula.compartida),
+              itemverifyprofesor: this.horario.item.map(item => item.asignatura.profesor[0]._id),
+              itemverifyprofesorNombre: this.horario.item.map(item => item.asignatura.profesor[0].nombre),
+            };
 
 
 
 
-          for (let i = 0; i < itemsHorario.dia.length; i++) {
-            const diaActual = itemsHorario.dia[i];
-            for (let j = 0; j < itemsBDHorario.length; j++) {
-              if (itemsBDHorario[j].dia.includes(diaActual)) {
 
-                // Iterar todos los elementos de los arrays que coinciden con el día actual
-                for (let k = 0; k < itemsBDHorario[j].idAsignaturaTableVerify.length; k++) {
 
-                  if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
-                    itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
-                    itemsBDHorario[j].itemverifyAsignatura[k] === itemsHorario.itemverifyAsignatura[i] &&
-                    itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]) {
+            for (let i = 0; i < itemsHorario.dia.length; i++) {
+              const diaActual = itemsHorario.dia[i];
+              for (let j = 0; j < itemsBDHorario.length; j++) {
+                if (itemsBDHorario[j].dia.includes(diaActual)) {
 
-                    mensaje += `
+                  // Iterar todos los elementos de los arrays que coinciden con el día actual
+                  for (let k = 0; k < itemsBDHorario[j].idAsignaturaTableVerify.length; k++) {
+
+                    if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
+                      itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
+                      itemsBDHorario[j].itemverifyAsignatura[k] === itemsHorario.itemverifyAsignatura[i] &&
+                      itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]) {
+
+                      mensaje += `
                     
                   <strong>¡Choque de aula y asignatura (Misma hora)</strong>!<br>
                   Motivo: La misma asignatura y aula ya se asignó en esa hora<br>
@@ -1891,12 +2164,12 @@ export class HorarioEditComponent {
               `;
 
 
-                  } else if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
-                    itemsBDHorario[j].itemverifyprofesor[k] === itemsHorario.itemverifyprofesor[i]) {
+                    } else if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
+                      itemsBDHorario[j].itemverifyprofesor[k] === itemsHorario.itemverifyprofesor[i]) {
 
 
 
-                    mensaje += `
+                      mensaje += `
                   <strong>¡Choque de profesor (Misma hora)</strong>!<br>
                   Motivo: El profesor ya se asignó a al misma hora para dar otra clase<br>
                   <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre}</strong><br>
@@ -1909,13 +2182,13 @@ export class HorarioEditComponent {
 
 
 
-                  } else if (itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
-                    itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]
-                    && itemsBDHorario[j].itemverifyAulaCompartida[k] !== "Si")
+                    } else if (itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
+                      itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]
+                      && itemsBDHorario[j].itemverifyAulaCompartida[k] !== "Si")
 
 
 
-                    mensaje += `
+                      mensaje += `
                 <strong>¡Choque de aula (Misma hora)</strong>!<br>
                 Motivo: El aula ya se asignó para otra asignatura<br>
                 <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre}</strong><br>
@@ -1928,93 +2201,99 @@ export class HorarioEditComponent {
 
 
 
-                }
-              }
-
-
-            }
-          }
-
-          if (mensaje !== "") {
-            Swal.fire({
-              title: '¡Choques!',
-              html: `<div style="height: 250px; overflow-y: auto">${mensaje}</div>`,
-              icon: 'warning',
-              showCancelButton: true,
-              cancelButtonText: 'Cerrar',
-              confirmButtonText: 'Descargar PDF',
-            }).then((result) => {
-              if (result.isConfirmed) {
-                if (result.isConfirmed) {
-                  const doc = new jsPDF();
-                  doc.setFontSize(14);
-
-                  const title = "Choques";
-                  const text = mensaje.replace(/<br>/g, '').replace(/<strong>/g, '').replace(/<\/strong>/g, '');
-
-                  const textLines = doc.splitTextToSize(text, 200); // Ancho máximo del texto en la página (en este caso, 190)
-                  const pageHeight = doc.internal.pageSize.height;
-                  let cursorY = 10;
-
-                  doc.text(title, doc.internal.pageSize.getWidth() / 2, cursorY, { align: 'center' });
-                  cursorY += 10; // Espacio entre el título y el texto
-
-                  for (let i = 0; i < textLines.length; i++) {
-                    if (cursorY > pageHeight - 5) {
-                      doc.addPage();
-                      cursorY = 10;
-                    }
-                    doc.text(textLines[i], 1, cursorY, { align: 'justify' });
-                    cursorY += 7; // Espacio entre líneas de texto
                   }
-
-                  doc.save('choque_asignaturas_aulas.pdf');
                 }
+
+
               }
-            });
-            this.isActiveBtn = false
+            }
 
-            this.isActiveBtnG = false
-          }
+            if (mensaje !== "") {
+              Swal.fire({
+                title: '¡Choques!',
+                html: `<div style="height: 250px; overflow-y: auto">${mensaje}</div>`,
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'Cerrar',
+                confirmButtonText: 'Descargar PDF',
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  if (result.isConfirmed) {
+                    const doc = new jsPDF();
+                    doc.setFontSize(14);
+
+                    const title = "Choques";
+                    const text = mensaje.replace(/<br>/g, '').replace(/<strong>/g, '').replace(/<\/strong>/g, '');
+
+                    const textLines = doc.splitTextToSize(text, 200); // Ancho máximo del texto en la página (en este caso, 190)
+                    const pageHeight = doc.internal.pageSize.height;
+                    let cursorY = 10;
+
+                    doc.text(title, doc.internal.pageSize.getWidth() / 2, cursorY, { align: 'center' });
+                    cursorY += 10; // Espacio entre el título y el texto
+
+                    for (let i = 0; i < textLines.length; i++) {
+                      if (cursorY > pageHeight - 5) {
+                        doc.addPage();
+                        cursorY = 10;
+                      }
+                      doc.text(textLines[i], 1, cursorY, { align: 'justify' });
+                      cursorY += 7; // Espacio entre líneas de texto
+                    }
+
+                    doc.save('choque_asignaturas_aulas.pdf');
+                  }
+                }
+              });
+              this.isActiveBtn = false
+
+              this.isActiveBtnG = false
+            }
 
 
 
-          if (datosIguales && parejas.length !== 0 && mensaje === "") {
+            if (datosIguales && parejas.length !== 0 && mensaje === "") {
 
-            this.status = 'success'
+              this.status = 'success'
 
 
+              Swal.fire(
+                'Horario Verificado',
+                'El horario esta correctamente',
+                'success'
+              )
+              this.isActiveBtn = true
+            }
+
+
+          } else if (parejas.length === 0) {
             Swal.fire(
-              'Horario Verificado',
-              'El horario esta correctamente',
-              'success'
+              'Horario Rechazado',
+              'Por favor, rellene las asignaturas y aulas correctamente',
+              'error'
             )
-            this.isActiveBtn = true
+            this.isActiveBtn = false
+          } else if (!datosIguales) {
+            Swal.fire(
+              'Horario no creado',
+              'Por favor, debe contener en cada celda una asignatura y una aula',
+              'error'
+            )
+            this.isActiveBtn = false
           }
 
+        } else {
+          Swal.fire('Operación cancelada', 'El horario no ha sido creado', 'warning');
 
-        } else if (parejas.length === 0) {
-          Swal.fire(
-            'Horario Rechazado',
-            'Por favor, rellene las asignaturas y aulas correctamente',
-            'error'
-          )
-          this.isActiveBtn = false
-        } else if (!datosIguales) {
-          Swal.fire(
-            'Horario no creado',
-            'Por favor, debe contener en cada celda una asignatura y una aula',
-            'error'
-          )
-          this.isActiveBtn = false
         }
-
-      } else {
-        Swal.fire('Operación cancelada', 'El horario no ha sido creado', 'warning');
-
-      }
-    });
-
+      });
+    }else {
+      Swal.fire(
+        'Horario no verificado',
+        'Por favor, debe colocar todas las asignaturas.',
+        'error'
+      )
+    }
   }
 
 

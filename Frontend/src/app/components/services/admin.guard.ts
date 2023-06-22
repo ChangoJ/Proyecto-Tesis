@@ -13,7 +13,7 @@ export class AdminGuard implements CanActivate {
     let authToken = localStorage.getItem('datosUsuario');
     let UserData = JSON.parse(authToken!)
 
-    if (UserData.rol === "Administrador") {
+    if (UserData.rol === "Administrador" || UserData.rol === "Superadministrador") {
       return true;
     } else {
       this.router.navigate(['home']);

@@ -4,18 +4,41 @@
             <div class="center-icon">
                 <mat-icon id="create_new_folder" aria-hidden="false" aria-label="create_new_folder"
                     fontIcon="create_new_folder"></mat-icon>
-            <a id="matButton" mat-raised-button  (click)="openHorarioDialog()" >Nuevo Horario</a>
+                <a id="matButton" mat-raised-button (click)="openHorarioDialog()">Nuevo Horario</a>
             </div>
         </li>
         <li>
             <div class="center-icon">
                 <mat-icon id="folder_open" aria-hidden="folder_open" aria-label="folder_open"
                     fontIcon="folder_open"></mat-icon>
-            <a id="matButton" mat-raised-button (click)="verHorarios()">Ver horarios</a>
+                <a id="matButton" mat-raised-button (click)="verHorarios()">Ver horarios</a>
             </div>
         </li>
-       
+        <li class="BDButtons" *ngIf="is_admin">
+            <div class="center-icon">
+                <mat-icon id="import_export" aria-hidden="false" aria-label="import_export"
+                    fontIcon="import_export"></mat-icon>
+
+                <a id="matButton" mat-raised-button (click)="exportarBD()">Exportar BD</a>
+            </div>
+        </li>
+        <li class="BDButtons" *ngIf="is_admin">
+            <div class="center-icon">
+                <mat-icon id="insert_drive_file" aria-hidden="insert_drive_file" aria-label="insert_drive_file"
+                    fontIcon="insert_drive_file"></mat-icon>
+                <input type="file" accept=".json" (change)="importarBD($event)" style="display:none" #fileInput>
+
+                <a id="matButton" mat-raised-button (click)="fileInput.click()">Importar BD</a>
+            </div>
+        </li>
     </ul>
+    <ul>
+
+    </ul>
+</nav>
+
+<nav id="submenu" *ngIf="home">
+
 </nav>
 
 <nav id="submenu" *ngIf="horario">
@@ -24,17 +47,17 @@
             <div class="center-icon">
                 <mat-icon id="create_new_folder" aria-hidden="false" aria-label="create_new_folder"
                     fontIcon="create_new_folder"></mat-icon>
-            <a id="matButton" mat-raised-button  (click)="irCrearHorario()" >Nuevo Horario</a>
+                <a id="matButton" mat-raised-button (click)="irCrearHorario()">Nuevo Horario</a>
             </div>
         </li>
         <li>
             <div class="center-icon">
                 <mat-icon id="folder_open" aria-hidden="folder_open" aria-label="folder_open"
                     fontIcon="folder_open"></mat-icon>
-            <a id="matButton" mat-raised-button (click)="verHorarios()">Mostrar todo</a>
+                <a id="matButton" mat-raised-button (click)="verHorarios()">Mostrar todo</a>
             </div>
         </li>
-       
+
     </ul>
 </nav>
 
@@ -44,34 +67,39 @@
     <ul>
         <li>
             <div class="center-icon">
-                <mat-icon id="book" aria-hidden="false" aria-label="book"
-                    fontIcon="book"></mat-icon>
-            <a [routerLink]="['asignaturas']" [routerLinkActive]="['active']">Asignaturas</a>
+                <mat-icon id="book" aria-hidden="false" aria-label="book" fontIcon="book"></mat-icon>
+                <a [routerLink]="['asignaturas']" [routerLinkActive]="['active']">Asignaturas</a>
             </div>
         </li>
         <li>
             <div class="center-icon">
                 <mat-icon id="meeting_room" aria-hidden="meeting_room" aria-label="meeting_room"
                     fontIcon="meeting_room"></mat-icon>
-            <a [routerLink]="['aulas']" [routerLinkActive]="['active']">Aulas y Laboratorios</a>
+                <a [routerLink]="['aulas']" [routerLinkActive]="['active']">Aulas y Laboratorios</a>
             </div>
         </li>
         <li>
             <div class="center-icon">
-                <mat-icon id="person" aria-hidden="false" aria-label="person"
-                    fontIcon="person"></mat-icon>
-            <a [routerLink]="['profesores']" [routerLinkActive]="['active']">Profesores</a>
+                <mat-icon id="person" aria-hidden="false" aria-label="person" fontIcon="person"></mat-icon>
+                <a [routerLink]="['profesores']" [routerLinkActive]="['active']">Profesores</a>
             </div>
         </li>
         <li *ngIf="is_admin">
             <div class="center-icon">
                 <mat-icon id="supervised_user_circle" aria-hidden="false" aria-label="supervised_user_circle"
                     fontIcon="supervised_user_circle"></mat-icon>
-            <a [routerLink]="['usuarios']" [routerLinkActive]="['active']">Usuarios</a>
+                <a [routerLink]="['usuarios']" [routerLinkActive]="['active']">Usuarios</a>
+            </div>
+        </li>
+        <li *ngIf="is_suAdmin">
+            <div class="center-icon">
+                <mat-icon id="details" aria-hidden="false" aria-label="details"
+                    fontIcon="details"></mat-icon>
+                <a [routerLink]="['detalles']" [routerLinkActive]="['active']">Detalles</a>
             </div>
         </li>
     </ul>
-    
+
 </nav>
 
 
@@ -81,4 +109,3 @@
 </div>
 
 <div class="clearfix"></div>
-

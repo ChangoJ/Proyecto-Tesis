@@ -2,9 +2,8 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from "rxjs";
-import { Global } from "./global";
 import { Horario } from "../models/horario";
-declare let jsPDF: new () => any;
+import { DetalleService } from "./detalle.service";
 
 @Injectable({
   providedIn: 'root'
@@ -13,11 +12,13 @@ export class HorarioService {
   public url: string
 
   constructor(
-    private _http: HttpClient
-  ) {
-    this.url = Global.url;
+    private _http: HttpClient,
+    private _detalleService: DetalleService
+) {
+    this.url = this._detalleService.Global.url;
 
-  }
+}
+
 
 
   getHorarios(last: any = null): Observable<any> {

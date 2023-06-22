@@ -8,71 +8,89 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 exports.__esModule = true;
 exports.ItemsAsignaturaComponent = void 0;
 var sweetalert2_1 = require("sweetalert2");
-var global_1 = require("./../services/global");
 var core_1 = require("@angular/core");
 var asignatura_service_1 = require("../services/asignatura.service");
 var table_1 = require("@angular/material/table");
+var detalle_service_1 = require("../services/detalle.service");
 var ItemsAsignaturaComponent = /** @class */ (function () {
-    function ItemsAsignaturaComponent(_asignaturaService, _route, _router) {
+    function ItemsAsignaturaComponent(_asignaturaService, _route, _router, _detalleService) {
         this._asignaturaService = _asignaturaService;
         this._route = _route;
         this._router = _router;
+        this._detalleService = _detalleService;
         this.colorCuadro = document.querySelector(".color-square");
         this.terminoBusquedaAsignatura = '';
-        this.columnas = ['N°', 'Nombre', 'Carrera', 'Semestre', 'Profesor', 'Horario', 'Creditos', 'Color', 'Acciones'];
-        this.carreras = ["Enfermeria", "Fisioterapia", "Nutricion", "Psicologia", "Educacion Basica", "Produccion Audiovisual", "Contabilidad", "Derecho", "Economia", "Software", "Administracion de Empresas",
-            "Gastronomia", "Turismo"];
-        this.semestres = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10",];
         this.asignaturasObtenidos = [];
         this.carrerasFiltradas = [];
-        this.rolesCarreras = {
-            enfermeria: 'Enfermeria',
-            fisioterapia: 'Fisioterapia',
-            nutricion: 'Nutricion',
-            psicologia: 'Psicologia',
-            educacionBasica: 'Educacion Basica',
-            produccionAudiovisual: 'Produccion Audiovisual',
-            contabilidad: 'Contabilidad',
-            derecho: 'Derecho',
-            economia: 'Economia',
-            software: 'Software',
-            administracionEmpresas: 'Administracion de Empresas',
-            gastronomia: 'Gastronomia',
-            turismo: 'Turismo'
-        };
-        this.url = global_1.Global.url;
+        this.columnas = ['N°', 'Nombre', 'Carrera', 'Periodo', 'Profesor', 'Horario', 'Creditos', 'Color', 'Acciones'];
+        this.url = this._detalleService.Global.url;
         this.is_admin = false;
         this.is_aprobador = false;
+        this.authToken = this._detalleService.authToken;
+        this.userData = this._detalleService.userData;
     }
     ItemsAsignaturaComponent.prototype.ngOnInit = function () {
-        this.getAsignaturas();
-        this.authToken = localStorage.getItem('datosUsuario');
-        this.UserData = JSON.parse(this.authToken);
-        if (this.UserData.rol === "Administrador" || this.UserData.rol === "Aprobador") {
+        /*  this.getAsignaturas() */
+        if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador") {
             this.is_admin = true;
             this.is_aprobador = true;
         }
+        this.getDataDetalles();
     };
-    ItemsAsignaturaComponent.prototype.getAsignaturas = function () {
+    ItemsAsignaturaComponent.prototype.getDataDetalles = function () {
         var _this = this;
-        this._asignaturaService.getAsignaturas().subscribe(function (response) {
-            if (response.asignaturas) {
-                _this.asignaturasObtenidos = response.asignaturas;
-                var carreraActual_1 = _this.rolesCarreras[_this.UserData.rol.toLowerCase()];
-                _this.carrerasFiltradas = [];
-                if (carreraActual_1) {
-                    _this.carrerasFiltradas = _this.asignaturasObtenidos.filter(function (elemento) { return elemento.carrera.includes(carreraActual_1); });
+        this._detalleService.getRolesIndex().subscribe(function (roles) {
+            _this.rolesCarreras = roles;
+        });
+        this._detalleService.getCarreras().subscribe(function (carreras) {
+            _this.carreras = carreras;
+            _this._asignaturaService.getAsignaturas().subscribe(function (response) {
+                if (response.asignaturas) {
+                    _this.asignaturasObtenidos = response.asignaturas;
+                    var carreraActual_1 = _this.rolesCarreras[_this.userData.rol.toLowerCase().toLowerCase().replace(/\s/g, "")];
+                    _this.carrerasFiltradas = [];
+                    if (carreraActual_1) {
+                        _this.carrerasFiltradas = _this.asignaturasObtenidos.filter(function (elemento) { return elemento.carrera.includes(carreraActual_1); });
+                    }
+                    else {
+                        _this.carrerasFiltradas = _this.asignaturasObtenidos;
+                    }
+                    _this.asignaturasFiltrados = new table_1.MatTableDataSource(_this.carrerasFiltradas);
+                    _this.asignaturasFiltrados.paginator = _this.paginator;
                 }
-                else {
-                    _this.carrerasFiltradas = _this.asignaturasObtenidos;
-                }
-                _this.asignaturasFiltrados = new table_1.MatTableDataSource(_this.carrerasFiltradas);
-                _this.asignaturasFiltrados.paginator = _this.paginator;
-            }
-        }, function (error) {
-            console.log(error);
+            }, function (error) {
+                console.log(error);
+            });
+        });
+        this._detalleService.getSemestres().subscribe(function (semestres) {
+            _this.semestres = semestres;
         });
     };
+    /*
+      getAsignaturas() {
+        this._asignaturaService.getAsignaturas().subscribe(
+          response => {
+            if (response.asignaturas) {
+              this.asignaturasObtenidos = response.asignaturas
+              let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase()];
+    
+              this.carrerasFiltradas = [];
+    
+              if (carreraActual) {
+                this.carrerasFiltradas = this.asignaturasObtenidos.filter(elemento => elemento.carrera.includes(carreraActual));
+              } else {
+                this.carrerasFiltradas = this.asignaturasObtenidos;
+              }
+              
+              this.asignaturasFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas);
+              this.asignaturasFiltrados.paginator = this.paginator;
+            }
+          },
+          error => {
+            console.log(error)
+          }
+        )
+      } */
     ItemsAsignaturaComponent.prototype["delete"] = function (id) {
         var _this = this;
         sweetalert2_1["default"].fire({
@@ -158,7 +176,7 @@ var ItemsAsignaturaComponent = /** @class */ (function () {
             selector: 'app-items-asignatura',
             templateUrl: './items-asignatura.component.html',
             styleUrls: ['./items-asignatura.component.css'],
-            providers: [asignatura_service_1.AsignaturaService]
+            providers: [asignatura_service_1.AsignaturaService, detalle_service_1.DetalleService]
         })
     ], ItemsAsignaturaComponent);
     return ItemsAsignaturaComponent;

@@ -8,15 +8,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 exports.__esModule = true;
 exports.ProfesorNuevoComponent = void 0;
 var sweetalert2_1 = require("sweetalert2");
-var global_1 = require("./../services/global");
 var profesor_1 = require("./../models/profesor");
 var profesor_service_1 = require("./../services/profesor.service");
 var core_1 = require("@angular/core");
+var detalle_service_1 = require("../services/detalle.service");
 var ProfesorNuevoComponent = /** @class */ (function () {
-    function ProfesorNuevoComponent(_route, _profesorService, _router) {
+    function ProfesorNuevoComponent(_route, _profesorService, _router, _detalleService) {
         this._route = _route;
         this._profesorService = _profesorService;
         this._router = _router;
+        this._detalleService = _detalleService;
         this.selectedCarreras = [];
         this.dropdownCarreras = {};
         this.selectedContrato = [];
@@ -26,25 +27,10 @@ var ProfesorNuevoComponent = /** @class */ (function () {
             { id: 2, textField: 'Medio Tiempo' },
             { id: 3, textField: 'Tiempo Parcial' }
         ];
-        this.carreras = [
-            { id: 1, textField: 'Enfermeria' },
-            { id: 2, textField: 'Fisioterapia' },
-            { id: 3, textField: 'Nutricion' },
-            { id: 4, textField: 'Psicologia' },
-            { id: 5, textField: 'Educacion Basica' },
-            { id: 6, textField: 'Produccion Audiovisual' },
-            { id: 7, textField: 'Contabilidad' },
-            { id: 8, textField: 'Derecho' },
-            { id: 9, textField: 'Economia' },
-            { id: 10, textField: 'Software' },
-            { id: 11, textField: 'Administracion de Empresas' },
-            { id: 12, textField: 'Gastronomia' },
-            { id: 13, textField: 'Turismo' }
-        ];
         this.profesor = new profesor_1.Profesor('', '', '', [], '');
         this.page_title = "Nuevo Profesor";
         this.is_edit = false;
-        this.url = global_1.Global.url;
+        this.url = this._detalleService.Global.url;
         this.dropdownCarreras = {
             singleSelection: false,
             idField: 'id',
@@ -64,8 +50,19 @@ var ProfesorNuevoComponent = /** @class */ (function () {
             allowSearchFilter: false
         };
     }
+    ProfesorNuevoComponent.prototype.ngOnInit = function () {
+        this.getDataDetalles();
+    };
+    ProfesorNuevoComponent.prototype.getDataDetalles = function () {
+        var _this = this;
+        this._detalleService.getCarrerasIndex().subscribe(function (carreras) {
+            _this.carreras = carreras;
+        });
+    };
     ProfesorNuevoComponent.prototype.onSubmit = function () {
         var _this = this;
+        this.profesor.carrera = [];
+        this.profesor.contrato = '';
         var controles = [];
         Object.values(this.profesorForm.controls).forEach(function (control) {
             control.markAsTouched();
@@ -116,6 +113,9 @@ var ProfesorNuevoComponent = /** @class */ (function () {
     };
     ProfesorNuevoComponent.prototype.resumenProfesores = function () {
         this._router.navigate(['/especificacion/profesores/resumen-profesores']);
+        /*  setTimeout(() => {
+           location.reload();
+         }, 400); */
     };
     __decorate([
         core_1.ViewChild('profesorForm', { static: false })
@@ -125,7 +125,7 @@ var ProfesorNuevoComponent = /** @class */ (function () {
             selector: 'app-profesor-nuevo',
             templateUrl: './profesor-nuevo.component.html',
             styleUrls: ['./profesor-nuevo.component.css'],
-            providers: [profesor_service_1.ProfesorService]
+            providers: [profesor_service_1.ProfesorService, detalle_service_1.DetalleService]
         })
     ], ProfesorNuevoComponent);
     return ProfesorNuevoComponent;

@@ -12,4 +12,4 @@ var ProfesorScheme = Schema({
     required: false
   }
 });
-module.exports = mongoose.model('Profesores', ProfesorScheme);
+module.exports = mongoose.model('Profesor', ProfesorScheme);

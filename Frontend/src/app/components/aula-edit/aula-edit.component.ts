@@ -1,4 +1,4 @@
-import { Global } from './../services/global';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { AulaService } from './../services/aula.service';
 import { Aula } from './../models/aula';
@@ -6,12 +6,13 @@ import { Component, ViewChild } from '@angular/core';
 import Swal from 'sweetalert2';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { NgForm } from '@angular/forms';
+import { DetalleService } from '../services/detalle.service';
 
 @Component({
   selector: 'app-aula-edit',
   templateUrl: '../aula-nuevo/aula-nuevo.component.html',
   styleUrls: ['./aula-edit.component.css'],
-  providers: [AulaService]
+  providers: [AulaService, DetalleService]
 })
 export class AulaEditComponent {
   @ViewChild('aulaForm', { static: false }) aulaForm!: NgForm;
@@ -25,21 +26,19 @@ export class AulaEditComponent {
   public selectedUbicacion: any[] = [];
   public dropdownUbicacion: IDropdownSettings = {};
   public itemUbicacionEdit: any;
-  ubicaciones: any[] = [
-    { id: 1, textField: 'Campus Norte' },
-    { id: 2, textField: 'Campus Colon' },
-    { id: 3, textField: 'ZOOM' }
-  ];
+  public ubicaciones: any;
 
   constructor(
     private _route: ActivatedRoute,
     private _aulaService: AulaService,
-    private _router: Router
+    private _router: Router,
+    private _detalleService: DetalleService
   ) {
     this.aula = new Aula('', '', '', '', '', '#000000')
     this.page_title = "Editar Aula/Laboratorio"
     this.is_edit = true;
-    this.url = Global.url
+    this.url = this._detalleService.Global.url
+    this.ubicaciones = this._detalleService.ubicaciones
 
     this.selectedUbicacion = []
 
@@ -135,7 +134,7 @@ export class AulaEditComponent {
             } else {
               this.isChecked = true
             }
-            this.selectedUbicacion = this.ubicaciones.filter(ubicacion => ubicacion.textField === this.aula.ubicacion);
+            this.selectedUbicacion = this.ubicaciones.filter((ubicacion: { textField: string; }) => ubicacion.textField === this.aula.ubicacion);
            
 
           } else {

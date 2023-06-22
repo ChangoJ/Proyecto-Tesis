@@ -7,12 +7,13 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { HorarioObservacionDialogComponent } from '../horario-observacion-dialog/horario-observacion-dialog.component';
+import { DetalleService } from '../services/detalle.service';
 
 @Component({
   selector: 'app-items-horario',
   templateUrl: './items-horario.component.html',
   styleUrls: ['./items-horario.component.css'],
-  providers: [HorarioService]
+  providers: [HorarioService, DetalleService]
 })
 export class ItemsHorarioComponent {
   public horarios!: Horario[];
@@ -26,35 +27,23 @@ export class ItemsHorarioComponent {
   public is_admin!: boolean
   public is_aprobador!: boolean
   public editingHorario: any = null;
-  authToken!: any;
-  UserData!: any;
-  carrerasFiltradas: any[] = [];
-
-  rolesCarreras: any = {
-    enfermeria: 'Enfermeria',
-    fisioterapia: 'Fisioterapia',
-    nutricion: 'Nutricion',
-    psicologia: 'Psicologia',
-    educacionBasica: 'Educacion Basica',
-    produccionAudiovisual: 'Produccion Audiovisual',
-    contabilidad: 'Contabilidad',
-    derecho: 'Derecho',
-    economia: 'Economia',
-    software: 'Software',
-    administracionEmpresas: 'Administracion de Empresas',
-    gastronomia: 'Gastronomia',
-    turismo: 'Turismo'
-  };
+  public authToken!: any;
+  public userData!: any;
+  public  carrerasFiltradas: any[] = [];
+  public rolesCarreras: any
+  public columnas = ['N°', 'Carrera', 'Periodo', 'Tipo', 'Acciones', 'Estado', 'Observacion'];
 
   constructor(
-    private _route: ActivatedRoute,
     private _horarioService: HorarioService,
     private _router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private _detalleService: DetalleService
   ) {
     this.is_horario = false
     this.is_admin = false
     this.is_aprobador = false
+    this.authToken = this._detalleService.authToken
+    this.userData = this._detalleService.userData
 
   }
 
@@ -63,17 +52,22 @@ export class ItemsHorarioComponent {
   ngOnInit() {
     this.getHorarios()
     this.ver = "Ver";
-    this.authToken = localStorage.getItem('datosUsuario');
-    this.UserData = JSON.parse(this.authToken!)
-    if (this.UserData.rol === "Administrador" || this.UserData.rol === "Aprobador") {
+    this.userData = JSON.parse(this.authToken!)
+    if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador"  || this.userData.rol === "Superadministrador") {
       this.is_admin = true
       this.is_aprobador = true
     }
 
-
+    this.getDataDetalles()
   }
 
-  columnas = ['N°', 'Carrera', 'Periodo', 'Tipo', 'Acciones', 'Estado', 'Observacion'];
+  getDataDetalles(){
+
+    this._detalleService.getRolesIndex().subscribe(roles => {
+      this.rolesCarreras = roles
+    });
+  }
+
 
   filtrarHorarios() {
     let terminosBusqueda = this.terminoBusquedaHorario.split(' ').join('|');
@@ -91,7 +85,7 @@ export class ItemsHorarioComponent {
         if (response.horarios) {
           this.is_horario = true
           this.horarios = response.horarios;
-          let carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+          let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase().replace(/\s/g, "")];
 
           this.carrerasFiltradas = [];
       

@@ -24,6 +24,10 @@ import { UsuarioNuevoComponent } from './components/usuario-nuevo/usuario-nuevo.
 import { AuthGuard } from './components/services/auth.guard';
 import { LoginGuard } from './components/services/login.guard';
 import { AdminGuard } from './components/services/admin.guard';
+import { DetalleNuevoComponent } from './components/detalle-nuevo/detalle-nuevo.component';
+import { DetalleEditComponent } from './components/detalle-edit/detalle-edit.component';
+import { DetallesComponent } from './components/detalles/detalles.component';
+import { suAdminGuard } from './components/services/suAdmin.guard';
 
 const routes: Routes = [
   {
@@ -121,6 +125,20 @@ const routes: Routes = [
       {
         path: 'usuarios/crearUsuario',
         component: UsuarioNuevoComponent, canActivate: [AdminGuard]
+      },
+
+      {
+        path: 'detalles',
+        component: DetallesComponent, canActivate: [suAdminGuard]
+      },
+      {
+        path: 'detalles/editarDetalle/:id',
+        component: DetalleEditComponent, canActivate: [suAdminGuard]
+      },
+
+      {
+        path: 'detalles/crearDetalle',
+        component: DetalleNuevoComponent, canActivate: [suAdminGuard]
       }
     ]
   },

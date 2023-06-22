@@ -3,11 +3,14 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { HorarioDialogComponent } from '../horario-dialog/horario-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { CarrerasDialogComponent } from '../carreras-dialog/carreras-dialog.component';
+import { BDService } from '../services/BD.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-submenu',
   templateUrl: './submenu.component.html',
-  styleUrls: ['./submenu.component.css']
+  styleUrls: ['./submenu.component.css'],
+  providers: [BDService]
 })
 export class SubmenuComponent {
 
@@ -16,13 +19,15 @@ export class SubmenuComponent {
   public especificacion!: boolean
   public horario!: boolean
   public is_admin!: boolean
+  public is_suAdmin!: boolean
 
   constructor(private _route: ActivatedRoute, private dialog: MatDialog,
-    private _router: Router) {
+    private _router: Router, private _bdService: BDService) {
     this.home = false;
     this.especificacion = false;
     this.horario = false;
     this.is_admin = false
+    this.is_suAdmin = false
 
   }
 
@@ -38,8 +43,12 @@ export class SubmenuComponent {
     }
     let authToken = localStorage.getItem('datosUsuario');
     let UserData = JSON.parse(authToken!)
-    if(UserData.rol === "Administrador" ){
+    if (UserData.rol === "Administrador" || UserData.rol === "Superadministrador") {
       this.is_admin = true
+    }
+
+    if (UserData.rol === "Superadministrador") {
+      this.is_suAdmin = true
     }
 
   }
@@ -98,6 +107,54 @@ export class SubmenuComponent {
         this.openCarrerasDialog(result); // Pasar el valor al método openCarrerasDialog()
       }
     });
+  }
+
+
+  exportarBD() {
+
+    this._bdService.exportarDatos().subscribe(
+      response => {
+        console.log(response)
+        Swal.fire(
+          'Exportado Correctamente',
+          response.message,
+          'success'
+        )
+      },
+      error => {
+        Swal.fire(
+          'Exportación fallida',
+          error.error.message,
+          'error'
+        )
+      })
+
+
+  }
+
+
+  importarBD(event: any) {
+    const file: File = event.target.files[0];
+    console.log(file)
+
+    if (file) {
+      this._bdService.importarDatos(file).subscribe(
+        (response) => {
+          Swal.fire(
+            'Importado Correctamente',
+            response.message,
+            'success'
+          )
+        },
+        (error) => {
+          Swal.fire(
+            'Importación fallida',
+            error.error.message,
+            'error'
+          )
+        }
+      );
+    }
   }
 
 }

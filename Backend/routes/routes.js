@@ -1,14 +1,15 @@
 'use strict'
 
 
-
 var express = require('express');
 var AsignaturaController = require('../controllers/asignatura')
 var AulaController = require('../controllers/aula')
 var ProfesorController = require('../controllers/profesor')
 var HorarioController = require('../controllers/horario')
 var UsuarioController = require('../controllers/usuario')
+var DetalleController = require('../controllers/detalle')
 var AuthController  = require('../controllers/login');
+var BDController  = require('../controllers/baseDeDatos');
 const { authenticateToken } = require('../middleware/authMiddleware');
 var router = express.Router();
 
@@ -68,6 +69,19 @@ router.get('/usuario/:id', UsuarioController.getUsuario);
 router.put('/usuario/:id', UsuarioController.update);
 router.delete('/usuario/:id', UsuarioController.delete);
 router.get('/searchUsuario/:search1', UsuarioController.search);
+
+/* Detalles */
+router.post('/save-detalle', DetalleController.save);
+router.get('/detalles/:last?', DetalleController.getDetalles);
+router.get('/detalle/:id', DetalleController.getDetalle);
+router.put('/detalle/:id', DetalleController.update);
+router.delete('/detalle/:id', DetalleController.delete);
+
+/* Exportar/imporat datos */
+
+router.get('/exportar', BDController.exportar);
+router.post('/importar', BDController.importar);
+
 
 
 module.exports = router;

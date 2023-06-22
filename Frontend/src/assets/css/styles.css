@@ -361,7 +361,6 @@ a mat-raised-button {
 }
 
 #contentHome {
-    margin-top: 5%;
     text-align: center;
     width: 100%;
     float: left;
@@ -1091,6 +1090,34 @@ th {
 .box select option {
     padding: 30px;
 }
+
+
+#submenu .BDButtons {
+    float: right;
+}
+
+.rowDetalle {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .rowDetalle#horas {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .colDetalle {
+    flex: 1;
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+  
+  @media (max-width: 768px) {
+    .col {
+      flex-basis: 100%;
+      margin-right: 0;
+    }
+  }
 
 /*RESPONSIVE*/
 

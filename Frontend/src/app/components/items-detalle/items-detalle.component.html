@@ -1,0 +1,89 @@
+<div id="articlesProfesores" *ngIf="detalles">
+
+    <nav id="submenu">
+        <ul>
+            <li *ngIf="detalles.length === 0">
+                <div class="center-icon">
+                    <mat-icon>queue</mat-icon>
+                    <a id="matButton" mat-raised-button [routerLink]="['/especificacion/detalles/crearDetalle']">Nuevo
+                        Detalle</a>
+                </div>
+            </li>
+            <li>
+                <div class="center-icon">
+                    <mat-icon id="library_books" aria-hidden="library_books" aria-label="library_books"
+                        fontIcon="library_books"></mat-icon>
+                    <a id="matButton" mat-raised-button (click)="allDetalles()">Mostrar detalles</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+    <h2 class="Subheader" id="listasTitulo">Lista de detalles</h2>
+    <div id="busquedaHorario">
+        <h2 sty>Buscador</h2>
+        <input id="buscadorHorario" [(ngModel)]="terminoBusquedaUsuarios" type="text"
+            placeholder="Buscar por nombre, usuario, email, o rol" (input)="filtrarDetalles()">
+    </div>
+    <div class="mat-elevation-z8 tablaDocentesResumen" *ngIf="detalles">
+        <table mat-table [dataSource]="detallesFiltrados">
+
+            <ng-container matColumnDef="N°">
+                <th mat-header-cell *matHeaderCellDef>N°</th>
+                <td mat-cell *matCellDef="let item; let i = index">{{i + 1}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="Carreras">
+                <th mat-header-cell *matHeaderCellDef>Carreras</th>
+                <td [matTooltip]="item.carreras" mat-cell *matCellDef="let item"> {{item.carreras.length > 1 ?
+                    item.carreras.slice(0,1)+ '...(' + (item.carreras.length)+ ')' : item.carreras }}</td>
+            </ng-container>
+            <ng-container matColumnDef="Semestres">
+                <th mat-header-cell *matHeaderCellDef>Semestres</th>
+                <td [matTooltip]="item.semestres" mat-cell *matCellDef="let item"> {{item.semestres.length > 1 ?
+                    item.semestres.slice(0,1)+ '...(' + (item.semestres.length)+ ')' : item.semestres }}</td>
+            </ng-container>
+            <ng-container matColumnDef="Ciclos">
+                <th mat-header-cell *matHeaderCellDef>Ciclos</th>
+                <td [matTooltip]="item.ciclos" mat-cell *matCellDef="let item"> {{item.ciclos.length > 1 ?
+                    item.ciclos.slice(0,1)+ '...(' + (item.ciclos.length)+ ')' : item.ciclos }}</td>
+            </ng-container>
+            <ng-container matColumnDef="HorasDiurnas">
+                <th mat-header-cell *matHeaderCellDef>Horas Diurnas</th>
+                <td [matTooltip]="item.horasDiurnas" mat-cell *matCellDef="let item"> {{item.horasDiurnas.length > 1 ?
+                    item.horasDiurnas.slice(0,1)+ '...(' + (item.horasDiurnas.length)+ ')' : item.horasDiurnas }}</td>
+            </ng-container>
+            <ng-container matColumnDef="HorasNocturnas">
+                <th mat-header-cell *matHeaderCellDef>Horas Nocturnas</th>
+                <td [matTooltip]="item.horasNocturnas" mat-cell *matCellDef="let item"> {{item.horasNocturnas.length > 1 ?
+                    item.horasNocturnas.slice(0,1)+ '...(' + (item.horasNocturnas.length)+ ')' : item.horasNocturnas }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="Acciones">
+                <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                <td mat-cell *matCellDef="let item">
+                    <button mat-icon-button color="warn" (click)="delete(item._id)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                    <a mat-icon-button color="primary"
+                        [routerLink]="['/especificacion/detalles/editarDetalle', item._id]">
+                        <mat-icon>edit</mat-icon>
+                    </a>
+                </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+            <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+        </table>
+        <mat-paginator #paginatorD [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
+            aria-label="Seleccione la pagina de detalles">
+        </mat-paginator>
+    </div>
+
+    <div id="articlesAsignatura" class="loading" *ngIf="!detalles">
+        Cargando...
+    </div>
+
+    <div id="articlesAsignatura" class="loading" *ngIf="detalles && detalles.length == 0">
+        No hay detalles para mostrar, inténtalo mas tarde.
+    </div>
+
+</div>

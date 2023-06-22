@@ -1,4 +1,4 @@
-<div id="articlesAula" *ngIf="aulas">
+<div id="articlesAsignatura" *ngIf="aulas">
     <nav id="submenu">
         <ul>
             <li>
@@ -73,11 +73,11 @@
         </mat-paginator>
     </div>
 
-    <div id="articlesAula" class="loading" *ngIf="!aulas">
+    <div id="articlesAsignatura" class="loading" *ngIf="!aulas">
         cargando...
     </div>
 
-    <div id="articlesAula" class="loading" *ngIf="aulas && aulas.length == 0">
+    <div id="articlesAsignatura" class="loading" *ngIf="aulas && aulas.length === 0">
         No hay aulas para mostrar, intentalo mas tarde
     </div>
 

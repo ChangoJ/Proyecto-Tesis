@@ -3,15 +3,15 @@ import { UsuarioService } from '../services/usuario.service';
 import { Usuario } from '../models/usuario';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Global } from '../services/global';
 import Swal from 'sweetalert2';
 import { NgForm } from '@angular/forms';
+import { DetalleService } from '../services/detalle.service';
 
 @Component({
   selector: 'app-usuario-edit',
   templateUrl: '.././usuario-nuevo/usuario-nuevo.component.html',
   styleUrls: ['./usuario-edit.component.css'],
-  providers: [UsuarioService]
+  providers: [UsuarioService, DetalleService]
 })
 export class UsuarioEditComponent {
   @ViewChild('usuarioForm', { static: false }) usuarioForm!: NgForm;
@@ -24,37 +24,19 @@ export class UsuarioEditComponent {
   public selectedRol!: any;
   public dropdownRoles: IDropdownSettings = {};
   public itemRolEdit: any;
-
-
-  roles: any[] = [
-    { id: 1, textField: 'Administrador' },
-    { id: 2, textField: 'Revisador' },
-    { id: 3, textField: 'Aprobador' },
-    { id: 4, textField: 'Enfermeria' },
-    { id: 5, textField: 'Fisioterapia' },
-    { id: 6, textField: 'Nutricion' },
-    { id: 7, textField: 'Psicologia' },
-    { id: 8, textField: 'Educacion Basica' },
-    { id: 9, textField: 'produccionAudiovisual' },
-    { id: 10, textField: 'Contabilidad' },
-    { id: 11, textField: 'Derecho' },
-    { id: 12, textField: 'Economia' },
-    { id: 13, textField: 'Software' },
-    { id: 14, textField: 'AadministracionEmpresas' },
-    { id: 15, textField: 'Gastronomia' },
-    { id: 16, textField: 'Turismo' }
-  ];
+  public roles: any
 
 
   constructor(
     private _route: ActivatedRoute,
     private _usuarioService: UsuarioService,
-    private _router: Router
+    private _router: Router,
+    private _detalleService: DetalleService
   ) {
     this.user = new Usuario('', '', '', '', '', '', '')
     this.page_title = "Editar Usuario"
     this.is_edit = true;
-    this.url = Global.url
+    this.url = this._detalleService.Global.url
 
     this.dropdownRoles = {
       singleSelection: true,
@@ -67,6 +49,8 @@ export class UsuarioEditComponent {
     };
 
   }
+
+  
 
 
   async onSubmit() {
@@ -138,7 +122,19 @@ export class UsuarioEditComponent {
 
   ngOnInit() {
     this.getUsuario();
+
+    this.getDataDetalles()
   }
+
+      
+   
+  
+  
+    getDataDetalles() {
+      this._detalleService.getRolesIndex().subscribe(roles => {
+        this.roles = roles
+      });
+    }
 
   getUsuario() {
     this._route.params.subscribe(params => {
@@ -147,7 +143,7 @@ export class UsuarioEditComponent {
         response => {
           if (response.usuario) {
             this.user = response.usuario
-            this.selectedRol = this.roles.filter(rol => rol.textField === this.user.rol);
+            this.selectedRol = this.roles.filter((rol: { textField: string; }) => rol.textField === this.user.rol);
 
           } else {
             this._router.navigate(['/especificacion/usuarios'], { relativeTo: this._route });

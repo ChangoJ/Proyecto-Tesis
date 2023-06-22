@@ -40,6 +40,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import {MatTableModule} from '@angular/material/table';
 import {MatGridListModule} from '@angular/material/grid-list';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { CarrerasDialogComponent } from './components/carreras-dialog/carreras-dialog.component';
 import { ItemsHorarioComponent } from './components/items-horario/items-horario.component';
@@ -55,6 +56,11 @@ import { UsuarioEditComponent } from './components/usuario-edit/usuario-edit.com
 import { UsuarioNuevoComponent } from './components/usuario-nuevo/usuario-nuevo.component';
 import { AuthService } from './components/services/auth.service';
 import { HorarioObservacionDialogComponent } from './components/horario-observacion-dialog/horario-observacion-dialog.component';
+import { DetallesComponent } from './components/detalles/detalles.component';
+import { DetalleEditComponent } from './components/detalle-edit/detalle-edit.component';
+import { DetalleNuevoComponent } from './components/detalle-nuevo/detalle-nuevo.component';
+import { ItemsDetalleComponent } from './components/items-detalle/items-detalle.component';
+import { DetalleService } from './components/services/detalle.service';
 
 @NgModule({
   
@@ -91,7 +97,11 @@ import { HorarioObservacionDialogComponent } from './components/horario-observac
     ItemsUsuarioComponent,
     UsuarioEditComponent,
     UsuarioNuevoComponent,
-    HorarioObservacionDialogComponent
+    HorarioObservacionDialogComponent,
+    DetallesComponent,
+    DetalleEditComponent,
+    DetalleNuevoComponent,
+    ItemsDetalleComponent
   ],
   imports: [
     BrowserModule,
@@ -114,9 +124,10 @@ import { HorarioObservacionDialogComponent } from './components/horario-observac
     MatCheckboxModule,
     MatDividerModule,
     MatPaginatorModule,
-    MatCardModule
+    MatCardModule,
+    ReactiveFormsModule
   ],
-  providers: [AuthService],
+  providers: [AuthService, DetalleService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,5 +1,3 @@
-import { Usuario } from './../models/usuario';
-
 import * as ExcelJS from 'exceljs';
 import { Component, Input } from '@angular/core';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
@@ -17,12 +15,15 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as FileSaver from 'file-saver';
 import { v4 as uuidv4 } from 'uuid';
+import { DetalleService } from '../services/detalle.service';
+import { UsuarioService } from '../services/usuario.service';
 
 
 @Component({
   selector: 'app-horario-nuevo',
   templateUrl: './horario-nuevo.component.html',
-  styleUrls: ['./horario-nuevo.component.css']
+  styleUrls: ['./horario-nuevo.component.css'],
+  providers: [HorarioService, AsignaturaService, AulaService, UsuarioService, DetalleService]
 })
 export class HorarioNuevoComponent {
 
@@ -45,10 +46,31 @@ export class HorarioNuevoComponent {
   public isActiveBtnG = false
   public isActiveBtnV = true
   public verificarDiaPresencialVirtualBolean: boolean = false;
+  public verificarAulaUbicacionBolean: boolean = false;
   public periodoTipo!: any
   public usuario!: any;
-  public authToken!: any;
-  public UserData!: any;
+  public authToken: any;
+  public userData: any;
+  public monday: any[] = [];
+  public tuesday: any[] = [];
+  public wednesday: any[] = [];
+  public thursday: any[] = [];
+  public friday: any[] = [];
+  public saturday: any[] = [];
+  public hours!: any[]
+  public hoursnight!: any[]
+  public terminoBusquedaAsignatura: string = '';
+  public terminoBusquedaAsignaturaStatic: string = '';
+  public terminoBusquedaAsignaturaBoolean: boolean = false;
+  public terminoBusquedaAula: string = '';
+  public asignaturasFiltradas: any[] = [];
+  public asignaturasFiltradasDrop: any[] = [];
+  public asignaturasFiltradasDropReverse: any[] = [];
+  public aulasFiltradas: any[] = [];
+  public usuarios: any = [];
+  public revisador: any = [];
+  public aprobador: any = [];
+  public arrastreAsignaturas: any[] = [];
 
   constructor(
     private _route: ActivatedRoute,
@@ -56,63 +78,84 @@ export class HorarioNuevoComponent {
     private _asignaturaService: AsignaturaService,
     private _aulasService: AulaService,
     private _horarioService: HorarioService,
-    private dialog: MatDialog
+    private _detalleService: DetalleService,
+    private _usuarioService: UsuarioService,
   ) {
-    this.horario = new Horario('','', '', '', '',[], [], [], [], this.usuario)
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
     this.existHorarioCarrera = false
     this.getHorarios()
+    this.authToken = this._detalleService.authToken
+    this.userData = this._detalleService.userData
   }
 
-  hours = [
-    '07:00 - 08:00',
-    '08:00 - 09:00',
-    '09:00 - 10:00',
-    '10:00 - 11:00',
-    '11:00 - 12:00',
-    '12:00 - 13:00',
-    '13:00 - 14:00',
-    '14:00 - 15:00',];
 
-  hoursnight = [
-    '08:00 - 09:00',
-    '09:00 - 10:00',
-    '10:00 - 11:00',
-    '11:00 - 12:00',
-    '12:00 - 13:00',
-    '13:00 - 14:00',
-    '18:00 - 19:00',
-    '19:00 - 20:00',
-    '20:00 - 21:00',
-    '21:00 - 22:00',
-  ]
-
-  monday: any[] = [];
-  tuesday: any[] = [];
-  wednesday: any[] = [];
-  thursday: any[] = [];
-  friday: any[] = [];
-  saturday: any[] = [];
-
-  terminoBusquedaAsignatura: string = '';
-  terminoBusquedaAula: string = '';
-  asignaturasFiltradas: any[] = [];
-
-  aulasFiltradas: any[] = [];
-
-  async ngOnInit() {
-
+  ngOnInit() {
     this.getHorarios()
     this.getAsignaturas()
     this.getAulas()
-    this.authToken = localStorage.getItem('datosUsuario');
-    this.UserData = JSON.parse(this.authToken!)
+    this.getUsuarios()
+    this.getDataDetalles()
 
+  }
+
+  getDataDetalles() {
+    this._detalleService.getHorasDiurnas().subscribe(horasDiurnas => {
+      this.hours = horasDiurnas
+    });
+
+    this._detalleService.getHorasNocturnas().subscribe(horasNocturnas => {
+      this.hoursnight = horasNocturnas
+    });
   }
 
 
 
   filtrarAsignaturas() {
-    this.asignaturasFiltradas = this.asignaturas.filter(asignatura => asignatura.nombre.toLowerCase().includes(this.terminoBusquedaAsignatura.toLowerCase()));
+
+
+    console.log(this.terminoBusquedaAsignaturaStatic)
+    if (this.terminoBusquedaAsignaturaStatic !== "") {
+      this.terminoBusquedaAsignaturaBoolean = true
+    } else if (this.terminoBusquedaAsignaturaStatic === "") {
+      this.terminoBusquedaAsignaturaBoolean = false
+    }
+
+    if (this.terminoBusquedaAsignatura === "") {
+      this.terminoBusquedaAsignaturaBoolean = false
+    }
+
+    if (this.terminoBusquedaAsignaturaBoolean === false) {
+
+
+      this.asignaturasFiltradas = this.asignaturas.filter(asignatura => asignatura.nombre.toLowerCase().includes(this.terminoBusquedaAsignatura.toLowerCase()));
+
+      if (this.terminoBusquedaAsignatura === "") {
+        this.terminoBusquedaAsignaturaStatic = ""
+        for (let i = 0; i < this.asignaturasFiltradasDrop.length; i++) {
+          let elemento2 = this.asignaturasFiltradasDrop[i];
+          // Buscar el elemento2 en array1
+          for (let j = 0; j < this.asignaturas.length; j++) {
+            let elemento1 = this.asignaturas[j];
+
+            // Comparar los elementos por su _id (puedes ajustar esto según tus necesidades)
+            if (elemento1._id === elemento2._id) {
+              // Eliminar el elemento coincidente de array1
+              this.asignaturas.splice(j, 1);
+              break; // Salir del bucle interno una vez que se haya eliminado el elemento
+            }
+          }
+
+        }
+        this.asignaturasFiltradasDrop = []
+        if (this.asignaturasFiltradasDropReverse.length !== 0) {
+
+          this.asignaturas.push(...this.asignaturasFiltradasDropReverse)
+        }
+
+        this.asignaturasFiltradas = this.asignaturas
+        this.asignaturasFiltradasDropReverse = []
+      }
+    }
 
   }
 
@@ -142,9 +185,11 @@ export class HorarioNuevoComponent {
       this.opcion2 = params['opcion2'];
       this.opcion1 = params['opcion1'];
       this.opcion3 = params['opcion3'];
-      this.opcion2 = this.opcion2.replace('_', " ");
-      this.opcion2 = this.opcion2.replace('_', " ");
-      this.opcion1 = this.opcion1.replace('_', " ");
+
+      this.opcion2 = this.opcion2.replace(/_/g, " ");
+
+      this.opcion1 = this.opcion1.replace(/_/g, " ");
+
       if (this.opcion1 === "Horario Diurno") {
         this.is_Diurno = true
       } else {
@@ -159,11 +204,11 @@ export class HorarioNuevoComponent {
 
             // Iterar sobre las asignaturas obtenidas en la respuesta
             response.asignaturas.forEach((asignatura: { creditos: number; _id: string; nombre: string; carrera: String[]; semestre: String[]; profesor: Profesor[]; horario: string; abreviatura: string; color: string; }) => {
-              const creditos = asignatura.creditos; // Obtener la cantidad de créditos de la asignatura
+              let creditos = asignatura.creditos; // Obtener la cantidad de créditos de la asignatura
 
               // Clonar la asignatura por la cantidad de créditos y guardarlas en el array this.asignaturas
               for (let i = 0; i < creditos; i++) {
-                const asignaturaClonada = new Asignatura(
+                let asignaturaClonada = new Asignatura(
                   asignatura._id,
                   asignatura.nombre,
                   asignatura.carrera,
@@ -189,6 +234,7 @@ export class HorarioNuevoComponent {
 
             this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig)
             this.asignaturasFiltradas = this.asignaturas;
+
           }
         },
         error => {
@@ -196,6 +242,26 @@ export class HorarioNuevoComponent {
         }
       )
     })
+  }
+
+  getUsuarios() {
+    this._usuarioService.getUsuarios().subscribe(
+      response => {
+        if (response.usuarios) {
+          this.usuarios = response.usuarios
+          for (let usuario of this.usuarios) {
+            if (usuario.rol === "Aprobador") {
+              this.aprobador = usuario
+            } else if (usuario.rol === "Revisador") {
+              this.revisador = usuario
+            }
+          }
+        }
+      },
+      error => {
+        console.log(error)
+      }
+    )
   }
 
   getDayData(day: number, hour: string): any[] {
@@ -224,22 +290,30 @@ export class HorarioNuevoComponent {
 
     } else {
       this.isActiveBtn = false
-
+      let item: any = []
+      let idParts: any = []
+      let day: any = []
+      let hourStart: any = []
+      let hourEnd: any = []
+      let dayName: any = []
+      let identificador: any = []
       this.isActiveBtnG = false
-      const daysOfWeek = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
-      const item: any = event.previousContainer.data[event.previousIndex];
-      const idParts: string[] = event.container.id.split('-');
-      const day: number = Number(idParts[0]);
-      const hourStart: string = idParts[1];
-      const hourEnd: string = idParts[2];
-      const dayName = daysOfWeek[day];
-      let identificador = Number(idParts[0]) + '' + '' + Number(idParts[3]);
+      let daysOfWeek = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+      item = event.previousContainer.data[event.previousIndex];
+      idParts = event.container.id.split('-');
+      day = Number(idParts[0]);
+      hourStart = idParts[1];
+      hourEnd = idParts[2];
+      dayName = daysOfWeek[day];
+      identificador = Number(idParts[0]) + '' + '' + Number(idParts[3]);
 
 
 
       // listasignatura id
-      const idPartsAsignatura: string[] = event.item.element.nativeElement.id.split('-');
-      let elementoType: string = (idPartsAsignatura[0]);
+      let idPartsAsignatura: any[] = []
+      let elementoType: any = []
+      idPartsAsignatura = event.item.element.nativeElement.id.split('-');
+      elementoType = (idPartsAsignatura[0]);
 
 
       if (item.ubicacion) {
@@ -319,9 +393,12 @@ export class HorarioNuevoComponent {
 
 
       //Eliminar origen del array
-      const prevIdParts: string[] = event.previousContainer.id.split('-');
-      const prevDay: number = Number(prevIdParts[0]);
-      let preIdentificador = Number(prevIdParts[0]) + '' + '' + Number(prevIdParts[3]);
+      let prevIdParts: any = []
+      let prevDay: any = []
+      let preIdentificador: any = []
+      prevIdParts = event.previousContainer.id.split('-');
+      prevDay = Number(prevIdParts[0]);
+      preIdentificador = Number(prevIdParts[0]) + '' + '' + Number(prevIdParts[3]);
       if (item.ubicacion) {
         preIdentificador = preIdentificador + 'aula'
       } else if (!item.ubicacion) {
@@ -378,8 +455,8 @@ export class HorarioNuevoComponent {
           break;
 
       }
-
-      const newItem = { identificador, elementoType, dayName, hourStart, hourEnd, item: { ...item } };
+      let newItem: any = [];
+      newItem = { identificador, elementoType, dayName, hourStart, hourEnd, item: { ...item } };
 
       if (item.ubicacion) {
         newItem.elementoType = "aula"
@@ -390,15 +467,12 @@ export class HorarioNuevoComponent {
       switch (day) {
         case 0:
           this.monday.push(newItem);
-
           break;
         case 1:
           this.tuesday.push(newItem);
           break;
         case 2:
           this.wednesday.push(newItem);
-
-
           break;
         case 3:
           this.thursday.push(newItem);
@@ -410,6 +484,7 @@ export class HorarioNuevoComponent {
           this.saturday.push(newItem);
           break;
       }
+
       if (!item.profesor) {
 
       } else {
@@ -423,12 +498,33 @@ export class HorarioNuevoComponent {
       }
 
 
-
       this.verificarDiaPresencialVirtual()
+      this.verificarAulaUbicacion()
+
+      if (this.terminoBusquedaAsignatura !== "" && newItem.dayName !== undefined && !newItem.item.compartida) {
+        this.asignaturasFiltradasDrop.push(newItem.item)
+        this.terminoBusquedaAsignaturaStatic = this.terminoBusquedaAsignatura
+        console.log(this.terminoBusquedaAsignaturaStatic)
+
+      } else if (this.terminoBusquedaAsignatura !== "" && newItem.dayName === undefined && !newItem.item.compartida) {
+        if (this.asignaturasFiltradasDrop.length === 0) {
+
+          this.asignaturasFiltradasDropReverse.push(newItem.item)
+        }
+        // Verificar si hay una coincidencia en this.asignaturasFiltradasDrop y eliminarla
+        for (let i = 0; i < this.asignaturasFiltradasDrop.length; i++) {
+          let elemento = this.asignaturasFiltradasDrop[i];
+          if (elemento._id === newItem.item._id) {
+            this.asignaturasFiltradasDrop.splice(i, 1);
+
+            break;
+          }
+        }
+
+      }
 
 
     }
-
 
 
   }
@@ -482,7 +578,7 @@ export class HorarioNuevoComponent {
 
             }
           }
-
+          console.log(this.opcion1)
           if (this.opcion1 === "Horario Nocturno") {
             this.periodoTipo = "ciclo"
           } else {
@@ -494,7 +590,7 @@ export class HorarioNuevoComponent {
 
           if (this.existHorarioCarrera) {
             Swal.fire({
-              title: 'EL Horario de ' + this.opcion2 + ' del ' + this.opcion3 + this.periodoTipo + ' ya existe',
+              title: 'EL Horario de ' + this.opcion2 + ' del ' + this.opcion3 + ' ' + this.periodoTipo + ' ya existe.',
               text: 'Por favor, si desea modificar vaya a la sección de horarios',
               icon: 'error',
               showCancelButton: true,
@@ -523,7 +619,7 @@ export class HorarioNuevoComponent {
     await this.getHorarios()
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('','', '', '', '', [], [], [], [], this.usuario)
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
     const arreglosHorario = [
       this.monday,
       this.tuesday,
@@ -545,7 +641,7 @@ export class HorarioNuevoComponent {
 
     this.horario.carrera = this.opcion2
     this.horario.semestre = this.opcion3
-    this.horario.creado_por = this.UserData
+    this.horario.creado_por = this.userData
 
     let elementoComprobarTipo: any = []
     let elementoComprobarId: any = []
@@ -672,7 +768,7 @@ export class HorarioNuevoComponent {
         if (datosIguales && !this.existHorarioCarrera) {
           this._horarioService.create(this.horario).subscribe(
             response => {
-              
+
               if (response.status == 'success') {
                 this.status = 'success'
                 this.horario = response.horario
@@ -764,33 +860,24 @@ export class HorarioNuevoComponent {
     let carreraInfoX = (pageWidth - carreraInfoWidth) / 2;
 
     doc.text(carreraText, carreraInfoX, 20);
-    
-    let periodoTipo: any
-    if (this.opcion1 === "Horario Nocturno") {
-      periodoTipo = "Ciclo"
-    } else {
+
+    let periodoTipo: any = ""
+    console.log(this.opcion1)
+    if (this.opcion1 === "Horario Diurno") {
+      
       periodoTipo = "Semestre"
+    } else {
+      periodoTipo = "Ciclo"
     }
-    let semestreText = +periodoTipo + ": " + this.opcion3;
+
+    console.log(periodoTipo)
+    let semestreText = periodoTipo + ": " + this.opcion3;
     let semestreInfoWidth = doc.getTextWidth(semestreText);
 
     let semestreInfoX = (pageWidth - semestreInfoWidth) / 2;
 
-    doc.text(semestreText, semestreInfoX, 20);
+    doc.text(semestreText, semestreInfoX, 25);
 
-    // Agregar el título al PDF
-    /* doc.setFontSize(10);
-    doc.text(this.opcion1 + ' de la carrera de ' + this.opcion2 + ' del semestre ' + this.opcion3, 100, 10);
-
- */
-    // Agregar texto al final de la página
-    doc.setFontSize(8);
-    doc.text('Elaborado por: ', 15, doc.internal.pageSize.height - 40);
-    doc.setLineWidth(0.2);
-    doc.line(15, doc.internal.pageSize.height - 25, 45, doc.internal.pageSize.height - 25);
-    doc.setFontSize(8);
-    doc.text('Mgs David Sosa', 15, doc.internal.pageSize.height - 20);
-    doc.text('Director de carrera', 15, doc.internal.pageSize.height - 15);
 
 
     let days
@@ -942,6 +1029,7 @@ export class HorarioNuevoComponent {
         if (resultadoAgrupado[asignaturaId]) {
 
           resultadoAgrupado[asignaturaId].aulas.push(item);
+          resultadoAgrupado[asignaturaId].dayName = item.dayName
         }
       }
     });
@@ -971,12 +1059,14 @@ export class HorarioNuevoComponent {
       }
     });
 
-    asignaturasProfesores.forEach((elemento1, index) => {
-      let resultado = resultadoFinal[index] as { modalidad?: string };
-
-      if (resultado && resultado.modalidad) {
-        elemento1.modalidad = resultado.modalidad;
-      }
+    asignaturasProfesores.forEach((elemento1) => {
+      elemento1.modalidad = []; 
+    
+      resultadoFinal.forEach((resultado:any) => {
+       if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
+          elemento1.modalidad.push(resultado.modalidad);
+        }
+      });
     });
 
     asignaturasProfesores.forEach(ap => {
@@ -1012,7 +1102,8 @@ export class HorarioNuevoComponent {
         fontSize: 8,
         textColor: [0, 0, 0]
 
-      }
+      },
+      margin: { top: 30 }
     });
 
 
@@ -1029,6 +1120,33 @@ export class HorarioNuevoComponent {
       margin: { top: 50, left: 30 },
 
     });
+
+    let rowDataHead3: any = [];
+
+    let DataFirmas: any = [];
+
+
+    doc.addPage();
+
+    rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:'])
+    DataFirmas.push(["", "", ""]);
+    DataFirmas.push(["Prof. " + this.horario.creado_por.nombre, "Prof. " + this.revisador.nombre, "Prof. " + this.aprobador.nombre]);
+    DataFirmas.push(["Director de Carrera", "Decana de Facultad", "Directora Académica "]);
+
+    autoTable(doc, {
+      head: rowDataHead3,
+      body: DataFirmas,
+      theme: 'grid',
+      styles: {
+        cellWidth: 60,
+        minCellHeight: 10,
+        fontSize: 8,
+        textColor: [0, 0, 0]
+      },
+      margin: { left: 55 },
+
+    });
+
 
     // Descargar el PDF
     doc.save(this.opcion1 + '-' + this.opcion2 + '-' + this.opcion3 + '.pdf');
@@ -1290,6 +1408,7 @@ export class HorarioNuevoComponent {
         if (resultadoAgrupado[asignaturaId]) {
 
           resultadoAgrupado[asignaturaId].aulas.push(item);
+          resultadoAgrupado[asignaturaId].dayName = item.dayName
         }
       }
     });
@@ -1319,14 +1438,15 @@ export class HorarioNuevoComponent {
       }
     });
 
-    asignaturasProfesores.forEach((elemento1, index) => {
-      let resultado = resultadoFinal[index] as { modalidad?: string };
-
-      if (resultado && resultado.modalidad) {
-        elemento1.modalidad = resultado.modalidad;
-      }
+    asignaturasProfesores.forEach((elemento1) => {
+      elemento1.modalidad = ""; // Inicializamos la propiedad modalidad como un array vacío
+    
+      resultadoFinal.forEach((resultado:any) => {
+       if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
+          elemento1.modalidad = resultado.modalidad;
+        }
+      });
     });
-
 
     asignaturasProfesores.forEach(ap => {
       worksheet.addRow([ap.asignatura, ap.profesores, ap.horas, ap.modalidad]).eachCell({ includeEmpty: true }, function (cell) {
@@ -1350,11 +1470,11 @@ export class HorarioNuevoComponent {
     elaboradoPor.value = 'Elaborado por: ';
     elaboradoPor.font = { size: 8 };
 
-    let nombreDirector = worksheet.getCell(28, 2);
-    nombreDirector.value = 'Mgs David Sosa';
+    let nombreDirector = worksheet.getCell(29, 2);
+    nombreDirector.value = 'Prof. ' + this.horario.creado_por.nombre;
     nombreDirector.font = { size: 8 };
 
-    let directorCarrera = worksheet.getCell(29, 2);
+    let directorCarrera = worksheet.getCell(30, 2);
     directorCarrera.value = 'Director de carrera';
     directorCarrera.font = { size: 8 };
 
@@ -1364,11 +1484,11 @@ export class HorarioNuevoComponent {
     revisadoPor.value = 'Revisado por: ';
     revisadoPor.font = { size: 8 };
 
-    let nombreRevisador = worksheet.getCell(28, 4);
-    nombreRevisador.value = 'Ph.D. Alicia Elizundia';
+    let nombreRevisador = worksheet.getCell(29, 4);
+    nombreRevisador.value = 'Prof. ' + this.revisador.nombre;
     nombreRevisador.font = { size: 8 };
 
-    let cargoRevisador = worksheet.getCell(29, 4);
+    let cargoRevisador = worksheet.getCell(30, 4);
     cargoRevisador.value = 'Decana de Facultad';
     cargoRevisador.font = { size: 8 };
 
@@ -1379,14 +1499,14 @@ export class HorarioNuevoComponent {
     aprobadorPor.value = 'Aprobado por: ';
     aprobadorPor.font = { size: 8 };
 
-    let nombreAprobador = worksheet.getCell(28, 6);
-    nombreAprobador.value = 'Ph.D Luisa Taborda';
+    let nombreAprobador = worksheet.getCell(29, 6);
+    nombreAprobador.value = "Prof. " + this.aprobador.nombre;
     nombreAprobador.font = { size: 8 };
 
-    let cargoAprobador = worksheet.getCell(29, 6);
+    let cargoAprobador = worksheet.getCell(30, 6);
     cargoAprobador.value = 'Directora Academica';
     cargoAprobador.font = { size: 8 };
-
+    
     workbook.xlsx.writeBuffer().then((buffer: ArrayBuffer) => {
       const data = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       FileSaver.saveAs(data, nombreArchivo);
@@ -1399,7 +1519,7 @@ export class HorarioNuevoComponent {
     await this.getHorarios()
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('','', '', '', '', [], [], [], [], this.usuario)
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
     let itemsHorarioArray = []
     let arreglosHorario = []
     arreglosHorario = [
@@ -1533,7 +1653,7 @@ export class HorarioNuevoComponent {
     }
 
 
-    if (this.asignaturasFiltradas.length === 0) {
+    if (this.asignaturasFiltradas.length === 0 && this.terminoBusquedaAsignatura === "") {
 
       Swal.fire({
         title: '¿Estás seguro?',
@@ -1748,7 +1868,7 @@ export class HorarioNuevoComponent {
     } else {
       Swal.fire(
         'Horario no verificado',
-        'Por favor, debe colocar todas las asignaturas',
+        'Por favor, debe colocar todas las asignaturas.',
         'error'
       )
     }
@@ -1758,7 +1878,7 @@ export class HorarioNuevoComponent {
   async verificarDiaPresencialVirtual() {
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('','', '', '', '', [], [], [], [], this.usuario)
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
     let arreglosHorario = []
     arreglosHorario = [
       this.monday,
@@ -1895,6 +2015,161 @@ export class HorarioNuevoComponent {
 
           swalPromise.then((value: any) => {
             this.verificarDiaPresencialVirtualBolean = value;
+
+
+          });
+        }
+      }
+
+    });
+
+  }
+
+  async verificarAulaUbicacion() {
+    this.aulaHorario = []
+    this.asignaturaHorario = []
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
+    let arreglosHorario = []
+    arreglosHorario = [
+      this.monday,
+      this.tuesday,
+      this.wednesday,
+      this.thursday,
+      this.friday,
+      this.saturday
+    ]
+
+    let identificadoresAulas = []
+    let identificadoresAsignaturas = []
+    if (this.opcion1 == "Horario Diurno") {
+      this.horario.tipoHorario = "Horario Diurno"
+    } else {
+      this.horario.tipoHorario = "Horario Nocturno"
+    }
+
+    this.horario.carrera = this.opcion2
+    this.horario.semestre = this.opcion3
+
+    let elementoComprobarTipo: any = []
+    let elementoComprobarId: any = []
+    let asig: number = 0
+    let aula: number = 0
+
+    let grupoAsigPoId: any = []
+    for (const dias of arreglosHorario) {
+      dias.sort(function (a, b) {
+        // Convierte las horas de inicio y fin a objetos Date para poder compararlas
+        const dateAStart = new Date('1970/01/01 ' + a.hourStart.trim());
+        const dateBStart = new Date('1970/01/01 ' + b.hourStart.trim());
+        const dateAEnd = new Date('1970/01/01 ' + a.hourEnd.trim());
+        const dateBEnd = new Date('1970/01/01 ' + b.hourEnd.trim());
+
+        // Compara las horas de inicio y fin y devuelve el resultado de la comparación
+        if (dateAStart < dateBStart) {
+          return -1;
+        } else if (dateAStart > dateBStart) {
+          return 1;
+        } else if (dateAEnd < dateBEnd) {
+          return -1;
+        } else if (dateAEnd > dateBEnd) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
+      for (const objetoElementoType of dias) {
+        elementoComprobarTipo.push(objetoElementoType.elementoType)
+        elementoComprobarId.push(objetoElementoType.identificador)
+      }
+      for (let objetoElementoType of dias) {
+        let elemento = objetoElementoType;
+        let primerDigito = elemento.identificador.toString()[0];
+        if (objetoElementoType.identificador.includes("aula")) {
+
+
+          if (grupoAsigPoId[primerDigito]) {
+            grupoAsigPoId[primerDigito].push(elemento);
+          } else {
+            grupoAsigPoId[primerDigito] = [elemento];
+          }
+        }
+      }
+
+      for (const objeto of dias) {
+        if (objeto.identificador.includes("aula")) {
+          identificadoresAulas.push(objeto.identificador)
+          await this.getAulaId(objeto.item._id)
+        }
+
+        if (objeto.identificador.includes("asignatura")) {
+          this.horario.dia.push(objeto.dayName)
+          this.horario.horas.push({ horaInicio: objeto.hourStart, horaFin: objeto.hourEnd });
+          identificadoresAsignaturas.push(objeto.identificador)
+          await this.getAsignaturaId(objeto.item._id)
+        }
+      }
+    }
+
+
+
+    grupoAsigPoId.forEach((subArray: any[]) => {
+      let isValid = true; // Variable para verificar si el día es válido
+
+      let zoomExist = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() === 'zoom');
+
+      if (!zoomExist) {
+        let colon = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus colon');
+
+        if (colon) {
+          let norte = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus norte');
+          
+          if (norte) {
+            isValid = false;
+  
+          }
+        
+        }
+      }
+
+      let Dias: any = {
+        0: 'Lunes',
+        1: 'Martes',
+        2: 'Miércoles',
+        3: 'Jueves',
+        4: 'Viernes',
+        5: 'Sábado'
+      };
+
+      let dia: any
+      // Verificar si el día es válido
+      if (!this.verificarAulaUbicacionBolean) {
+        if (!isValid) {
+          subArray.forEach(element => {
+            if (element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'colon') {
+              dia = parseInt(element.identificador.toString()[0])
+            }
+          });
+
+          let swalPromise = new Promise((resolve, reject) => {
+            Swal.fire({
+              title: 'Advertencia',
+              text: 'Hay aulas en diferentes ubicaciones (norte y colon) en el mismo día: '+Dias[dia]+'.',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Aceptar',
+              cancelButtonText: 'Quitar Advertencia'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                resolve(false);
+              } else if (result.dismiss === Swal.DismissReason.cancel) {
+                resolve(true);
+              }
+            });
+          });
+
+          swalPromise.then((value: any) => {
+            this.verificarAulaUbicacionBolean = value;
 
 
           });

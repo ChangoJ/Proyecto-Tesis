@@ -1,14 +1,15 @@
-import { Global } from './../services/global';
+
 import { Asignatura } from './../models/asignatura';
 import { AsignaturaService } from './../services/asignatura.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { Component } from '@angular/core';
+import { DetalleService } from '../services/detalle.service';
 
 @Component({
   selector: 'app-asignaturas',
   templateUrl: './asignaturas.component.html',
   styleUrls: ['./asignaturas.component.css'],
-  providers: [AsignaturaService]
+  providers: [AsignaturaService, DetalleService]
 })
 export class AsignaturasComponent {
   public asignaturas!: Asignatura[];
@@ -23,16 +24,14 @@ export class AsignaturasComponent {
   public opcionSeleccionada1: any;
   public opcionSeleccionada2: any;
   public asignaturanumber!: number
-  semestres = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", " 12"];
-  carreras = ["Enfermeria", "Fisioterapia", "Nutricion", "Psicologia", " Educacion Basica", "Produccion Audiovisual", "Contabilidad", "Derecho", "Economia", "Software", "Administracion de Empresas",
-    "Gastronomia", "Turismo"];
 
   constructor(private _asignaturaService: AsignaturaService,
     private _router: Router,
-    private _route: ActivatedRoute,) {
+    private _route: ActivatedRoute,
+    private _detalleService: DetalleService) {
     this.opcionSeleccionada1 = null;
     this.opcionSeleccionada2 = null;
-    this.url = Global.url;
+    this.url = this._detalleService.Global.url
     this.is_searchSemestre = false
     this.is_searchCarrera = false
     this.is_searchTodo = false

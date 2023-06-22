@@ -14,65 +14,24 @@ var core_1 = require("@angular/core");
 var dialog_1 = require("@angular/material/dialog");
 var horario_service_1 = require("../services/horario.service");
 var sweetalert2_1 = require("sweetalert2");
+var detalle_service_1 = require("../services/detalle.service");
 var CarrerasDialogComponent = /** @class */ (function () {
-    function CarrerasDialogComponent(dialogRef, data, _router, _route, _horarioService) {
+    function CarrerasDialogComponent(dialogRef, data, _router, _route, _horarioService, _detalleService) {
         this.dialogRef = dialogRef;
         this.data = data;
         this._router = _router;
         this._route = _route;
         this._horarioService = _horarioService;
+        this._detalleService = _detalleService;
         this.horarios = [];
-        this.carreras = [
-            { id: 1, textField: 'Enfermeria' },
-            { id: 2, textField: 'Fisioterapia' },
-            { id: 3, textField: 'Nutricion' },
-            { id: 4, textField: 'Psicologia' },
-            { id: 5, textField: 'Educacion Basica' },
-            { id: 6, textField: 'Produccion Audiovisual' },
-            { id: 7, textField: 'Contabilidad' },
-            { id: 8, textField: 'Derecho' },
-            { id: 9, textField: 'Economia' },
-            { id: 10, textField: 'Software' },
-            { id: 11, textField: 'Administracion de Empresas' },
-            { id: 12, textField: 'Gastronomia' },
-            { id: 13, textField: 'Turismo' }
-        ];
-        this.rolesCarreras = {
-            enfermeria: 'Enfermeria',
-            fisioterapia: 'Fisioterapia',
-            nutricion: 'Nutricion',
-            psicologia: 'Psicologia',
-            educacionBasica: 'Educacion Basica',
-            produccionAudiovisual: 'Produccion Audiovisual',
-            contabilidad: 'Contabilidad',
-            derecho: 'Derecho',
-            economia: 'Economia',
-            software: 'Software',
-            administracionEmpresas: 'Administracion de Empresas',
-            gastronomia: 'Gastronomia',
-            turismo: 'Turismo'
-        };
-        this.semestres = [
-            { id: 1, textField: '1' },
-            { id: 2, textField: '2' },
-            { id: 3, textField: '3' },
-            { id: 4, textField: '4' },
-            { id: 5, textField: '5' },
-            { id: 6, textField: '6' },
-            { id: 7, textField: '7' },
-            { id: 8, textField: '8' },
-            { id: 9, textField: '9' },
-            { id: 10, textField: '10' },
-        ];
-        this.ciclos = [
-            { id: 1, textField: '1' },
-            { id: 2, textField: '2' },
-        ];
         this.selectedCarreras = [];
         this.selectedSemestres = [];
         this.dropdownCarreras = {};
         this.dropdownSemestres = {};
         this.carrerasFiltradas = [];
+        this.rolesCarreras = this._detalleService.rolesCarreras;
+        this.authToken = this._detalleService.authToken;
+        this.userData = this._detalleService.userData;
         this.dropdownCarreras = {
             singleSelection: false,
             idField: 'id',
@@ -94,27 +53,50 @@ var CarrerasDialogComponent = /** @class */ (function () {
     }
     CarrerasDialogComponent.prototype.ngOnInit = function () {
         this.getHorarios();
-        if (this.datoRecibido === "Horarios Nocturnos") {
-            this.semestres = this.ciclos;
-            this.periodoTIpo = "Ciclo";
-        }
-        else {
-            this.periodoTIpo = "Semestre";
-        }
         this.authToken = localStorage.getItem('datosUsuario');
-        this.UserData = JSON.parse(this.authToken);
-        this.getRolCarrera();
+        this.userData = JSON.parse(this.authToken);
+        this.getDataDetalles();
     };
-    CarrerasDialogComponent.prototype.getRolCarrera = function () {
-        var carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+    CarrerasDialogComponent.prototype.getDataDetalles = function () {
+        var _this = this;
+        this._detalleService.getCarrerasIndex().subscribe(function (carreras) {
+            _this.carreras = carreras;
+            var carreraActual = _this.rolesCarreras[_this.userData.rol.toLowerCase()];
+            _this.carrerasFiltradas = [];
+            if (carreraActual) {
+                _this.carrerasFiltradas = _this.carreras.filter(function (carrera) { return carrera.textField.toLowerCase() === carreraActual.toLowerCase(); });
+            }
+            else {
+                _this.carrerasFiltradas = _this.carreras;
+            }
+        });
+        this._detalleService.getSemestresIndex().subscribe(function (semestres) {
+            console.log(semestres);
+            _this.semestres = semestres;
+        });
+        this._detalleService.getCiclosIndex().subscribe(function (ciclos) {
+            _this.ciclos = ciclos;
+            if (_this.datoRecibido === "Horarios Nocturnos") {
+                _this.semestres = _this.ciclos;
+                _this.periodoTIpo = "Ciclo";
+            }
+            else {
+                _this.periodoTIpo = "Semestre";
+            }
+        });
+    };
+    /*   getRolCarrera() {
+        let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase()];
+    
         this.carrerasFiltradas = [];
+    
         if (carreraActual) {
-            this.carrerasFiltradas = this.carreras.filter(function (carrera) { return carrera.textField.toLowerCase() === carreraActual.toLowerCase(); });
+          this.carrerasFiltradas = this.carreras.filter((carrera: { textField: string; }) => carrera.textField.toLowerCase() === carreraActual.toLowerCase());
+        } else {
+          this.carrerasFiltradas = this.carreras;
         }
-        else {
-            this.carrerasFiltradas = this.carreras;
-        }
-    };
+    
+      } */
     CarrerasDialogComponent.prototype.getHorarios = function () {
         var _this = this;
         this._horarioService.getHorarios().subscribe(function (response) {
@@ -148,7 +130,7 @@ var CarrerasDialogComponent = /** @class */ (function () {
             this._router.navigate([ruta], { relativeTo: this._route });
             setTimeout(function () {
                 location.reload();
-            }, 400);
+            }, 350);
         }
         else {
             sweetalert2_1["default"].fire('EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + this.periodoTIpo + ' ya existe', 'Por favor, si desea modificar vaya a la sección de horarios', 'error');
@@ -159,7 +141,7 @@ var CarrerasDialogComponent = /** @class */ (function () {
             selector: 'app-carreras-dialog',
             templateUrl: './carreras-dialog.component.html',
             styleUrls: ['./carreras-dialog.component.css'],
-            providers: [horario_service_1.HorarioService]
+            providers: [horario_service_1.HorarioService, detalle_service_1.DetalleService]
         }),
         __param(1, core_1.Inject(dialog_1.MAT_DIALOG_DATA))
     ], CarrerasDialogComponent);

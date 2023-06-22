@@ -1,17 +1,18 @@
-import { Global } from './../services/global';
-import { ActivatedRoute, Router } from '@angular/router';
+
 import { Profesor } from './../models/profesor';
 import { ProfesorService } from './../services/profesor.service';
 import { Component, Input, ViewChild } from '@angular/core';
 import Swal from 'sweetalert2';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { DetalleService } from '../services/detalle.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-items-profesor',
   templateUrl: './items-profesor.component.html',
   styleUrls: ['./items-profesor.component.css'],
-  providers: [ProfesorService]
+  providers: [ProfesorService, DetalleService]
 })
 export class ItemsProfesorComponent {
   public colorCuadro = document.querySelector(".color-square")
@@ -20,36 +21,24 @@ export class ItemsProfesorComponent {
   public terminoBusquedaProfesor: string = '';
   public is_admin!: boolean
   public is_aprobador!: boolean
-  authToken!: any;
-  UserData!: any;
-  carrerasFiltradas: any[] = [];
-
+  public authToken!: any;
+  public userData!: any;
+  public carrerasFiltradas: any[] = [];
+  public rolesCarreras: any
+  public columnas = ['N°', 'Nombre', 'Contrato', 'Carreras', 'Acciones'];
+  public profesoresObtenidos: any[] = [];
   @Input() profesores!: Profesor[]
-  columnas = ['N°', 'Nombre', 'Contrato', 'Carreras', 'Acciones'];
-  profesoresObtenidos: any[] = [];
 
-  rolesCarreras: any = {
-    enfermeria: 'Enfermeria',
-    fisioterapia: 'Fisioterapia',
-    nutricion: 'Nutricion',
-    psicologia: 'Psicologia',
-    educacionBasica: 'Educacion Basica',
-    produccionAudiovisual: 'Produccion Audiovisual',
-    contabilidad: 'Contabilidad',
-    derecho: 'Derecho',
-    economia: 'Economia',
-    software: 'Software',
-    administracionEmpresas: 'Administracion de Empresas',
-    gastronomia: 'Gastronomia',
-    turismo: 'Turismo'
-  };
+ 
 
   constructor(private _profesorService: ProfesorService,
-    private _route: ActivatedRoute,
-    private _router: Router) {
-    this.url = Global.url
+    private _router: Router,
+    private _detalleService: DetalleService) {
+    this.url = this._detalleService.Global.url
     this.is_admin = false
     this.is_aprobador = false
+    this.authToken = this._detalleService.authToken
+    this.userData = this._detalleService.userData
 
   }
 
@@ -58,8 +47,14 @@ export class ItemsProfesorComponent {
   ngOnInit() {
 
     this.getProfesores()
-    this.authToken = localStorage.getItem('datosUsuario');
-    this.UserData = JSON.parse(this.authToken!)
+    this.getDataDetalles()
+  }
+
+  getDataDetalles(){
+
+    this._detalleService.getRolesIndex().subscribe(roles => {
+      this.rolesCarreras = roles
+    });
   }
 
   getProfesores() {
@@ -68,7 +63,7 @@ export class ItemsProfesorComponent {
       response => {
         if (response.profesores) {
           this.profesoresObtenidos = response.profesores
-          let carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+          let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase().replace(/\s/g, "")];
 
           this.carrerasFiltradas = [];
 
@@ -140,6 +135,9 @@ export class ItemsProfesorComponent {
 
   resumenProfesores() {
     this._router.navigate(['/especificacion/profesores/resumen-profesores'])
+   /*  setTimeout(() => {
+      location.reload();
+    }, 400); */
   }
 
   redirectEdit(id: any) {

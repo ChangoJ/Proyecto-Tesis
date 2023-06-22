@@ -76,14 +76,16 @@ var FileSaver = require("file-saver");
 var uuid_1 = require("uuid");
 var ExcelJS = require("exceljs");
 var usuario_service_1 = require("../services/usuario.service");
+var detalle_service_1 = require("../services/detalle.service");
 var HorarioEditComponent = /** @class */ (function () {
-    function HorarioEditComponent(_route, _router, _asignaturaService, _aulasService, _horarioService, _usuarioService) {
+    function HorarioEditComponent(_route, _router, _asignaturaService, _aulasService, _horarioService, _usuarioService, _detalleService) {
         this._route = _route;
         this._router = _router;
         this._asignaturaService = _asignaturaService;
         this._aulasService = _aulasService;
         this._horarioService = _horarioService;
         this._usuarioService = _usuarioService;
+        this._detalleService = _detalleService;
         this.profesores = [];
         this.listaA = [];
         this.opcion1 = "";
@@ -101,27 +103,6 @@ var HorarioEditComponent = /** @class */ (function () {
         this.usuarios = [];
         this.revisador = [];
         this.aprobador = [];
-        this.hours = [
-            '07:00 - 08:00',
-            '08:00 - 09:00',
-            '09:00 - 10:00',
-            '10:00 - 11:00',
-            '11:00 - 12:00',
-            '12:00 - 13:00',
-            '13:00 - 14:00',
-            '14:00 - 15:00',
-        ];
-        this.hoursnight = [
-            '08:00 - 09:00',
-            '09:00 - 10:00',
-            '10:00 - 11:00',
-            '11:00 - 12:00',
-            '12:00 - 13:00',
-            '18:00 - 19:00',
-            '19:00 - 20:00',
-            '20:00 - 21:00',
-            '21:00 - 22:00',
-        ];
         this.monday = [];
         this.tuesday = [];
         this.wednesday = [];
@@ -129,12 +110,19 @@ var HorarioEditComponent = /** @class */ (function () {
         this.friday = [];
         this.saturday = [];
         this.terminoBusquedaAsignatura = '';
+        this.terminoBusquedaAsignaturaStatic = '';
+        this.terminoBusquedaAsignaturaBoolean = false;
         this.terminoBusquedaAula = '';
         this.asignaturasFiltradas = [];
+        this.asignaturasFiltradasDrop = [];
+        this.asignaturasFiltradasDropReverse = [];
+        this.asignaturasFiltradasDropReverseBEmpty = [];
         this.asignaturasColocadas = [];
         this.aulasFiltradas = [];
         this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
         this.existHorarioCarrera = false;
+        this.authToken = this._detalleService.authToken;
+        this.userData = this._detalleService.userData;
     }
     HorarioEditComponent.prototype.ngOnInit = function () {
         this.getAulas();
@@ -142,8 +130,16 @@ var HorarioEditComponent = /** @class */ (function () {
         this.getHorarios();
         this.verHorario();
         this.getUsuarios();
-        this.authToken = localStorage.getItem('datosUsuario');
-        this.UserData = JSON.parse(this.authToken);
+        this.getDataDetalles();
+    };
+    HorarioEditComponent.prototype.getDataDetalles = function () {
+        var _this = this;
+        this._detalleService.getHorasDiurnas().subscribe(function (horasDiurnas) {
+            _this.hours = horasDiurnas;
+        });
+        this._detalleService.getHorasNocturnas().subscribe(function (horasNocturnas) {
+            _this.hoursnight = horasNocturnas;
+        });
     };
     HorarioEditComponent.prototype.verHorario = function () {
         var _this = this;
@@ -180,8 +176,47 @@ var HorarioEditComponent = /** @class */ (function () {
         });
     };
     HorarioEditComponent.prototype.filtrarAsignaturas = function () {
+        var _a, _b;
         var _this = this;
-        this.asignaturasFiltradas = this.asignaturas.filter(function (asignatura) { return asignatura.nombre.toLowerCase().includes(_this.terminoBusquedaAsignatura.toLowerCase()); });
+        console.log("hey");
+        if (this.terminoBusquedaAsignaturaStatic !== "") {
+            this.terminoBusquedaAsignaturaBoolean = true;
+            this.asignaturasFiltradasDropReverseBEmpty = [];
+        }
+        else if (this.terminoBusquedaAsignaturaStatic === "") {
+            this.terminoBusquedaAsignaturaBoolean = false;
+        }
+        if (this.terminoBusquedaAsignatura === "") {
+            this.terminoBusquedaAsignaturaBoolean = false;
+        }
+        if (this.terminoBusquedaAsignaturaBoolean === false) {
+            (_a = this.asignaturas).push.apply(_a, this.asignaturasFiltradasDropReverseBEmpty);
+            this.asignaturasFiltradasDropReverseBEmpty = [];
+            this.asignaturasFiltradas = this.asignaturas.filter(function (asignatura) { return asignatura.nombre.toLowerCase().includes(_this.terminoBusquedaAsignatura.toLowerCase()); });
+            if (this.terminoBusquedaAsignatura === "") {
+                this.asignaturasFiltradasDropReverseBEmpty = [];
+                this.terminoBusquedaAsignaturaStatic = "";
+                for (var i = 0; i < this.asignaturasFiltradasDrop.length; i++) {
+                    var elemento2 = this.asignaturasFiltradasDrop[i];
+                    // Buscar el elemento2 en array1
+                    for (var j = 0; j < this.asignaturas.length; j++) {
+                        var elemento1 = this.asignaturas[j];
+                        // Comparar los elementos por su _id (puedes ajustar esto según tus necesidades)
+                        if (elemento1._id === elemento2._id) {
+                            // Eliminar el elemento coincidente de array1
+                            this.asignaturas.splice(j, 1);
+                            break; // Salir del bucle interno una vez que se haya eliminado el elemento
+                        }
+                    }
+                }
+                this.asignaturasFiltradasDrop = [];
+                if (this.asignaturasFiltradasDropReverse.length !== 0) {
+                    (_b = this.asignaturas).push.apply(_b, this.asignaturasFiltradasDropReverse);
+                }
+                this.asignaturasFiltradas = this.asignaturas;
+                this.asignaturasFiltradasDropReverse = [];
+            }
+        }
     };
     HorarioEditComponent.prototype.filtrarAulas = function () {
         var _this = this;
@@ -257,7 +292,6 @@ var HorarioEditComponent = /** @class */ (function () {
                 _this.usuarios = response.usuarios;
                 for (var _i = 0, _a = _this.usuarios; _i < _a.length; _i++) {
                     var usuario = _a[_i];
-                    console.log(usuario);
                     if (usuario.rol === "Aprobador") {
                         _this.aprobador = usuario;
                     }
@@ -265,7 +299,6 @@ var HorarioEditComponent = /** @class */ (function () {
                         _this.revisador = usuario;
                     }
                 }
-                console.log(_this.aprobador);
             }
         }, function (error) {
             console.log(error);
@@ -297,17 +330,27 @@ var HorarioEditComponent = /** @class */ (function () {
             this.isActiveBtn = false;
             this.isActiveBtnG = false;
             this.isActiveBtnV = true;
+            var item = [];
+            var idParts = [];
+            var day = [];
+            var hourStart_1 = [];
+            var hourEnd_1 = [];
+            var dayName = [];
+            var identificador = [];
+            this.isActiveBtnG = false;
             var daysOfWeek = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
-            var item = event.previousContainer.data[event.previousIndex];
-            var idParts = event.container.id.split('-');
-            var day = Number(idParts[0]);
-            var hourStart_1 = idParts[1];
-            var hourEnd_1 = idParts[2];
-            var dayName = daysOfWeek[day];
-            var identificador = Number(idParts[0]) + '' + '' + Number(idParts[3]);
+            item = event.previousContainer.data[event.previousIndex];
+            idParts = event.container.id.split('-');
+            day = Number(idParts[0]);
+            hourStart_1 = idParts[1];
+            hourEnd_1 = idParts[2];
+            dayName = daysOfWeek[day];
+            identificador = Number(idParts[0]) + '' + '' + Number(idParts[3]);
             // listasignatura id
-            var idPartsAsignatura = event.item.element.nativeElement.id.split('-');
-            var elementoType_1 = (idPartsAsignatura[0]);
+            var idPartsAsignatura = [];
+            var elementoType_1 = [];
+            idPartsAsignatura = event.item.element.nativeElement.id.split('-');
+            elementoType_1 = (idPartsAsignatura[0]);
             if (item.ubicacion) {
                 elementoType_1 = "aula";
                 identificador = identificador + 'aula';
@@ -374,10 +417,13 @@ var HorarioEditComponent = /** @class */ (function () {
                     return; // Permitir transferencia
                 }
             }
-            //Eliminar origen del array
-            var prevIdParts = event.previousContainer.id.split('-');
-            var prevDay = Number(prevIdParts[0]);
-            var preIdentificador = Number(prevIdParts[0]) + '' + '' + Number(prevIdParts[3]);
+            ///Eliminar origen del array
+            var prevIdParts = [];
+            var prevDay = [];
+            var preIdentificador = [];
+            prevIdParts = event.previousContainer.id.split('-');
+            prevDay = Number(prevIdParts[0]);
+            preIdentificador = Number(prevIdParts[0]) + '' + '' + Number(prevIdParts[3]);
             if (item.ubicacion) {
                 preIdentificador = preIdentificador + 'aula';
             }
@@ -434,7 +480,8 @@ var HorarioEditComponent = /** @class */ (function () {
                     }
                     break;
             }
-            var newItem = { identificador: identificador, elementoType: elementoType_1, dayName: dayName, hourStart: hourStart_1, hourEnd: hourEnd_1, item: __assign({}, item) };
+            var newItem = [];
+            newItem = { identificador: identificador, elementoType: elementoType_1, dayName: dayName, hourStart: hourStart_1, hourEnd: hourEnd_1, item: __assign({}, item) };
             if (item.ubicacion) {
                 newItem.elementoType = "aula";
             }
@@ -467,6 +514,41 @@ var HorarioEditComponent = /** @class */ (function () {
                 drag_drop_1.transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
             }
             this.verificarDiaPresencialVirtual();
+            if (this.terminoBusquedaAsignatura === "" && newItem.dayName === undefined && !newItem.item.compartida) {
+                this.terminoBusquedaAsignaturaStatic = this.terminoBusquedaAsignatura;
+                if (this.asignaturas.length === 0) {
+                    this.asignaturasFiltradasDropReverseBEmpty.push(newItem.item);
+                }
+            }
+            else if (this.terminoBusquedaAsignatura === "" && newItem.dayName !== undefined && !newItem.item.compartida) {
+                this.terminoBusquedaAsignaturaStatic = this.terminoBusquedaAsignatura;
+                for (var i = 0; i < this.asignaturasFiltradasDropReverseBEmpty.length; i++) {
+                    var elemento = this.asignaturasFiltradasDropReverseBEmpty[i];
+                    if (elemento._id === newItem.item._id) {
+                        this.asignaturasFiltradasDropReverseBEmpty.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+            if (this.terminoBusquedaAsignatura !== "" && newItem.dayName !== undefined && !newItem.item.compartida) {
+                this.asignaturasFiltradasDrop.push(newItem.item);
+                this.terminoBusquedaAsignaturaStatic = this.terminoBusquedaAsignatura;
+                this.asignaturasFiltradasDropReverseBEmpty = [];
+            }
+            else if (this.terminoBusquedaAsignatura !== "" && newItem.dayName === undefined && !newItem.item.compartida) {
+                this.asignaturasFiltradasDropReverseBEmpty = [];
+                if (this.asignaturasFiltradasDrop.length === 0) {
+                    this.asignaturasFiltradasDropReverse.push(newItem.item);
+                }
+                // Verificar si hay una coincidencia en this.asignaturasFiltradasDrop y eliminarla
+                for (var i = 0; i < this.asignaturasFiltradasDrop.length; i++) {
+                    var elemento = this.asignaturasFiltradasDrop[i];
+                    if (elemento._id === newItem.item._id) {
+                        this.asignaturasFiltradasDrop.splice(i, 1);
+                        break;
+                    }
+                }
+            }
         }
     };
     HorarioEditComponent.prototype.verificarDiaPresencialVirtual = function () {
@@ -1097,9 +1179,11 @@ var HorarioEditComponent = /** @class */ (function () {
             else if (item.elementoType === "aula") {
                 if (resultadoAgrupado[asignaturaId]) {
                     resultadoAgrupado[asignaturaId].aulas.push(item);
+                    resultadoAgrupado[asignaturaId].dayName = item.dayName;
                 }
             }
         });
+        console.log(resultadoAgrupado);
         // Convertir el objeto resultadoAgrupado en un array de resultados
         var resultadoFinal = Object.values(resultadoAgrupado);
         resultadoFinal.forEach(function (resultado) {
@@ -1123,11 +1207,13 @@ var HorarioEditComponent = /** @class */ (function () {
                 resultado.modalidad = "Mixto (Virtual y Presencial)";
             }
         });
-        asignaturasProfesores.forEach(function (elemento1, index) {
-            var resultado = resultadoFinal[index];
-            if (resultado && resultado.modalidad) {
-                elemento1.modalidad = resultado.modalidad;
-            }
+        asignaturasProfesores.forEach(function (elemento1) {
+            elemento1.modalidad = []; // Inicializamos la propiedad modalidad como un array vacío
+            resultadoFinal.forEach(function (resultado) {
+                if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
+                    elemento1.modalidad.push(resultado.modalidad);
+                }
+            });
         });
         asignaturasProfesores.forEach(function (ap) {
             DataAdicional.push([ap.asignatura, ap.profesores, ap.horas, ap.modalidad]);
@@ -1174,6 +1260,7 @@ var HorarioEditComponent = /** @class */ (function () {
         });
         var rowDataHead3 = [];
         var DataFirmas = [];
+        doc.addPage();
         rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:']);
         DataFirmas.push(["", "", ""]);
         DataFirmas.push(["Prof. " + this.horario.creado_por.nombre, "Prof. " + this.revisador.nombre, "Prof. " + this.aprobador.nombre]);
@@ -1642,128 +1729,133 @@ var HorarioEditComponent = /** @class */ (function () {
                             }
                             index2 = (index2 + 1) % itemsIdent[0].length;
                         }
-                        sweetalert2_1["default"].fire({
-                            title: '¿Estás seguro?',
-                            text: 'Se empezará a verificar el horario',
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonColor: '#4CAF50',
-                            cancelButtonColor: '#3085d6',
-                            confirmButtonText: 'Verificar'
-                        }).then(function (result) {
-                            if (result.isConfirmed) {
-                                var itemsBDHorario = [];
-                                var itemsHorario = null;
-                                var mensaje_1 = "";
-                                if (datosIguales && parejas.length !== 0) {
-                                    console.log(_this.horario);
-                                    itemsBDHorario = _this.horarios.map(function (verify) { return ({
-                                        carrera: verify.carrera,
-                                        semestre: verify.semestre,
-                                        dia: verify.dia,
-                                        tipoHorario: verify.tipoHorario,
-                                        idAsignaturaTableVerify: verify.idTabla.map(function (idTabla) { return idTabla.idAsignatura; }),
-                                        idAulaTableVerify: verify.idTabla.map(function (idTabla) { return idTabla.idAula; }),
-                                        itemverifyAsignatura: verify.item.map(function (item) { return item.asignatura._id; }),
-                                        itemverifyAsignaturaNombre: verify.item.map(function (item) { return item.asignatura.nombre; }),
-                                        itemverifyAula: verify.item.map(function (item) { return item.aula._id; }),
-                                        itemverifyAulaNombre: verify.item.map(function (item) { return item.aula.nombre; }),
-                                        itemverifyAulaCompartida: verify.item.map(function (item) { return item.aula.compartida; }),
-                                        itemHorasInico: verify.horas.map(function (item) { return item.horaInicio; }),
-                                        itemHorasFin: verify.horas.map(function (item) { return item.horaFin; }),
-                                        itemverifyprofesor: verify.item.map(function (item) { return item.asignatura.profesor[0]._id; }),
-                                        itemverifyprofesorNombre: verify.item.map(function (item) { return item.asignatura.profesor[0].nombre; })
-                                    }); });
-                                    itemsBDHorario = itemsBDHorario.filter(function (item) { return !(item.carrera === _this.opcion2 && item.semestre === _this.opcion3 && item.tipoHorario === _this.opcion1); });
-                                    itemsHorario = {
-                                        dia: _this.horario.dia,
-                                        idAsignaturaTableVerify: _this.horario.idTabla.map(function (idTabla) { return idTabla.idAsignatura; }),
-                                        idAulaTableVerify: _this.horario.idTabla.map(function (idTabla) { return idTabla.idAula; }),
-                                        itemverifyAsignatura: _this.horario.item.map(function (item) { return item.asignatura._id; }),
-                                        itemverifyAula: _this.horario.item.map(function (item) { return item.aula._id; }),
-                                        itemverifyAulaNombre: _this.horario.item.map(function (item) { return item.aula.nombre; }),
-                                        itemverifyAulaCompartida: _this.horario.item.map(function (item) { return item.aula.compartida; }),
-                                        itemverifyprofesor: _this.horario.item.map(function (item) { return item.asignatura.profesor[0]._id; }),
-                                        itemverifyprofesorNombre: _this.horario.item.map(function (item) { return item.asignatura.profesor[0].nombre; })
-                                    };
-                                    for (var i = 0; i < itemsHorario.dia.length; i++) {
-                                        var diaActual = itemsHorario.dia[i];
-                                        for (var j = 0; j < itemsBDHorario.length; j++) {
-                                            if (itemsBDHorario[j].dia.includes(diaActual)) {
-                                                // Iterar todos los elementos de los arrays que coinciden con el día actual
-                                                for (var k = 0; k < itemsBDHorario[j].idAsignaturaTableVerify.length; k++) {
-                                                    if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
-                                                        itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
-                                                        itemsBDHorario[j].itemverifyAsignatura[k] === itemsHorario.itemverifyAsignatura[i] &&
-                                                        itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]) {
-                                                        mensaje_1 += "\n                    \n                  <strong>\u00A1Choque de aula y asignatura (Misma hora)</strong>!<br>\n                  Motivo: La misma asignatura y aula ya se asign\u00F3 en esa hora<br>\n                  <strong>Horario: " + itemsBDHorario[j].carrera + "  - " + itemsBDHorario[j].semestre + "</strong><br>\n                  Dia: " + diaActual + "<br>\n                  Hora: " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                  Asignatura: " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                  Aula: " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n              ";
+                        if (this.asignaturasFiltradas.length === 0 && this.terminoBusquedaAsignatura === "") {
+                            sweetalert2_1["default"].fire({
+                                title: '¿Estás seguro?',
+                                text: 'Se empezará a verificar el horario',
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#4CAF50',
+                                cancelButtonColor: '#3085d6',
+                                confirmButtonText: 'Verificar'
+                            }).then(function (result) {
+                                if (result.isConfirmed) {
+                                    var itemsBDHorario = [];
+                                    var itemsHorario = null;
+                                    var mensaje_1 = "";
+                                    if (datosIguales && parejas.length !== 0) {
+                                        console.log(_this.horario);
+                                        itemsBDHorario = _this.horarios.map(function (verify) { return ({
+                                            carrera: verify.carrera,
+                                            semestre: verify.semestre,
+                                            dia: verify.dia,
+                                            tipoHorario: verify.tipoHorario,
+                                            idAsignaturaTableVerify: verify.idTabla.map(function (idTabla) { return idTabla.idAsignatura; }),
+                                            idAulaTableVerify: verify.idTabla.map(function (idTabla) { return idTabla.idAula; }),
+                                            itemverifyAsignatura: verify.item.map(function (item) { return item.asignatura._id; }),
+                                            itemverifyAsignaturaNombre: verify.item.map(function (item) { return item.asignatura.nombre; }),
+                                            itemverifyAula: verify.item.map(function (item) { return item.aula._id; }),
+                                            itemverifyAulaNombre: verify.item.map(function (item) { return item.aula.nombre; }),
+                                            itemverifyAulaCompartida: verify.item.map(function (item) { return item.aula.compartida; }),
+                                            itemHorasInico: verify.horas.map(function (item) { return item.horaInicio; }),
+                                            itemHorasFin: verify.horas.map(function (item) { return item.horaFin; }),
+                                            itemverifyprofesor: verify.item.map(function (item) { return item.asignatura.profesor[0]._id; }),
+                                            itemverifyprofesorNombre: verify.item.map(function (item) { return item.asignatura.profesor[0].nombre; })
+                                        }); });
+                                        itemsBDHorario = itemsBDHorario.filter(function (item) { return !(item.carrera === _this.opcion2 && item.semestre === _this.opcion3 && item.tipoHorario === _this.opcion1); });
+                                        itemsHorario = {
+                                            dia: _this.horario.dia,
+                                            idAsignaturaTableVerify: _this.horario.idTabla.map(function (idTabla) { return idTabla.idAsignatura; }),
+                                            idAulaTableVerify: _this.horario.idTabla.map(function (idTabla) { return idTabla.idAula; }),
+                                            itemverifyAsignatura: _this.horario.item.map(function (item) { return item.asignatura._id; }),
+                                            itemverifyAula: _this.horario.item.map(function (item) { return item.aula._id; }),
+                                            itemverifyAulaNombre: _this.horario.item.map(function (item) { return item.aula.nombre; }),
+                                            itemverifyAulaCompartida: _this.horario.item.map(function (item) { return item.aula.compartida; }),
+                                            itemverifyprofesor: _this.horario.item.map(function (item) { return item.asignatura.profesor[0]._id; }),
+                                            itemverifyprofesorNombre: _this.horario.item.map(function (item) { return item.asignatura.profesor[0].nombre; })
+                                        };
+                                        for (var i = 0; i < itemsHorario.dia.length; i++) {
+                                            var diaActual = itemsHorario.dia[i];
+                                            for (var j = 0; j < itemsBDHorario.length; j++) {
+                                                if (itemsBDHorario[j].dia.includes(diaActual)) {
+                                                    // Iterar todos los elementos de los arrays que coinciden con el día actual
+                                                    for (var k = 0; k < itemsBDHorario[j].idAsignaturaTableVerify.length; k++) {
+                                                        if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
+                                                            itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
+                                                            itemsBDHorario[j].itemverifyAsignatura[k] === itemsHorario.itemverifyAsignatura[i] &&
+                                                            itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]) {
+                                                            mensaje_1 += "\n                    \n                  <strong>\u00A1Choque de aula y asignatura (Misma hora)</strong>!<br>\n                  Motivo: La misma asignatura y aula ya se asign\u00F3 en esa hora<br>\n                  <strong>Horario: " + itemsBDHorario[j].carrera + "  - " + itemsBDHorario[j].semestre + "</strong><br>\n                  Dia: " + diaActual + "<br>\n                  Hora: " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                  Asignatura: " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                  Aula: " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n              ";
+                                                        }
+                                                        else if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
+                                                            itemsBDHorario[j].itemverifyprofesor[k] === itemsHorario.itemverifyprofesor[i]) {
+                                                            mensaje_1 += "\n                  <strong>\u00A1Choque de profesor (Misma hora)</strong>!<br>\n                  Motivo: El profesor ya se asign\u00F3 a al misma hora para dar otra clase<br>\n                  <strong>Horario: " + itemsBDHorario[j].carrera + "  - " + itemsBDHorario[j].semestre + "</strong><br>\n                  Dia: " + diaActual + "<br>\n                  Hora: " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                  Asignatura: " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                  Aula: " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n                  Profesor: " + itemsBDHorario[j].itemverifyprofesorNombre[k] + "<br>\n              ";
+                                                        }
+                                                        else if (itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
+                                                            itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]
+                                                            && itemsBDHorario[j].itemverifyAulaCompartida[k] !== "Si")
+                                                            mensaje_1 += "\n                <strong>\u00A1Choque de aula (Misma hora)</strong>!<br>\n                Motivo: El aula ya se asign\u00F3 para otra asignatura<br>\n                <strong>Horario: " + itemsBDHorario[j].carrera + "  - " + itemsBDHorario[j].semestre + "</strong><br>\n                Dia: " + diaActual + "<br>\n                Hora: " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                Asignatura: " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                Aula: " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n                Profesor: " + itemsBDHorario[j].itemverifyprofesorNombre[k] + "<br>\n            ";
                                                     }
-                                                    else if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
-                                                        itemsBDHorario[j].itemverifyprofesor[k] === itemsHorario.itemverifyprofesor[i]) {
-                                                        mensaje_1 += "\n                  <strong>\u00A1Choque de profesor (Misma hora)</strong>!<br>\n                  Motivo: El profesor ya se asign\u00F3 a al misma hora para dar otra clase<br>\n                  <strong>Horario: " + itemsBDHorario[j].carrera + "  - " + itemsBDHorario[j].semestre + "</strong><br>\n                  Dia: " + diaActual + "<br>\n                  Hora: " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                  Asignatura: " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                  Aula: " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n                  Profesor: " + itemsBDHorario[j].itemverifyprofesorNombre[k] + "<br>\n              ";
-                                                    }
-                                                    else if (itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
-                                                        itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]
-                                                        && itemsBDHorario[j].itemverifyAulaCompartida[k] !== "Si")
-                                                        mensaje_1 += "\n                <strong>\u00A1Choque de aula (Misma hora)</strong>!<br>\n                Motivo: El aula ya se asign\u00F3 para otra asignatura<br>\n                <strong>Horario: " + itemsBDHorario[j].carrera + "  - " + itemsBDHorario[j].semestre + "</strong><br>\n                Dia: " + diaActual + "<br>\n                Hora: " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                Asignatura: " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                Aula: " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n                Profesor: " + itemsBDHorario[j].itemverifyprofesorNombre[k] + "<br>\n            ";
                                                 }
                                             }
                                         }
-                                    }
-                                    if (mensaje_1 !== "") {
-                                        sweetalert2_1["default"].fire({
-                                            title: '¡Choques!',
-                                            html: "<div style=\"height: 250px; overflow-y: auto\">" + mensaje_1 + "</div>",
-                                            icon: 'warning',
-                                            showCancelButton: true,
-                                            cancelButtonText: 'Cerrar',
-                                            confirmButtonText: 'Descargar PDF'
-                                        }).then(function (result) {
-                                            if (result.isConfirmed) {
+                                        if (mensaje_1 !== "") {
+                                            sweetalert2_1["default"].fire({
+                                                title: '¡Choques!',
+                                                html: "<div style=\"height: 250px; overflow-y: auto\">" + mensaje_1 + "</div>",
+                                                icon: 'warning',
+                                                showCancelButton: true,
+                                                cancelButtonText: 'Cerrar',
+                                                confirmButtonText: 'Descargar PDF'
+                                            }).then(function (result) {
                                                 if (result.isConfirmed) {
-                                                    var doc = new jspdf_1["default"]();
-                                                    doc.setFontSize(14);
-                                                    var title = "Choques";
-                                                    var text = mensaje_1.replace(/<br>/g, '').replace(/<strong>/g, '').replace(/<\/strong>/g, '');
-                                                    var textLines = doc.splitTextToSize(text, 200); // Ancho máximo del texto en la página (en este caso, 190)
-                                                    var pageHeight = doc.internal.pageSize.height;
-                                                    var cursorY = 10;
-                                                    doc.text(title, doc.internal.pageSize.getWidth() / 2, cursorY, { align: 'center' });
-                                                    cursorY += 10; // Espacio entre el título y el texto
-                                                    for (var i = 0; i < textLines.length; i++) {
-                                                        if (cursorY > pageHeight - 5) {
-                                                            doc.addPage();
-                                                            cursorY = 10;
+                                                    if (result.isConfirmed) {
+                                                        var doc = new jspdf_1["default"]();
+                                                        doc.setFontSize(14);
+                                                        var title = "Choques";
+                                                        var text = mensaje_1.replace(/<br>/g, '').replace(/<strong>/g, '').replace(/<\/strong>/g, '');
+                                                        var textLines = doc.splitTextToSize(text, 200); // Ancho máximo del texto en la página (en este caso, 190)
+                                                        var pageHeight = doc.internal.pageSize.height;
+                                                        var cursorY = 10;
+                                                        doc.text(title, doc.internal.pageSize.getWidth() / 2, cursorY, { align: 'center' });
+                                                        cursorY += 10; // Espacio entre el título y el texto
+                                                        for (var i = 0; i < textLines.length; i++) {
+                                                            if (cursorY > pageHeight - 5) {
+                                                                doc.addPage();
+                                                                cursorY = 10;
+                                                            }
+                                                            doc.text(textLines[i], 1, cursorY, { align: 'justify' });
+                                                            cursorY += 7; // Espacio entre líneas de texto
                                                         }
-                                                        doc.text(textLines[i], 1, cursorY, { align: 'justify' });
-                                                        cursorY += 7; // Espacio entre líneas de texto
+                                                        doc.save('choque_asignaturas_aulas.pdf');
                                                     }
-                                                    doc.save('choque_asignaturas_aulas.pdf');
                                                 }
-                                            }
-                                        });
+                                            });
+                                            _this.isActiveBtn = false;
+                                            _this.isActiveBtnG = false;
+                                        }
+                                        if (datosIguales && parejas.length !== 0 && mensaje_1 === "") {
+                                            _this.status = 'success';
+                                            sweetalert2_1["default"].fire('Horario Verificado', 'El horario esta correctamente', 'success');
+                                            _this.isActiveBtn = true;
+                                        }
+                                    }
+                                    else if (parejas.length === 0) {
+                                        sweetalert2_1["default"].fire('Horario Rechazado', 'Por favor, rellene las asignaturas y aulas correctamente', 'error');
                                         _this.isActiveBtn = false;
-                                        _this.isActiveBtnG = false;
                                     }
-                                    if (datosIguales && parejas.length !== 0 && mensaje_1 === "") {
-                                        _this.status = 'success';
-                                        sweetalert2_1["default"].fire('Horario Verificado', 'El horario esta correctamente', 'success');
-                                        _this.isActiveBtn = true;
+                                    else if (!datosIguales) {
+                                        sweetalert2_1["default"].fire('Horario no creado', 'Por favor, debe contener en cada celda una asignatura y una aula', 'error');
+                                        _this.isActiveBtn = false;
                                     }
                                 }
-                                else if (parejas.length === 0) {
-                                    sweetalert2_1["default"].fire('Horario Rechazado', 'Por favor, rellene las asignaturas y aulas correctamente', 'error');
-                                    _this.isActiveBtn = false;
+                                else {
+                                    sweetalert2_1["default"].fire('Operación cancelada', 'El horario no ha sido creado', 'warning');
                                 }
-                                else if (!datosIguales) {
-                                    sweetalert2_1["default"].fire('Horario no creado', 'Por favor, debe contener en cada celda una asignatura y una aula', 'error');
-                                    _this.isActiveBtn = false;
-                                }
-                            }
-                            else {
-                                sweetalert2_1["default"].fire('Operación cancelada', 'El horario no ha sido creado', 'warning');
-                            }
-                        });
+                            });
+                        }
+                        else {
+                            sweetalert2_1["default"].fire('Horario no verificado', 'Por favor, debe colocar todas las asignaturas.', 'error');
+                        }
                         return [2 /*return*/];
                 }
             });
@@ -1777,7 +1869,7 @@ var HorarioEditComponent = /** @class */ (function () {
             selector: 'app-horario-edit',
             templateUrl: './horario-edit.component.html',
             styleUrls: ['./horario-edit.component.css'],
-            providers: [horario_service_1.HorarioService, asignatura_service_1.AsignaturaService, aula_service_1.AulaService, profesor_service_1.ProfesorService, usuario_service_1.UsuarioService]
+            providers: [horario_service_1.HorarioService, asignatura_service_1.AsignaturaService, aula_service_1.AulaService, profesor_service_1.ProfesorService, usuario_service_1.UsuarioService, detalle_service_1.DetalleService]
         })
     ], HorarioEditComponent);
     return HorarioEditComponent;

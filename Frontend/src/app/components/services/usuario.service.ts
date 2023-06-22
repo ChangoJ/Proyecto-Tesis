@@ -1,20 +1,20 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from "rxjs";
-import { Global } from "./global";
 import { Usuario } from '../models/usuario';
-import { response } from "express";
+import { DetalleService } from "./detalle.service";
 
 @Injectable()
 export class UsuarioService {
     public url: string
     private userData: any;
     public datosUsuario:any
+    
     constructor(
-        private _http: HttpClient
+        private _http: HttpClient,
+        private _detalleService: DetalleService
     ) {
-        this.url = Global.url;
-        
+        this.url = this._detalleService.Global.url;
         this.datosUsuario = localStorage.getItem('datosUsuario') || '';
     }
 

@@ -49,46 +49,39 @@ var sweetalert2_1 = require("sweetalert2");
 var table_1 = require("@angular/material/table");
 var paginator_1 = require("@angular/material/paginator");
 var horario_observacion_dialog_component_1 = require("../horario-observacion-dialog/horario-observacion-dialog.component");
+var detalle_service_1 = require("../services/detalle.service");
 var ItemsHorarioComponent = /** @class */ (function () {
-    function ItemsHorarioComponent(_route, _horarioService, _router, dialog) {
-        this._route = _route;
+    function ItemsHorarioComponent(_horarioService, _router, dialog, _detalleService) {
         this._horarioService = _horarioService;
         this._router = _router;
         this.dialog = dialog;
+        this._detalleService = _detalleService;
         this.listaA = [];
         this.terminoBusquedaHorario = '';
         this.editingHorario = null;
         this.carrerasFiltradas = [];
-        this.rolesCarreras = {
-            enfermeria: 'Enfermeria',
-            fisioterapia: 'Fisioterapia',
-            nutricion: 'Nutricion',
-            psicologia: 'Psicologia',
-            educacionBasica: 'Educacion Basica',
-            produccionAudiovisual: 'Produccion Audiovisual',
-            contabilidad: 'Contabilidad',
-            derecho: 'Derecho',
-            economia: 'Economia',
-            software: 'Software',
-            administracionEmpresas: 'Administracion de Empresas',
-            gastronomia: 'Gastronomia',
-            turismo: 'Turismo'
-        };
         this.columnas = ['N°', 'Carrera', 'Periodo', 'Tipo', 'Acciones', 'Estado', 'Observacion'];
         this.is_horario = false;
         this.is_admin = false;
         this.is_aprobador = false;
+        this.authToken = this._detalleService.authToken;
+        this.userData = this._detalleService.userData;
     }
     ItemsHorarioComponent.prototype.ngOnInit = function () {
         this.getHorarios();
         this.ver = "Ver";
-        this.authToken = localStorage.getItem('datosUsuario');
-        this.UserData = JSON.parse(this.authToken);
-        console.log(this.UserData.rol);
-        if (this.UserData.rol === "Administrador" || this.UserData.rol === "Aprobador") {
+        this.userData = JSON.parse(this.authToken);
+        if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador") {
             this.is_admin = true;
             this.is_aprobador = true;
         }
+        this.getDataDetalles();
+    };
+    ItemsHorarioComponent.prototype.getDataDetalles = function () {
+        var _this = this;
+        this._detalleService.getRolesIndex().subscribe(function (roles) {
+            _this.rolesCarreras = roles;
+        });
     };
     ItemsHorarioComponent.prototype.filtrarHorarios = function () {
         var terminosBusqueda = this.terminoBusquedaHorario.split(' ').join('|');
@@ -105,7 +98,7 @@ var ItemsHorarioComponent = /** @class */ (function () {
             if (response.horarios) {
                 _this.is_horario = true;
                 _this.horarios = response.horarios;
-                var carreraActual_1 = _this.rolesCarreras[_this.UserData.rol.toLowerCase()];
+                var carreraActual_1 = _this.rolesCarreras[_this.userData.rol.toLowerCase().replace(/\s/g, "")];
                 _this.carrerasFiltradas = [];
                 if (carreraActual_1) {
                     _this.carrerasFiltradas = _this.horarios.filter(function (carrera) { return carrera.carrera.toLowerCase() === carreraActual_1.toLowerCase(); });
@@ -311,7 +304,7 @@ var ItemsHorarioComponent = /** @class */ (function () {
             selector: 'app-items-horario',
             templateUrl: './items-horario.component.html',
             styleUrls: ['./items-horario.component.css'],
-            providers: [horario_service_1.HorarioService]
+            providers: [horario_service_1.HorarioService, detalle_service_1.DetalleService]
         })
     ], ItemsHorarioComponent);
     return ItemsHorarioComponent;

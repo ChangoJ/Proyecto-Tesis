@@ -25,7 +25,6 @@ export class AulasComponent {
   ngOnInit(): void {
     this.rutaActual = this._router.url
 
-    if (this._router.url === "/especificacion/aulas") {
     this._aulaService.getAulas().subscribe(
       response => {
         if (response.aulas) {
@@ -36,28 +35,7 @@ export class AulasComponent {
         console.log(error)
       }
     )
-  } else {
-    this._route.params.subscribe(params => {
-      var search1 = params['search1'];
-
-      this.searchActual = search1
-      this.is_search = true
-      this._aulaService.searchAula(search1).subscribe(
-        response => {
-          if (response.aulas) {
-            this.aulas = response.aulas;
-          } else {
-            this.aulas = []
-          }
-        },
-        error => {
-          this.aulas = []
-        }
-    )
-    
-
-    })
-  }
+ 
 
   }
 }

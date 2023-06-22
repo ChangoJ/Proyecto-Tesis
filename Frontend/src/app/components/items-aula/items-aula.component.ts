@@ -1,17 +1,17 @@
 import Swal from 'sweetalert2';
-import { Global } from './../services/global';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AulaService } from './../services/aula.service';
 import { Aula } from './../models/aula';
 import { Component, Input, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { DetalleService } from '../services/detalle.service';
 
 @Component({
   selector: 'app-items-aula',
   templateUrl: './items-aula.component.html',
   styleUrls: ['./items-aula.component.css'],
-  providers: [AulaService]
+  providers: [AulaService, DetalleService]
 })
 export class ItemsAulaComponent {
   public colorCuadro = document.querySelector(".color-square")
@@ -26,8 +26,9 @@ export class ItemsAulaComponent {
 
   constructor(private _aulaService: AulaService,
     private _route: ActivatedRoute,
-    private _router: Router) {
-    this.url = Global.url
+    private _router: Router,
+    private _detalleService: DetalleService) {
+    this.url = this._detalleService.Global.url
   }
 
   @ViewChild('paginatorA', { static: false }) paginator!: MatPaginator;

@@ -45,38 +45,21 @@ exports.__esModule = true;
 exports.UsuarioNuevoComponent = void 0;
 var core_1 = require("@angular/core");
 var usuario_service_1 = require("../services/usuario.service");
-var global_1 = require("../services/global");
 var sweetalert2_1 = require("sweetalert2");
 var usuario_1 = require("../models/usuario");
+var detalle_service_1 = require("../services/detalle.service");
 var UsuarioNuevoComponent = /** @class */ (function () {
-    function UsuarioNuevoComponent(_route, _usuarioService, _router) {
+    function UsuarioNuevoComponent(_route, _usuarioService, _router, _detalleService) {
         this._route = _route;
         this._usuarioService = _usuarioService;
         this._router = _router;
+        this._detalleService = _detalleService;
         this.selectedRol = [];
         this.dropdownRoles = {};
-        this.roles = [
-            { id: 1, textField: 'Administrador' },
-            { id: 2, textField: 'Revisador' },
-            { id: 3, textField: 'Aprobador' },
-            { id: 4, textField: 'Enfermeria' },
-            { id: 5, textField: 'Fisioterapia' },
-            { id: 6, textField: 'Nutricion' },
-            { id: 7, textField: 'Psicologia' },
-            { id: 8, textField: 'Educacion Basica' },
-            { id: 9, textField: 'produccionAudiovisual' },
-            { id: 10, textField: 'Contabilidad' },
-            { id: 11, textField: 'Derecho' },
-            { id: 12, textField: 'Economia' },
-            { id: 13, textField: 'Software' },
-            { id: 14, textField: 'AadministracionEmpresas' },
-            { id: 15, textField: 'Gastronomia' },
-            { id: 16, textField: 'Turismo' }
-        ];
         this.user = new usuario_1.Usuario('', '', '', '', '', '', '');
         this.page_title = "Nuevo Usuario";
         this.is_edit = false;
-        this.url = global_1.Global.url;
+        this.url = this._detalleService.Global.url;
         this.dropdownRoles = {
             singleSelection: true,
             idField: 'id',
@@ -87,6 +70,16 @@ var UsuarioNuevoComponent = /** @class */ (function () {
             allowSearchFilter: false
         };
     }
+    UsuarioNuevoComponent.prototype.ngOnInit = function () {
+        this.getDataDetalles();
+    };
+    UsuarioNuevoComponent.prototype.getDataDetalles = function () {
+        var _this = this;
+        this._detalleService.getRolesIndex().subscribe(function (roles) {
+            console.log(roles);
+            _this.roles = roles;
+        });
+    };
     UsuarioNuevoComponent.prototype.onSubmit = function () {
         return __awaiter(this, void 0, void 0, function () {
             var controles;
@@ -151,7 +144,7 @@ var UsuarioNuevoComponent = /** @class */ (function () {
             selector: 'app-usuario-nuevo',
             templateUrl: './usuario-nuevo.component.html',
             styleUrls: ['./usuario-nuevo.component.css'],
-            providers: [usuario_service_1.UsuarioService]
+            providers: [usuario_service_1.UsuarioService, detalle_service_1.DetalleService]
         })
     ], UsuarioNuevoComponent);
     return UsuarioNuevoComponent;

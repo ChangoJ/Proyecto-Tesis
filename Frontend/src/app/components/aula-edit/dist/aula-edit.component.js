@@ -7,27 +7,24 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 exports.__esModule = true;
 exports.AulaEditComponent = void 0;
-var global_1 = require("./../services/global");
 var aula_service_1 = require("./../services/aula.service");
 var aula_1 = require("./../models/aula");
 var core_1 = require("@angular/core");
 var sweetalert2_1 = require("sweetalert2");
+var detalle_service_1 = require("../services/detalle.service");
 var AulaEditComponent = /** @class */ (function () {
-    function AulaEditComponent(_route, _aulaService, _router) {
+    function AulaEditComponent(_route, _aulaService, _router, _detalleService) {
         this._route = _route;
         this._aulaService = _aulaService;
         this._router = _router;
+        this._detalleService = _detalleService;
         this.selectedUbicacion = [];
         this.dropdownUbicacion = {};
-        this.ubicaciones = [
-            { id: 1, textField: 'Campus Norte' },
-            { id: 2, textField: 'Campus Colon' },
-            { id: 3, textField: 'ZOOM' }
-        ];
         this.aula = new aula_1.Aula('', '', '', '', '', '#000000');
         this.page_title = "Editar Aula/Laboratorio";
         this.is_edit = true;
-        this.url = global_1.Global.url;
+        this.url = this._detalleService.Global.url;
+        this.ubicaciones = this._detalleService.ubicaciones;
         this.selectedUbicacion = [];
         this.dropdownUbicacion = {
             singleSelection: true,
@@ -152,7 +149,7 @@ var AulaEditComponent = /** @class */ (function () {
             selector: 'app-aula-edit',
             templateUrl: '../aula-nuevo/aula-nuevo.component.html',
             styleUrls: ['./aula-edit.component.css'],
-            providers: [aula_service_1.AulaService]
+            providers: [aula_service_1.AulaService, detalle_service_1.DetalleService]
         })
     ], AulaEditComponent);
     return AulaEditComponent;

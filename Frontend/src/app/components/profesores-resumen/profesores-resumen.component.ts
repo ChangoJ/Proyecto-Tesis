@@ -1,7 +1,6 @@
 
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Global } from '../services/global';
 import { Asignatura } from '../models/asignatura';
 import { AsignaturaService } from '../services/asignatura.service';
 import jsPDF from 'jspdf';
@@ -17,13 +16,15 @@ import { Horario } from '../models/horario';
 import Swal from 'sweetalert2';
 import FileSaver = require('file-saver');
 import { Profesor } from '../models/profesor';
+import { DetalleService } from '../services/detalle.service';
+import { UsuarioService } from '../services/usuario.service';
 
 
 @Component({
   selector: 'app-profesores-resumen',
   templateUrl: './profesores-resumen.component.html',
   styleUrls: ['./profesores-resumen.component.css'],
-  providers: [HorarioService, AsignaturaService, AulaService, ProfesorService]
+  providers: [HorarioService, AsignaturaService, AulaService, ProfesorService, DetalleService, UsuarioService]
 })
 export class ProfesoresResumenComponent {
 
@@ -51,53 +52,18 @@ export class ProfesoresResumenComponent {
   public friday: any[] = [];
   public saturday: any[] = [];
   public profesorSeleccionado!: any
-  editingProfesor: any = null;
-  carrerasFiltradas: any[] = [];
-  asignaturasFiltradas: any[] = [];
-  authToken!: any;
-  UserData!: any;
-
-
-  rolesCarreras: any = {
-    enfermeria: 'Enfermeria',
-    fisioterapia: 'Fisioterapia',
-    nutricion: 'Nutricion',
-    psicologia: 'Psicologia',
-    educacionBasica: 'Educacion Basica',
-    produccionAudiovisual: 'Produccion Audiovisual',
-    contabilidad: 'Contabilidad',
-    derecho: 'Derecho',
-    economia: 'Economia',
-    software: 'Software',
-    administracionEmpresas: 'Administracion de Empresas',
-    gastronomia: 'Gastronomia',
-    turismo: 'Turismo'
-  };
-
-
-  public hours = [
-    '07:00 - 08:00',
-    '08:00 - 09:00',
-    '09:00 - 10:00',
-    '10:00 - 11:00',
-    '11:00 - 12:00',
-    '12:00 - 13:00',
-    '13:00 - 14:00',
-    '14:00 - 15:00',];
-
-  public hoursnight = [
-    '08:00 - 09:00',
-    '09:00 - 10:00',
-    '10:00 - 11:00',
-    '11:00 - 12:00',
-    '12:00 - 13:00',
-    '13:00 - 14:00',
-    '18:00 - 19:00',
-    '19:00 - 20:00',
-    '20:00 - 21:00',
-    '21:00 - 22:00',
-  ]
-  horarioProfesor!: any[][];
+  public editingProfesor: any = null;
+  public carrerasFiltradas: any[] = [];
+  public asignaturasFiltradas: any[] = [];
+  public authToken: any;
+  public userData: any;
+  public rolesCarreras: any
+  public hours: any
+  public hoursnight: any
+  public horarioProfesor!: any[][];
+  public usuarios: any = [];
+  public revisador: any = [];
+  public aprobador: any = [];
 
   @ViewChild('paginator', { static: false }) paginator!: MatPaginator;
   @ViewChild('paginator2', { static: false }) paginator2!: MatPaginator;
@@ -108,21 +74,37 @@ export class ProfesoresResumenComponent {
     private _horarioService: HorarioService,
     private _profesoresService: ProfesorService,
     private _route: ActivatedRoute,
-    private _router: Router) {
-    this.url = Global.url
+    private _router: Router,
+    private _detalleService: DetalleService,
+    private _usuarioService: UsuarioService) {
+    this.url = this._detalleService.Global.url
+    this.authToken = this._detalleService.authToken
+    this.userData = this._detalleService.userData
+
   }
 
 
-
   ngOnInit() {
-
     this.getHorarios()
     this.getProfesores()
     this.getAsignaturas()
     this.getAulas()
-    this.authToken = localStorage.getItem('datosUsuario');
-    this.UserData = JSON.parse(this.authToken!)
+    this.getDataDetalles()
+    this.getUsuarios()
+  }
 
+  getDataDetalles() {
+    this._detalleService.getRolesIndex().subscribe(roles => {
+      this.rolesCarreras = roles
+    });
+    this._detalleService.getHorasDiurnas().subscribe(horasDiurnas => {
+      console.log(this.hours)
+      this.hours = horasDiurnas
+    });
+
+    this._detalleService.getHorasNocturnas().subscribe(horasNocturnas => {
+      this.hoursnight = horasNocturnas
+    });
   }
 
   getProfesores() {
@@ -130,7 +112,7 @@ export class ProfesoresResumenComponent {
       response => {
         if (response.profesores) {
           this.profesores = response.profesores;
-          let carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+          let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase().replace(/\s/g, "")];
 
           this.carrerasFiltradas = [];
 
@@ -146,6 +128,27 @@ export class ProfesoresResumenComponent {
       }
     )
   }
+
+  getUsuarios() {
+    this._usuarioService.getUsuarios().subscribe(
+      response => {
+        if (response.usuarios) {
+          this.usuarios = response.usuarios
+          for (let usuario of this.usuarios) {
+            if (usuario.rol === "Aprobador") {
+              this.aprobador = usuario
+            } else if (usuario.rol === "Revisador") {
+              this.revisador = usuario
+            }
+          }
+        }
+      },
+      error => {
+        console.log(error)
+      }
+    )
+  }
+
 
   getProfesor(id: any) {
 
@@ -165,7 +168,6 @@ export class ProfesoresResumenComponent {
       );
     });
   }
-
 
   startEditing(profesor: any): void {
     this.editingProfesor = profesor;
@@ -311,6 +313,7 @@ export class ProfesoresResumenComponent {
           hourEnd: '',
           hourStart: '',
           identificador: '',
+          semestre: '',
           item: {}
         };
 
@@ -333,6 +336,7 @@ export class ProfesoresResumenComponent {
         nuevoObjetoAula.identificador = String(horario.idTabla[i].idAula);
         nuevoObjetoAula.item = horario.item[i].aula;
         nuevoObjetoAula.elementoType = 'aula';
+        nuevoObjetoAula.semestre = horario.semestre;
 
 
 
@@ -402,7 +406,7 @@ export class ProfesoresResumenComponent {
       response => {
         if (response.asignaturas) {
           this.asignaturas = response.asignaturas
-          let carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+          let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase()];
 
           this.asignaturasFiltradas = [];
 
@@ -458,6 +462,7 @@ export class ProfesoresResumenComponent {
       this.saturday
     ]
     let identAsignatura: any
+    let semestreAsignatura: any
     let profesoresArray = this.carrerasFiltradas;
     let profesorId: any = ''
     let horariosProfesores: any = []
@@ -465,21 +470,26 @@ export class ProfesoresResumenComponent {
     let asignaturasProfesores: any = [];
 
     this.horarioProfesor = []
+
+
+
     horariosProfesores = profesoresArray.map(profesor => {
       profesorId = profesor._id;
       this.horarioProfesor = diasArray.map(dia => dia.filter(item => {
-
+        console.log(item)
         if (item.elementoType === 'asignatura' && item.item.profesor && item.item.profesor[0]._id === profesorId) {
 
           identAsignatura = item.identificador.substring(0, 2)
+          semestreAsignatura = item.semestre
           return true; // Mantener las asignaturas filtradas
-        } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura) {
+        } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura) {
+
           return true; // Mantener las aulas con identificador igual al profesor
         } else {
           return false; // Omitir otros elementos
         }
       }));
-
+      console.log(horariosProfesores)
 
       // Buscar el item correspondiente a esta celda
       for (let k = 0; k < this.horarioProfesor.length; k++) {
@@ -560,9 +570,9 @@ export class ProfesoresResumenComponent {
     for (let asigPro of asignaturasPorProfesor) {
       // Agrupar asignaturas por tipo de contrato
       if (asigPro.profesorContrato === 'Tiempo Completo') {
-        asignaturasPorProfesorMedioTiempo.push(asigPro);
-      } else if (asigPro.profesorContrato === 'Medio Tiempo') {
         asignaturasPorProfesorTiempoCompleto.push(asigPro);
+      } else if (asigPro.profesorContrato === 'Medio Tiempo') {
+        asignaturasPorProfesorMedioTiempo.push(asigPro);
       } else if (asigPro.profesorContrato === 'Tiempo Parcial') {
         asignaturasPorProfesorTiempoParcial.push(asigPro);
       }
@@ -574,7 +584,7 @@ export class ProfesoresResumenComponent {
     this.asignaturasPorProfesorTiempoCompleto = new MatTableDataSource<any>(asignaturasPorProfesorTiempoCompleto);
     this.asignaturasPorProfesorMedioTiempo = new MatTableDataSource<any>(asignaturasPorProfesorMedioTiempo);
     this.asignaturasPorProfesorTiempoParcial = new MatTableDataSource<any>(asignaturasPorProfesorTiempoParcial);
-    
+
 
   }
 
@@ -679,13 +689,17 @@ export class ProfesoresResumenComponent {
     rowDataC2.push(['Horas', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sabado']);
 
     let identAsignatura: any = ""
+    let semestreAsignatura: any = ""
+
+    console.log(this.horarioProfesor)
 
     asignaturasProfesoresDiurno = this.horarioProfesor.map(item => item.filter(item => {
       if (item.elementoType === 'asignatura' && item.item.horario === 'Diurno' && item.item.profesor) {
 
         identAsignatura = item.identificador.substring(0, 2)
-        return true;
-      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura) {
+        semestreAsignatura = item.semestre
+        return true; // Mantener las asignaturas filtradas
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura) {
         return true;
       } else {
         return false;
@@ -694,13 +708,14 @@ export class ProfesoresResumenComponent {
     }))
 
     identAsignatura = ""
-
+    semestreAsignatura = ""
     asignaturasProfesoresNocturnoCicloUno = this.horarioProfesor.map(item => item.filter(item => {
       if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.semestre[0] === "1" && item.item.profesor) {
 
         identAsignatura = item.identificador.substring(0, 2)
-        return true;
-      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura) {
+        semestreAsignatura = item.semestre
+        return true; // Mantener las asignaturas filtradas
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura) {
         return true;
       } else {
         return false;
@@ -708,12 +723,14 @@ export class ProfesoresResumenComponent {
 
     }))
     identAsignatura = ""
+    semestreAsignatura = ""
     asignaturasProfesoresNocturnoCicloDos = this.horarioProfesor.map(item => item.filter(item => {
       if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.semestre[0] === "2" && item.item.profesor) {
 
         identAsignatura = item.identificador.substring(0, 2)
-        return true;
-      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura) {
+        semestreAsignatura = item.semestre
+        return true; // Mantener las asignaturas filtradas
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura) {
         return true;
       } else {
         return false;
@@ -777,7 +794,8 @@ export class ProfesoresResumenComponent {
               }
               if (currentElement.elementoType === 'aula') {
                 agrupaciones.push(currentElement)
-                row[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
+
+                row[colIndex] += ' \n' + (currentElement.item.nombre + ' - ' + currentElement.item.ubicacion).replace(/(.+)/, '($1)').trim();
 
               } else {
                 agrupaciones.push(currentElement)
@@ -978,6 +996,7 @@ export class ProfesoresResumenComponent {
         if (resultadoAgrupado[asignaturaId]) {
 
           resultadoAgrupado[asignaturaId].aulas.push(item);
+          resultadoAgrupado[asignaturaId].dayName = item.dayName
         }
       }
     });
@@ -1014,12 +1033,14 @@ export class ProfesoresResumenComponent {
 
 
 
-    asignaturasProfesores.forEach((elemento1, index) => {
-      let resultado = resultadoFinal[index] as { modalidad?: string };
+    asignaturasProfesores.forEach((elemento1) => {
+      elemento1.modalidad = [];
 
-      if (resultado && resultado.modalidad) {
-        elemento1.modalidad = resultado.modalidad;
-      }
+      resultadoFinal.forEach((resultado: any) => {
+        if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
+          elemento1.modalidad.push(resultado.modalidad);
+        }
+      });
     });
 
     asignaturasProfesores.forEach(ap => {
@@ -1101,6 +1122,29 @@ export class ProfesoresResumenComponent {
 
     });
 
+    let rowDataHead5: any = [];
+
+    let DataFirmas: any = [];
+
+    rowDataHead5.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:'])
+    DataFirmas.push(["", "", ""]);
+    DataFirmas.push(["Prof. " + this.userData.nombre, "Prof. " + this.revisador.nombre, "Prof. " + this.aprobador.nombre]);
+    DataFirmas.push(["Director de Carrera", "Decana de Facultad", "Directora Académica "]);
+
+    autoTable(doc, {
+      head: rowDataHead5,
+      body: DataFirmas,
+      theme: 'grid',
+      styles: {
+        cellWidth: 60,
+        minCellHeight: 10,
+        fontSize: 8,
+        textColor: [0, 0, 0]
+      },
+      margin: { left: 55 },
+
+    });
+
     // Descargar el PDF
     doc.save('Horario ' + profesor + '.pdf');
   }
@@ -1113,7 +1157,7 @@ export class ProfesoresResumenComponent {
     let workbook = new ExcelJS.Workbook();
     let worksheet = workbook.addWorksheet(profesor);
 
-    
+
 
     // Establecer la orientación horizontal y el tamaño del papel
     worksheet.pageSetup.orientation = 'landscape';
@@ -1160,6 +1204,7 @@ export class ProfesoresResumenComponent {
 
 
     let identAsignatura: any = ""
+    let semestreAsignatura: any = ""
     let asignaturasProfesoresNocturnoCicloUno: any[] = [];
     let asignaturasProfesoresNocturnoCicloDos: any[] = [];
     let asignaturasProfesoresDiurno: any[] = [];
@@ -1167,8 +1212,9 @@ export class ProfesoresResumenComponent {
       if (item.elementoType === 'asignatura' && item.item.horario === 'Diurno' && item.item.profesor) {
 
         identAsignatura = item.identificador.substring(0, 2)
-        return true;
-      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura) {
+        semestreAsignatura = item.semestre
+        return true; // Mantener las asignaturas filtradas
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura) {
         return true;
       } else {
         return false;
@@ -1176,14 +1222,16 @@ export class ProfesoresResumenComponent {
 
     }))
 
-    identAsignatura = ""
 
+    identAsignatura = ""
+    semestreAsignatura = ""
     asignaturasProfesoresNocturnoCicloUno = this.horarioProfesor.map(item => item.filter(item => {
       if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.semestre[0] === "1" && item.item.profesor) {
 
         identAsignatura = item.identificador.substring(0, 2)
-        return true;
-      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura) {
+        semestreAsignatura = item.semestre
+        return true; // Mantener las asignaturas filtradas
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura) {
         return true;
       } else {
         return false;
@@ -1191,12 +1239,14 @@ export class ProfesoresResumenComponent {
 
     }))
     identAsignatura = ""
+    semestreAsignatura = ""
     asignaturasProfesoresNocturnoCicloDos = this.horarioProfesor.map(item => item.filter(item => {
       if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.semestre[0] === "2" && item.item.profesor) {
 
         identAsignatura = item.identificador.substring(0, 2)
-        return true;
-      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura) {
+        semestreAsignatura = item.semestre
+        return true; // Mantener las asignaturas filtradas
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura) {
         return true;
       } else {
         return false;
@@ -1555,8 +1605,8 @@ export class ProfesoresResumenComponent {
               }
               if (currentElement.elementoType === 'aula') {
                 agrupaciones.push(currentElement)
-                row[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
 
+                row[colIndex] += ' \n' + (currentElement.item.nombre + ' - ' + currentElement.item.ubicacion).replace(/(.+)/, '($1)').trim();
               } else {
                 agrupaciones.push(currentElement)
                 row[colIndex] += currentElement.item.nombre.trim();
@@ -1652,6 +1702,7 @@ export class ProfesoresResumenComponent {
         if (resultadoAgrupado[asignaturaId]) {
 
           resultadoAgrupado[asignaturaId].aulas.push(item);
+          resultadoAgrupado[asignaturaId].dayName = item.dayName
         }
       }
     });
@@ -1681,13 +1732,16 @@ export class ProfesoresResumenComponent {
       }
     });
 
-    asignaturasProfesores.forEach((elemento1, index) => {
-      let resultado = resultadoFinal[index] as { modalidad?: string };
+    asignaturasProfesores.forEach((elemento1) => {
+      elemento1.modalidad = "";
 
-      if (resultado && resultado.modalidad) {
-        elemento1.modalidad = resultado.modalidad;
-      }
+      resultadoFinal.forEach((resultado: any) => {
+        if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
+          elemento1.modalidad = resultado.modalidad;
+        }
+      });
     });
+
 
 
     let totalHoras = 0;
@@ -1728,7 +1782,46 @@ export class ProfesoresResumenComponent {
       rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Activar el ajuste de texto
     }
 
+     // Agregar texto al final de la página
+     let elaboradoPor = worksheet.getCell(52, 2);
+     elaboradoPor.value = 'Elaborado por: ';
+     elaboradoPor.font = { size: 8 };
+ 
+     let nombreDirector = worksheet.getCell(55, 2);
+     nombreDirector.value = 'Prof. ' + this.userData.nombre;
+     nombreDirector.font = { size: 8 };
+ 
+     let directorCarrera = worksheet.getCell(56, 2);
+     directorCarrera.value = 'Director de carrera';
+     directorCarrera.font = { size: 8 };
 
+    // Agregar texto al final de la página
+    let revisadoPor = worksheet.getCell(52, 4);
+    revisadoPor.value = 'Revisado por: ';
+    revisadoPor.font = { size: 8 };
+
+    let nombreRevisador = worksheet.getCell(55, 4);
+    nombreRevisador.value = 'Prof. ' + this.revisador.nombre;
+    nombreRevisador.font = { size: 8 };
+
+    let cargoRevisador = worksheet.getCell(56, 4);
+    cargoRevisador.value = 'Decana de Facultad';
+    cargoRevisador.font = { size: 8 };
+
+
+
+    // Agregar texto al final de la página
+    let aprobadorPor = worksheet.getCell(52, 6);
+    aprobadorPor.value = 'Aprobado por: ';
+    aprobadorPor.font = { size: 8 };
+
+    let nombreAprobador = worksheet.getCell(55, 6);
+    nombreAprobador.value = "Prof. " + this.aprobador.nombre;
+    nombreAprobador.font = { size: 8 };
+
+    let cargoAprobador = worksheet.getCell(56, 6);
+    cargoAprobador.value = 'Directora Academica';
+    cargoAprobador.font = { size: 8 };
 
     let nombreArchivo = 'Horario ' + profesor + '.xlsx';
 
@@ -1766,16 +1859,16 @@ export class ProfesoresResumenComponent {
     let descriptionX = (pageWidth - descriptionWidth) / 2;
 
     doc.text(descriptionText, descriptionX, 15);
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
 
-    let carreraText = "CARRERA: " + this.UserData.rol.toUpperCase();
+    let carreraText = "CARRERA: " + this.userData.rol.toUpperCase();
     let carreraInfoWidth = doc.getTextWidth(carreraText);
 
     let carreraInfoX = (pageWidth - carreraInfoWidth) / 2;
     doc.text(carreraText, carreraInfoX, 20);
-    
+
     doc.setFont('helvetica', 'normal');
 
     let rowDataHead: any = [];
@@ -1863,47 +1956,68 @@ export class ProfesoresResumenComponent {
       }
     }
 
+    // Definir la función de evento didParseCell
+    const didParseCell = function (data: any) {
+      const { column, cell } = data;
+
+      if (column.dataKey === 2 || column.dataKey === 3 || column.dataKey === 5) {
+        cell.styles.cellWidth = 13;
+      }
+
+      if (column.dataKey === 4 || column.dataKey === 5) {
+        cell.styles.cellWidth = 45; // Establecer ancho de columna personalizado
+      }
+
+      if (column.dataKey === 0) {
+        cell.styles.cellWidth = 35; // Establecer ancho de columna personalizado
+      }
+    };
+
     // Agregar la tabla al PDF
     autoTable(doc, {
       head: rowDataHead,
       body: rowData,
       theme: 'grid',
       styles: {
-        cellWidth: 45,
+        cellWidth: 120,
         minCellHeight: 5,
         fontSize: 8,
         textColor: [0, 0, 0]
-
       },
+      didParseCell: didParseCell,
       margin: { top: 25 },
     });
 
+    doc.addPage();
     // Agregar la tabla al PDF
     autoTable(doc, {
       head: rowDataHead2,
       body: rowData2,
       theme: 'grid',
       styles: {
-        cellWidth: 45,
+        cellWidth: 120,
         minCellHeight: 5,
         fontSize: 8,
         textColor: [0, 0, 0]
 
-      }
+      },
+      didParseCell: didParseCell,
     });
 
+    doc.addPage();
     // Agregar la tabla al PDF
     autoTable(doc, {
       head: rowDataHead3,
       body: rowData3,
       theme: 'grid',
       styles: {
-        cellWidth: 45,
+        cellWidth: 120,
         minCellHeight: 5,
         fontSize: 8,
         textColor: [0, 0, 0]
 
-      }
+      },
+      didParseCell: didParseCell,
     });
 
     // Descargar el PDF
@@ -1922,6 +2036,9 @@ export class ProfesoresResumenComponent {
 
     // Agregar el título al Excel
 
+
+
+
     sheet.getCell('A1').value = 'UNIVERSIDAD IBEROAMERICANA DEL ECUADOR';
     sheet.getCell('A1').font = { size: 14, bold: true };
     sheet.getCell('A1').alignment = { horizontal: 'center' };
@@ -1932,7 +2049,7 @@ export class ProfesoresResumenComponent {
     sheet.getCell('A2').alignment = { horizontal: 'center' };
     sheet.mergeCells('A2:F2');
 
-    sheet.getCell('A3').value = 'CARRERA: '+this.UserData.rol.toUpperCase();
+    sheet.getCell('A3').value = 'CARRERA: ' + this.userData.rol.toUpperCase();
     sheet.getCell('A3').font = { size: 14, bold: true };
     sheet.getCell('A3').alignment = { horizontal: 'center' };
     sheet.mergeCells('A3:F3');
@@ -1986,6 +2103,7 @@ export class ProfesoresResumenComponent {
         sheet.mergeCells('A' + rowIndex + ':A' + rowIndexEnd);
         sheet.mergeCells('D' + rowIndex + ':D' + rowIndexEnd);
         sheet.mergeCells('E' + rowIndex + ':E' + rowIndexEnd);
+        sheet.mergeCells('F' + rowIndex + ':F' + rowIndexEnd);
       }
 
       rowIndex += asignaturasCount;
@@ -2006,11 +2124,12 @@ export class ProfesoresResumenComponent {
           bottom: { style: 'thin', color: { argb: '000000' } },
           right: { style: 'thin', color: { argb: '000000' } },
         };
-        cell.alignment = { wrapText: true };
         cell.alignment = cell.alignment || {};
-        cell.alignment.wrapText = true;
+        /*   cell.alignment.wrapText = true; */
         cell.alignment.vertical = 'middle';
         cell.alignment.horizontal = 'center';
+
+
       }
     }
 
@@ -2018,8 +2137,14 @@ export class ProfesoresResumenComponent {
 
     // Ajustar ancho de columna automáticamente
     sheet.columns.forEach((column) => {
+      console.log(column)
       column.width = 24;
     });
+
+    // Establecer el ancho de las columnas
+    sheet.getColumn(2).width = 75;
+    sheet.getColumn(3).width = 8;
+    sheet.getColumn(4).width = 13;
 
     // Obtener la posición final de la primera tabla
     let primeraTablaFinal = rowIndex;
@@ -2073,6 +2198,7 @@ export class ProfesoresResumenComponent {
         sheet.mergeCells('A' + (segundaTablaInicio + 2) + ':A' + rowIndexEnd);
         sheet.mergeCells('D' + (segundaTablaInicio + 2) + ':D' + rowIndexEnd);
         sheet.mergeCells('E' + (segundaTablaInicio + 2) + ':E' + rowIndexEnd);
+        sheet.mergeCells('F' + (segundaTablaInicio + 2) + ':F' + rowIndexEnd);
       }
 
       segundaTablaInicio += asignaturasCount;
@@ -2081,7 +2207,7 @@ export class ProfesoresResumenComponent {
 
     // Aplicar bordes oscuros a la tabla
     startRowIndex = primeraTablaFinal + 1;
-    endRowIndex = segundaTablaInicio + this.asignaturasPorProfesorMedioTiempo.data.length;
+    endRowIndex = segundaTablaInicio + 1
     startColumnIndex = 1;
     endColumnIndex = 6;
 
@@ -2095,7 +2221,7 @@ export class ProfesoresResumenComponent {
           right: { style: 'thin', color: { argb: '000000' } },
         };
         cell.alignment = cell.alignment || {};
-        cell.alignment.wrapText = true;
+        /* cell.alignment.wrapText = true; */
         cell.alignment.vertical = 'middle';
         cell.alignment.horizontal = 'center';
       }
@@ -2153,6 +2279,7 @@ export class ProfesoresResumenComponent {
         sheet.mergeCells('A' + (terceraTablaInicio + 2) + ':A' + rowIndexEnd);
         sheet.mergeCells('D' + (terceraTablaInicio + 2) + ':D' + rowIndexEnd);
         sheet.mergeCells('E' + (terceraTablaInicio + 2) + ':E' + rowIndexEnd);
+        sheet.mergeCells('F' + (terceraTablaInicio + 2) + ':F' + rowIndexEnd);
       }
 
       terceraTablaInicio += asignaturasCount;
@@ -2161,7 +2288,7 @@ export class ProfesoresResumenComponent {
 
     // Aplicar bordes oscuros a la tabla
     startRowIndex = segundaTablaFinal + 3;
-    endRowIndex = terceraTablaInicio + this.asignaturasPorProfesorMedioTiempo.data.length;
+    endRowIndex = terceraTablaInicio + 1;
     startColumnIndex = 1;
     endColumnIndex = 6;
 
@@ -2175,7 +2302,7 @@ export class ProfesoresResumenComponent {
           right: { style: 'thin', color: { argb: '000000' } },
         };
         cell.alignment = cell.alignment || {};
-        cell.alignment.wrapText = true;
+        /* cell.alignment.wrapText = true; */
         cell.alignment.vertical = 'middle';
         cell.alignment.horizontal = 'center';
       }
@@ -2212,7 +2339,3 @@ export class ProfesoresResumenComponent {
   }
 
 }
-function uuidv4() {
-  throw new Error('Function not implemented.');
-}
-

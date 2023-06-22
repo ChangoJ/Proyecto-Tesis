@@ -1,20 +1,21 @@
-import { Global } from './global';
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
+import { DetalleService } from './detalle.service';
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'root',
 })
 export class AuthService {
     public url: string;
     public authToken: string;
 
     constructor(
-        private _http: HttpClient
+        private _http: HttpClient,
+        private _detalleService: DetalleService
     ) {
-        this.url = Global.url;
+        this.url = this._detalleService.Global.url;
         this.authToken = localStorage.getItem('authToken') || '';
 
     }

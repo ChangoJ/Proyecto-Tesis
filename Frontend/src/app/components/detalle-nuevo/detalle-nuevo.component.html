@@ -1,0 +1,87 @@
+<nav id="submenu">
+    <ul>
+        <li>
+            <div class="center-icon" *ngIf="!detalle">
+                <mat-icon>queue</mat-icon>
+                <a id="matButton" mat-raised-button [routerLink]="['/especificacion/detalles/crearDetalle']">Nuevo
+                    detalle</a>
+            </div>
+        </li>
+        <li>
+            <div class="center-icon">
+                <mat-icon>library_books</mat-icon>
+                <a id="matButton" mat-raised-button (click)="allDetalles()">Mostrar detalles</a>
+            </div>
+        </li>
+
+    </ul>
+</nav>
+<h2 class="subheader">{{page_title}}</h2>
+
+
+
+<div class="rowDetalle">
+    <div class="colDetalle">
+        <form [formGroup]="carrerasForm">
+            <h3>Carreras</h3>
+            <div formArrayName="carreras">
+                <div *ngFor="let carrera of getCarrerasFormControls(); let i = index">
+                    <mat-form-field>
+                        <input matInput [formControlName]="i" pattern="[A-Za-z0-9 ]*" required>
+                    </mat-form-field>
+                    <button mat-icon-button color="warn" (click)="removerCarreras(i)">
+                        <mat-icon>remove</mat-icon>
+                    </button>
+                </div>
+            </div>
+            <button mat-raised-button color="primary" (click)="agregarCarreras()">Añadir</button>
+        </form>
+    </div>
+    <div class="colDetalle">
+        <h3>Semestres</h3>
+        <mat-form-field>
+            <input matInput [(ngModel)]="semestres" type="number" min="1" max="20" required>
+        </mat-form-field>
+
+        <h3>Horas Diurnas</h3>
+        <mat-form-field>
+            <h3>Desde</h3>
+            <input matInput [(ngModel)]="horaInicio" type="time" required>
+        </mat-form-field>
+        <mat-form-field>
+            <h3>Hasta</h3>
+            <input matInput [(ngModel)]="horaFin" type="time" required>
+        </mat-form-field>
+    </div>
+    <div class="colDetalle">
+        <h3>Ciclos</h3>
+        <mat-form-field>
+            <input matInput [(ngModel)]="ciclos" type="number" min="1" max="20" required>
+        </mat-form-field>
+        <h3>Horas Nocturnas</h3>
+        <mat-form-field>
+            <h3>1: Desde</h3>
+            <input matInput [(ngModel)]="horaInicioN" type="time" required>
+        </mat-form-field>
+        <mat-form-field>
+            <h3>1: Hasta</h3>
+            <input matInput [(ngModel)]="horaFinN" type="time" required>
+        </mat-form-field>
+        <mat-form-field>
+            <h3>2: Desde</h3>
+            <input matInput [(ngModel)]="horaInicioN1" type="time" required>
+        </mat-form-field>
+        <mat-form-field>
+            <h3>2: Hasta</h3>
+            <input matInput [(ngModel)]="horaFinN1" type="time" required>
+        </mat-form-field>
+    </div>
+</div>
+
+
+
+
+<button mat-raised-button class="btn btn-success" color="accent" style="margin-bottom: 30px; margin-top: 20px;"
+    (click)="onSubmit()">Enviar</button>
+
+<div class="clearfix"></div>

@@ -21,13 +21,6 @@ export class EspecificacionComponent {
     }
 
   }
- 
-  /* ngDoCheck() {
-    this.rutaActual = this._router.url
 
-    if (this.rutaActual.includes( "especificacion")) {
-      this._router.navigate(['asignaturas'], { relativeTo: this._route });
-    }
-  } */
 
 }

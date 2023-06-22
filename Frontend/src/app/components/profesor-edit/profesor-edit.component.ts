@@ -1,4 +1,4 @@
-import { Global } from './../services/global';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { Profesor } from './../models/profesor';
 import { ProfesorService } from './../services/profesor.service';
@@ -6,12 +6,13 @@ import { Component, ViewChild } from '@angular/core';
 import Swal from 'sweetalert2';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { NgForm } from '@angular/forms';
+import { DetalleService } from '../services/detalle.service';
 
 @Component({
   selector: 'app-profesor-edit',
   templateUrl: '../profesor-nuevo/profesor-nuevo.component.html',
   styleUrls: ['./profesor-edit.component.css'],
-  providers: [ProfesorService]
+  providers: [ProfesorService, DetalleService]
 })
 export class ProfesorEditComponent {
   @ViewChild('profesorForm', { static: false }) profesorForm!: NgForm;
@@ -27,6 +28,7 @@ export class ProfesorEditComponent {
   public dropdownContrato: IDropdownSettings = {};
   public itemContratoEdit: any;
   public itemCarrerasEdit: any;
+  public carreras : any
 
   contratos: any[] = [
     { id: 1, textField: 'Tiempo Completo' },
@@ -34,31 +36,16 @@ export class ProfesorEditComponent {
     { id: 3, textField: 'Tiempo Parcial' }
   ];
 
-  carreras: any[] = [
-    { id: 1, textField: 'Enfermeria' },
-    { id: 2, textField: 'Fisioterapia' },
-    { id: 3, textField: 'Nutricion' },
-    { id: 4, textField: 'Psicologia' },
-    { id: 5, textField: 'Educacion Basica' },
-    { id: 6, textField: 'Produccion Audiovisual' },
-    { id: 7, textField: 'Contabilidad' },
-    { id: 8, textField: 'Derecho' },
-    { id: 9, textField: 'Economia' },
-    { id: 10, textField: 'Software' },
-    { id: 11, textField: 'Administracion de Empresas' },
-    { id: 12, textField: 'Gastronomia' },
-    { id: 13, textField: 'Turismo' }
-  ];
-
   constructor(
     private _route: ActivatedRoute,
     private _profesorService: ProfesorService,
-    private _router: Router
+    private _router: Router,
+    private _detalleService: DetalleService
   ) {
     this.profesor = new Profesor('', '', '', [], '')
     this.page_title = "Editar Aula"
     this.is_edit = true;
-    this.url = Global.url
+    this.url = this._detalleService.Global.url
 
     this.dropdownCarreras = {
       singleSelection: false,
@@ -147,6 +134,14 @@ export class ProfesorEditComponent {
 
   ngOnInit() {
     this.getProfesor();
+    this.getDataDetalles()
+   
+  }
+
+  getDataDetalles(){
+    this._detalleService.getCarrerasIndex().subscribe(carreras => {
+      this.carreras = carreras 
+    });
   }
 
   getProfesor() {
@@ -156,7 +151,7 @@ export class ProfesorEditComponent {
         response => {
           if (response.profesor) {
             this.profesor = response.profesor
-            this.selectedCarreras = this.carreras.filter(carrera => this.profesor.carrera.includes(carrera.textField));
+            this.selectedCarreras = this.carreras.filter((carrera: { textField: String; }) => this.profesor.carrera.includes(carrera.textField));
             this.selectedContrato = this.contratos.filter(contrato => contrato.textField === this.profesor.contrato);
 
           } else {
@@ -192,6 +187,8 @@ export class ProfesorEditComponent {
 
   resumenProfesores() {
     this._router.navigate(['/especificacion/profesores/resumen-profesores'])
-
+ /*    setTimeout(() => {
+      location.reload();
+    }, 400); */
   }
 }

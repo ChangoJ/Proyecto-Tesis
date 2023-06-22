@@ -3,18 +3,17 @@ import { UsuarioService } from '../services/usuario.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { Usuario } from '../models/usuario';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Global } from '../services/global';
 import { MatPaginator } from '@angular/material/paginator';
 import Swal from 'sweetalert2';
+import { DetalleService } from '../services/detalle.service';
 
 @Component({
   selector: 'app-items-usuario',
   templateUrl: './items-usuario.component.html',
   styleUrls: ['./items-usuario.component.css'],
-  providers: [UsuarioService]
+  providers: [UsuarioService, DetalleService]
 })
 export class ItemsUsuarioComponent {
-  public colorCuadro = document.querySelector(".color-square")
   public url: string
   public usuariosFiltrados!: MatTableDataSource<any>;
   public terminoBusquedaUsuarios: string = '';
@@ -25,8 +24,9 @@ export class ItemsUsuarioComponent {
 
   constructor(private _usuarioService: UsuarioService,
     private _route: ActivatedRoute,
-    private _router: Router) {
-    this.url = Global.url
+    private _router: Router,
+    private _detalleService: DetalleService) {
+    this.url = this._detalleService.Global.url
 
   }
 

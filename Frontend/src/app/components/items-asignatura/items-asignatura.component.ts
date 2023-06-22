@@ -1,17 +1,17 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import Swal from 'sweetalert2';
-import { Global } from './../services/global';
 import { Asignatura } from './../models/asignatura';
 import { Component, Input, ViewChild } from '@angular/core';
 import { AsignaturaService } from '../services/asignatura.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { DetalleService } from '../services/detalle.service';
 
 @Component({
   selector: 'app-items-asignatura',
   templateUrl: './items-asignatura.component.html',
   styleUrls: ['./items-asignatura.component.css'],
-  providers: [AsignaturaService]
+  providers: [AsignaturaService, DetalleService]
 })
 export class ItemsAsignaturaComponent {
 
@@ -19,45 +19,30 @@ export class ItemsAsignaturaComponent {
   public url: string
   public asignaturasFiltrados!: MatTableDataSource<any>;
   public terminoBusquedaAsignatura: string = '';
-
   public selectedCarrera!: any
   public selectedSemestre!: any
-
-  @Input() asignaturas!: Asignatura[]
-  columnas = ['N°', 'Nombre', 'Carrera', 'Semestre', 'Profesor', 'Horario', 'Creditos', 'Color', 'Acciones'];
-  carreras = ["Enfermeria", "Fisioterapia", "Nutricion", "Psicologia", "Educacion Basica", "Produccion Audiovisual", "Contabilidad", "Derecho", "Economia", "Software", "Administracion de Empresas",
-    "Gastronomia", "Turismo"];
-  semestres = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10",];
-  asignaturasObtenidos: any[] = [];
-  authToken!: any;
-  UserData!: any;
-  carrerasFiltradas: any[] = [];
-  public is_admin!: boolean
+  public asignaturasObtenidos: any[] = [];
+  public authToken: any;
+  public userData: any;
+  public carrerasFiltradas: any[] = [];
+  public is_admin: boolean
   public is_aprobador!: boolean
-
-  rolesCarreras: any = {
-    enfermeria: 'Enfermeria',
-    fisioterapia: 'Fisioterapia',
-    nutricion: 'Nutricion',
-    psicologia: 'Psicologia',
-    educacionBasica: 'Educacion Basica',
-    produccionAudiovisual: 'Produccion Audiovisual',
-    contabilidad: 'Contabilidad',
-    derecho: 'Derecho',
-    economia: 'Economia',
-    software: 'Software',
-    administracionEmpresas: 'Administracion de Empresas',
-    gastronomia: 'Gastronomia',
-    turismo: 'Turismo'
-  };
+  public carreras: any
+  public semestres: any
+  public rolesCarreras: any
+  @Input() asignaturas!: Asignatura[]
+  public columnas = ['N°', 'Nombre', 'Carrera', 'Periodo', 'Profesor', 'Horario', 'Creditos', 'Color', 'Acciones'];
 
   constructor(private _asignaturaService: AsignaturaService,
     private _route: ActivatedRoute,
-    private _router: Router) {
-    this.url = Global.url
-
+    private _router: Router,
+    private _detalleService: DetalleService) {
+    this.url = this._detalleService.Global.url
     this.is_admin = false
     this.is_aprobador = false
+    this.authToken = this._detalleService.authToken
+    this.userData = this._detalleService.userData
+
   }
 
   @ViewChild('paginatorAs', { static: false }) paginator!: MatPaginator;
@@ -65,44 +50,79 @@ export class ItemsAsignaturaComponent {
 
 
   ngOnInit() {
-
-    this.getAsignaturas()
-    this.authToken = localStorage.getItem('datosUsuario');
-    this.UserData = JSON.parse(this.authToken!)
-    if (this.UserData.rol === "Administrador" || this.UserData.rol === "Aprobador") {
+    /*  this.getAsignaturas() */
+    if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador") {
       this.is_admin = true
       this.is_aprobador = true
     }
+    this.getDataDetalles()
 
 
   }
 
-  getAsignaturas() {
-    this._asignaturaService.getAsignaturas().subscribe(
-      response => {
-        if (response.asignaturas) {
-          this.asignaturasObtenidos = response.asignaturas
-          let carreraActual = this.rolesCarreras[this.UserData.rol.toLowerCase()];
+  getDataDetalles() {
 
-          this.carrerasFiltradas = [];
+    this._detalleService.getRolesIndex().subscribe(roles => {
+      this.rolesCarreras = roles
+    });
 
-          if (carreraActual) {
-            this.carrerasFiltradas = this.asignaturasObtenidos.filter(elemento => elemento.carrera.includes(carreraActual));
-          } else {
-            this.carrerasFiltradas = this.asignaturasObtenidos;
+    this._detalleService.getCarreras().subscribe(carreras => {
+      this.carreras = carreras
+      this._asignaturaService.getAsignaturas().subscribe(
+        response => {
+          if (response.asignaturas) {
+            this.asignaturasObtenidos = response.asignaturas
+            let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase().toLowerCase().replace(/\s/g, "")];
+
+            this.carrerasFiltradas = [];
+
+            if (carreraActual) {
+              this.carrerasFiltradas = this.asignaturasObtenidos.filter(elemento => elemento.carrera.includes(carreraActual));
+            } else {
+              this.carrerasFiltradas = this.asignaturasObtenidos;
+            }
+
+            this.asignaturasFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas);
+            this.asignaturasFiltrados.paginator = this.paginator;
           }
-          
-          this.asignaturasFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas);
-          this.asignaturasFiltrados.paginator = this.paginator;
+        },
+        error => {
+          console.log(error)
         }
-      },
-      error => {
-        console.log(error)
-      }
-    )
-  }
+      )
 
+    });
+
+    this._detalleService.getSemestres().subscribe(semestres => {
+      this.semestres = semestres
+    });
+
+  }
+  /* 
+    getAsignaturas() {
+      this._asignaturaService.getAsignaturas().subscribe(
+        response => {
+          if (response.asignaturas) {
+            this.asignaturasObtenidos = response.asignaturas
+            let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase()];
   
+            this.carrerasFiltradas = [];
+  
+            if (carreraActual) {
+              this.carrerasFiltradas = this.asignaturasObtenidos.filter(elemento => elemento.carrera.includes(carreraActual));
+            } else {
+              this.carrerasFiltradas = this.asignaturasObtenidos;
+            }
+            
+            this.asignaturasFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas);
+            this.asignaturasFiltrados.paginator = this.paginator;
+          }
+        },
+        error => {
+          console.log(error)
+        }
+      )
+    } */
 
   delete(id: string) {
 
