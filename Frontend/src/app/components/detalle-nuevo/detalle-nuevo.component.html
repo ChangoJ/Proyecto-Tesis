@@ -52,7 +52,23 @@
             <h3>Hasta</h3>
             <input matInput [(ngModel)]="horaFin" type="time" required>
         </mat-form-field>
+        <form [formGroup]="periodosInglesForm">
+            <h3>Periodos Ingles</h3>
+            <div formArrayName="periodos">
+                <div *ngFor="let periodo of getperiodosInglesFormControls(); let i = index">
+                    <mat-form-field>
+                        <input matInput [formControlName]="i" pattern="[A-Za-z0-9.]*" required>
+                    </mat-form-field>
+                    <button mat-icon-button color="warn" (click)="removerPeriodoIngles(i)">
+                        <mat-icon>remove</mat-icon>
+                    </button>
+                </div>
+            </div>
+            <button mat-raised-button color="primary" (click)="agregarPeriodoIngles()">Añadir</button>
+        </form>
     </div>
+
+
     <div class="colDetalle">
         <h3>Ciclos</h3>
         <mat-form-field>
@@ -74,6 +90,47 @@
         <mat-form-field>
             <h3>2: Hasta</h3>
             <input matInput [(ngModel)]="horaFinN1" type="time" required>
+        </mat-form-field>
+        <h3>Paralelos</h3>
+        <mat-form-field>
+            <h3>Paralelo inicial (Mayuscula Letra)</h3>
+            <input matInput [(ngModel)]="paraleloInicio" name="paraleloInicio" type="text" required pattern="[A-Z]">
+            
+        </mat-form-field>
+        <mat-form-field>
+            <h3>Paralelo Fin (Mayuscula Letra)</h3>
+            <input matInput [(ngModel)]="paraleloFin" name="paraleloFin" type="text" required pattern="[A-Z]">
+            
+        </mat-form-field>
+    </div>
+    <div class="colDetalle">
+
+        <h3>Horas Alternativas Diurnas(Ingles)</h3>
+        <mat-form-field>
+            <h3>Desde</h3>
+            <input matInput [(ngModel)]="horaInicioA" type="time" required>
+        </mat-form-field>
+        <mat-form-field>
+            <h3>Hasta</h3>
+            <input matInput [(ngModel)]="horaFinA" type="time" required>
+        </mat-form-field>
+
+        <h3>Horas Alternativas Nocturnas(Ingles)</h3>
+        <mat-form-field>
+            <h3>1: Desde</h3>
+            <input matInput [(ngModel)]="horaInicioAN" type="time" required>
+        </mat-form-field>
+        <mat-form-field>
+            <h3>1: Hasta</h3>
+            <input matInput [(ngModel)]="horaFinAN" type="time" required>
+        </mat-form-field>
+        <mat-form-field>
+            <h3>2: Desde</h3>
+            <input matInput [(ngModel)]="horaInicioAN1" type="time" required>
+        </mat-form-field>
+        <mat-form-field>
+            <h3>2: Hasta</h3>
+            <input matInput [(ngModel)]="horaFinAN1" type="time" required>
         </mat-form-field>
     </div>
 </div>

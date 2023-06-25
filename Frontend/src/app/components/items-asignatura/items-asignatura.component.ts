@@ -6,12 +6,14 @@ import { AsignaturaService } from '../services/asignatura.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { DetalleService } from '../services/detalle.service';
+import { HorarioService } from '../services/horario.service';
+import { Horario } from '../models/horario';
 
 @Component({
   selector: 'app-items-asignatura',
   templateUrl: './items-asignatura.component.html',
   styleUrls: ['./items-asignatura.component.css'],
-  providers: [AsignaturaService, DetalleService]
+  providers: [AsignaturaService, DetalleService, HorarioService]
 })
 export class ItemsAsignaturaComponent {
 
@@ -29,14 +31,16 @@ export class ItemsAsignaturaComponent {
   public is_aprobador!: boolean
   public carreras: any
   public semestres: any
-  public rolesCarreras: any
+  public rolesCarreras: any = []
+  public horarios!: Horario[];
   @Input() asignaturas!: Asignatura[]
   public columnas = ['N°', 'Nombre', 'Carrera', 'Periodo', 'Profesor', 'Horario', 'Creditos', 'Color', 'Acciones'];
 
   constructor(private _asignaturaService: AsignaturaService,
     private _route: ActivatedRoute,
     private _router: Router,
-    private _detalleService: DetalleService) {
+    private _detalleService: DetalleService,
+    private _horarioService: HorarioService) {
     this.url = this._detalleService.Global.url
     this.is_admin = false
     this.is_aprobador = false
@@ -50,79 +54,80 @@ export class ItemsAsignaturaComponent {
 
 
   ngOnInit() {
-    /*  this.getAsignaturas() */
     if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador") {
       this.is_admin = true
       this.is_aprobador = true
     }
     this.getDataDetalles()
+    this.getHorarios()
 
 
   }
 
   getDataDetalles() {
 
-    this._detalleService.getRolesIndex().subscribe(roles => {
+    this._detalleService.getRolesCarrera().subscribe(roles => {
       this.rolesCarreras = roles
+
+      this.getAsignaturas()
+
     });
 
     this._detalleService.getCarreras().subscribe(carreras => {
       this.carreras = carreras
-      this._asignaturaService.getAsignaturas().subscribe(
-        response => {
-          if (response.asignaturas) {
-            this.asignaturasObtenidos = response.asignaturas
-            let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase().toLowerCase().replace(/\s/g, "")];
-
-            this.carrerasFiltradas = [];
-
-            if (carreraActual) {
-              this.carrerasFiltradas = this.asignaturasObtenidos.filter(elemento => elemento.carrera.includes(carreraActual));
-            } else {
-              this.carrerasFiltradas = this.asignaturasObtenidos;
-            }
-
-            this.asignaturasFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas);
-            this.asignaturasFiltrados.paginator = this.paginator;
-          }
-        },
-        error => {
-          console.log(error)
-        }
-      )
-
     });
+
 
     this._detalleService.getSemestres().subscribe(semestres => {
       this.semestres = semestres
     });
 
   }
-  /* 
-    getAsignaturas() {
-      this._asignaturaService.getAsignaturas().subscribe(
-        response => {
-          if (response.asignaturas) {
-            this.asignaturasObtenidos = response.asignaturas
-            let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase()];
-  
-            this.carrerasFiltradas = [];
-  
-            if (carreraActual) {
-              this.carrerasFiltradas = this.asignaturasObtenidos.filter(elemento => elemento.carrera.includes(carreraActual));
-            } else {
-              this.carrerasFiltradas = this.asignaturasObtenidos;
-            }
-            
-            this.asignaturasFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas);
-            this.asignaturasFiltrados.paginator = this.paginator;
+
+  getAsignaturas() {
+    this.asignaturasObtenidos = []
+
+    this._asignaturaService.getAsignaturas().subscribe(
+      response => {
+        if (response.asignaturas) {
+          this.asignaturasObtenidos = response.asignaturas
+          let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase().replace(/\s/g, "")];
+
+          this.carrerasFiltradas = [];
+
+          if (carreraActual) {
+            this.carrerasFiltradas = this.asignaturasObtenidos.filter(elemento => elemento.carrera.includes(carreraActual));
+          } else {
+            this.carrerasFiltradas = this.asignaturasObtenidos;
           }
-        },
-        error => {
-          console.log(error)
+
+          this.asignaturasFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas);
+          this.asignaturasFiltrados.paginator = this.paginator;
         }
-      )
-    } */
+      },
+      error => {
+        console.log(error)
+      }
+    )
+
+
+  }
+
+  getHorarios() {
+    this._horarioService.getHorarios().subscribe(
+      response => {
+        if (response.horarios) {
+          this.horarios = response.horarios;
+
+        }
+      },
+      error => {
+        console.log(error)
+      }
+    )
+
+  }
+
 
   delete(id: string) {
 
@@ -136,19 +141,44 @@ export class ItemsAsignaturaComponent {
       confirmButtonText: 'Delete',
     }).then((result: any) => {
       if (result.isConfirmed) {
-        this._asignaturaService.delete(id).subscribe(
-          (response) => {
-            setTimeout(() => {
-              location.reload();
-            }, 1200);
-          },
-          (error) => {
-            console.log(error);
-            this._router.navigate(['/especificacion/asignaturas']);
-          }
-        );
+        let item: any = []
+        let ubicacion: any = []
+        let exist_aula: boolean = false
 
-        Swal.fire('Asignatura borrada', 'La Asignatura ha sido borrado', 'success');
+        this.horarios.forEach(horario => {
+          item = horario.item
+          item.forEach((item: any) => {
+            if (item.asignatura._id === id) {
+              exist_aula = true
+              if (!horario.paralelo || horario.paralelo === "") {
+
+                ubicacion = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre
+              } else {
+
+                ubicacion = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre + ' Paralelo (' + horario.paralelo! + ')'
+              }
+            }
+          });
+        });
+
+        if (!exist_aula) {
+          this._asignaturaService.delete(id).subscribe(
+            (response) => {
+              setTimeout(() => {
+                location.reload();
+              }, 1200);
+            },
+            (error) => {
+              console.log(error);
+              this._router.navigate(['/especificacion/asignaturas']);
+            }
+          );
+
+          Swal.fire('Asignatura borrada', 'La Asignatura ha sido borrado', 'success');
+
+        } else {
+          Swal.fire('Asignatura no borrada', 'Si deseas borrarla, primero borra el horario que la contiene: ' + ubicacion, 'error');
+        }
       } else {
         Swal.fire('Operación cancelada', 'La Asignatura no ha sido borrado', 'warning');
       }
@@ -156,6 +186,8 @@ export class ItemsAsignaturaComponent {
 
 
   }
+
+
 
   filtrarAsignaturas() {
 

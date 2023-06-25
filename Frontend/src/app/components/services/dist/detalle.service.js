@@ -52,6 +52,8 @@ var DetalleService = /** @class */ (function () {
         this.semestres = [];
         this.horasDiurnas = [];
         this.horasNocturnas = [];
+        this.horasAlternativaDiurnas = [];
+        this.horasAlternativaNocturnas = [];
         this.ciclos = [];
         this.carreras = [];
         this.roles = [];
@@ -59,6 +61,7 @@ var DetalleService = /** @class */ (function () {
         this.ciclosIndex = [];
         this.carrerasIndex = [];
         this.semestresIndex = [];
+        this.periodoInglesIndex = [];
         this.rolesSubject = new rxjs_1.BehaviorSubject([]);
         this.carrerasSubject = new rxjs_1.BehaviorSubject([]);
         this.semestresSubject = new rxjs_1.BehaviorSubject([]);
@@ -67,8 +70,17 @@ var DetalleService = /** @class */ (function () {
         this.carrerasSubjectIndex = new rxjs_1.BehaviorSubject([]);
         this.semestresSubjectIndex = new rxjs_1.BehaviorSubject([]);
         this.ciclosSubjectIndex = new rxjs_1.BehaviorSubject([]);
+        this.periodoInglesSubjectIndex = new rxjs_1.BehaviorSubject([]);
         this.horasDiurnasSubject = new rxjs_1.BehaviorSubject([]);
         this.horasNocturnasSubject = new rxjs_1.BehaviorSubject([]);
+        this.horasAlternativaDiurnasSubject = new rxjs_1.BehaviorSubject([]);
+        this.horasAlternativaNocturnasSubject = new rxjs_1.BehaviorSubject([]);
+        this.paralelos = [];
+        this.paralelosSubject = new rxjs_1.BehaviorSubject([]);
+        this.periodosIngles = [];
+        this.periodosInglesSubject = new rxjs_1.BehaviorSubject([]);
+        this.paralelosIndex = [];
+        this.paralelosSubjectIndex = new rxjs_1.BehaviorSubject([]);
         this.Global = {
             url: 'http://localhost:3900/api/'
         };
@@ -90,7 +102,7 @@ var DetalleService = /** @class */ (function () {
     };
     DetalleService.prototype.initializeData = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var resultado, carreras, semestres, ciclos, rolesCarreras, rolesCarrerasDic, rolesCarrerasDiccionario_1, error_1;
+            var resultado, carreras, semestres, ciclos, paralelos, periodosIngles, paralelosIndex, rolesCarreras, rolesCarrerasDic, rolesCarrerasDiccionario_1, error_1;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -103,23 +115,35 @@ var DetalleService = /** @class */ (function () {
                             carreras = [];
                             semestres = [];
                             ciclos = [];
+                            paralelos = [];
+                            periodosIngles = [];
                             this.carreras = [];
                             this.semestres = [];
                             this.ciclos = [];
+                            this.paralelos = [];
+                            this.periodosIngles = [];
                             this.carrerasIndex = [];
+                            this.paralelosIndex = [];
+                            paralelosIndex = [];
                             rolesCarreras = [];
                             rolesCarrerasDic = [];
                             rolesCarrerasDiccionario_1 = [];
                             this.horasDiurnas = resultado.detalles[0].horasDiurnas;
                             this.horasNocturnas = resultado.detalles[0].horasNocturnas;
+                            this.horasAlternativaDiurnas = resultado.detalles[0].horasAlternativaDiurnas;
+                            this.horasAlternativaNocturnas = resultado.detalles[0].horasAlternativaNocturnas;
                             carreras = resultado.detalles[0].carreras;
                             semestres = resultado.detalles[0].semestres;
                             ciclos = resultado.detalles[0].ciclos;
+                            paralelos = resultado.detalles[0].paralelos;
+                            periodosIngles = resultado.detalles[0].periodoIngles;
                             rolesCarreras = resultado.detalles[0].carreras;
                             rolesCarrerasDic = resultado.detalles[0].carreras;
                             this.setCarreras(carreras);
                             this.setSemestres(semestres);
                             this.setCiclos(ciclos);
+                            this.setParalelos(paralelos);
+                            this.setPeriodosIngles(periodosIngles);
                             this.carrerasIndex = carreras.map(function (carrera, index) {
                                 return { id: index + 1, textField: carrera };
                             });
@@ -129,11 +153,17 @@ var DetalleService = /** @class */ (function () {
                             this.ciclosIndex = ciclos.map(function (ciclo, index) {
                                 return { id: index + 1, textField: ciclo };
                             });
+                            this.periodoInglesIndex = periodosIngles.map(function (periodo, index) {
+                                return { id: index + 1, textField: periodo };
+                            });
+                            this.paralelosIndex = paralelos.map(function (paralelo, index) {
+                                return { id: index + 1, textField: paralelo };
+                            });
                             this.roles = [
                                 { id: 1, textField: 'Superadministrador' },
                                 { id: 2, textField: 'Administrador' },
-                                { id: 3, textField: 'Revisador' },
-                                { id: 4, textField: 'Aprobador' },
+                                { id: 3, textField: 'Aprobador' },
+                                { id: 4, textField: 'Revisador' },
                             ];
                             rolesCarreras.forEach(function (nombreCarrera, index) {
                                 var nuevoRol = {
@@ -150,8 +180,12 @@ var DetalleService = /** @class */ (function () {
                             this.setCarrerasIndex(this.carrerasIndex);
                             this.setSemestresIndex(this.semestresIndex);
                             this.setCiclosIndex(this.ciclosIndex);
+                            this.setPeriodosInglesIndex(this.periodoInglesIndex);
+                            this.setParalelosIndex(this.paralelosIndex);
                             this.setHorasDiurnas(this.horasDiurnas);
                             this.setHorasNocturnas(this.horasNocturnas);
+                            this.setHorasAlternativaDiurnas(this.horasAlternativaDiurnas);
+                            this.setHorasAlternativaNocturnas(this.horasAlternativaNocturnas);
                         }
                         return [3 /*break*/, 3];
                     case 2:
@@ -219,6 +253,20 @@ var DetalleService = /** @class */ (function () {
     DetalleService.prototype.getCiclosIndex = function () {
         return this.ciclosSubjectIndex.asObservable();
     };
+    DetalleService.prototype.setPeriodosInglesIndex = function (periodosIndex) {
+        this.periodoInglesIndex = periodosIndex;
+        this.periodoInglesSubjectIndex.next(this.periodoInglesIndex);
+    };
+    DetalleService.prototype.getPeriodosInglesIndex = function () {
+        return this.periodoInglesSubjectIndex.asObservable();
+    };
+    DetalleService.prototype.setParalelosIndex = function (paralelosIndex) {
+        this.paralelosIndex = paralelosIndex;
+        this.paralelosSubjectIndex.next(this.paralelosIndex);
+    };
+    DetalleService.prototype.getParalelosIndex = function () {
+        return this.paralelosSubjectIndex.asObservable();
+    };
     DetalleService.prototype.setHorasDiurnas = function (horasDirunas) {
         this.horasDiurnas = horasDirunas;
         this.horasDiurnasSubject.next(this.horasDiurnas);
@@ -232,6 +280,34 @@ var DetalleService = /** @class */ (function () {
     };
     DetalleService.prototype.getHorasNocturnas = function () {
         return this.horasNocturnasSubject.asObservable();
+    };
+    DetalleService.prototype.setHorasAlternativaDiurnas = function (horasAlternativaDiurnas) {
+        this.horasAlternativaDiurnas = horasAlternativaDiurnas;
+        this.horasAlternativaDiurnasSubject.next(this.horasAlternativaDiurnas);
+    };
+    DetalleService.prototype.getHorasAlternativaDiurnas = function () {
+        return this.horasAlternativaDiurnasSubject.asObservable();
+    };
+    DetalleService.prototype.setHorasAlternativaNocturnas = function (horasAlternativaNocturnas) {
+        this.horasAlternativaNocturnas = horasAlternativaNocturnas;
+        this.horasAlternativaNocturnasSubject.next(this.horasAlternativaNocturnas);
+    };
+    DetalleService.prototype.getHorasAlternativaNocturnas = function () {
+        return this.horasAlternativaNocturnasSubject.asObservable();
+    };
+    DetalleService.prototype.setParalelos = function (paralelos) {
+        this.paralelos = paralelos;
+        this.paralelosSubject.next(this.paralelos);
+    };
+    DetalleService.prototype.getParalelos = function () {
+        return this.paralelosSubject.asObservable();
+    };
+    DetalleService.prototype.setPeriodosIngles = function (periodosIngles) {
+        this.periodosIngles = periodosIngles;
+        this.periodosInglesSubject.next(this.periodosIngles);
+    };
+    DetalleService.prototype.getPeriodosIngles = function () {
+        return this.periodosInglesSubject.asObservable();
     };
     DetalleService.prototype.getDetalles = function (last) {
         if (last === void 0) { last = null; }

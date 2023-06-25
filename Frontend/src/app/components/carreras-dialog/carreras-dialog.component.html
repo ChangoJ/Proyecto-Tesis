@@ -4,22 +4,55 @@
     <p>Por favor, selecciona una carrera:</p>
     <mat-form-field>
       <mat-label>Carrera</mat-label>
-      <mat-select [(value)]="selectedCarrera" >
+      <mat-select [(value)]="selectedCarrera">
         <mat-option *ngFor="let carrera of carrerasFiltradas" [value]="carrera.textField">
           {{ carrera.textField }}
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field>
-      <mat-label>{{periodoTIpo}}</mat-label>
-      <mat-select [(value)]="selectedSemestre" >
+    <mat-form-field *ngIf="selectedCarrera !== 'Ingles'">
+      <mat-label>Semestres</mat-label>
+      <mat-select [(value)]="selectedSemestre">
         <mat-option *ngFor="let semestre of semestres" [value]="semestre.textField">
           {{ semestre.textField }}
         </mat-option>
       </mat-select>
     </mat-form-field>
+    <mat-form-field *ngIf="selectedCarrera !== 'Ingles'">
+      <mat-label>{{periodoTIpo}}</mat-label>
+      <mat-select [(value)]="selectedSemestre">
+        <mat-option *ngFor="let semestre of ciclos" [value]="semestre.textField">
+          {{ semestre.textField }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  <mat-form-field *ngIf="selectedCarrera === 'Ingles'">
+    <mat-label>Nivel</mat-label>
+    <mat-select [(value)]="selectedSemestre">
+      <mat-option *ngFor="let periodo of periodosIngles" [value]="periodo">
+        {{ periodo}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+    <mat-form-field>
+      <mat-label>¿Hay paralelos?</mat-label>
+      <mat-select [(value)]="selectedOpcionPregunta">
+        <mat-option value="si">Sí</mat-option>
+        <mat-option value="no">No</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field *ngIf="selectedOpcionPregunta === 'si'">
+      <mat-label>Paralelos</mat-label>
+      <mat-select [(value)]="selectedParalelo">
+        <mat-option *ngFor="let paralelo of paralelos" [value]="paralelo">
+          {{ paralelo }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
     <div class="btn-container">
-      <button class="btnOption mat-raised-button" mat-raised-button mat-dialog-close (click)="onCarreraSelected()">Enviar</button>
+      <button class="btnOption mat-raised-button" mat-raised-button mat-dialog-close
+        (click)="onCarreraSelected()">Enviar</button>
     </div>
   </div>
 </mat-dialog-content>

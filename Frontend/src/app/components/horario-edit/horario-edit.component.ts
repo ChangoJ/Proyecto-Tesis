@@ -35,6 +35,7 @@ export class HorarioEditComponent {
   public opcion1: string = "";
   public opcion2: string = "";
   public opcion3: string = "";
+  public opcion4: string = "";
   public idHorario: string = "";
   public status!: string;
   public horario!: Horario
@@ -73,6 +74,7 @@ export class HorarioEditComponent {
   public asignaturasFiltradasDropReverseBEmpty: any[] = [];
   public asignaturasColocadas: any[] = [];
   public aulasFiltradas: any[] = [];
+  public is_Paralelo: boolean = false;
 
 
 
@@ -92,23 +94,35 @@ export class HorarioEditComponent {
   }
 
 
-  ngOnInit() {
+  async ngOnInit() {
     this.getAulas()
     this.getHorario()
     this.getHorarios()
     this.verHorario()
     this.getUsuarios()
-    this.getDataDetalles()
   }
 
   getDataDetalles() {
-    this._detalleService.getHorasDiurnas().subscribe(horasDiurnas => {
-      this.hours = horasDiurnas
-    });
+    if (this.opcion2 !== "Ingles") {
 
-    this._detalleService.getHorasNocturnas().subscribe(horasNocturnas => {
-      this.hoursnight = horasNocturnas
-    });
+      this._detalleService.getHorasDiurnas().subscribe(horasDiurnas => {
+        this.hours = horasDiurnas
+      });
+
+      this._detalleService.getHorasNocturnas().subscribe(horasNocturnas => {
+        this.hoursnight = horasNocturnas
+      });
+
+    } else {
+
+      this._detalleService.getHorasAlternativaDiurnas().subscribe(horasAlternativaDiurnas => {
+        this.hours = horasAlternativaDiurnas
+      });
+
+      this._detalleService.getHorasAlternativaNocturnas().subscribe(horasAlternativaNocturnas => {
+        this.hoursnight = horasAlternativaNocturnas
+      });
+    }
   }
 
   verHorario() {
@@ -126,13 +140,39 @@ export class HorarioEditComponent {
     this._horarioService.getHorarios().subscribe(
       response => {
         if (response.horarios) {
+
           this.horarios = response.horarios;
+          if (this.opcion4 === undefined) {
+            this.opcion4 = ""
+          }
           for (const horario of this.horarios) {
-            if (horario.carrera === this.opcion2 && horario.semestre === this.opcion3 && horario.tipoHorario === this.opcion1) {
+            if (horario.paralelo === undefined) {
+              horario.paralelo = ""
+            }
+            if (horario.carrera === this.opcion2 && horario.semestre === this.opcion3 && horario.tipoHorario === this.opcion1 && horario.paralelo === this.opcion4) {
               this.existHorarioCarrera = true
+
             }
           }
-          this.horarios = this.horarios.filter(horario => horario.tipoHorario === this.opcion1);
+          if (this.opcion1 === "Horario Nocturno") {
+            this.periodoTipo = "ciclo"
+          } else {
+            this.periodoTipo = "semestre"
+          }
+          if (this.opcion2 === "Ingles") {
+
+            this.periodoTipo = "Nivel"
+          }
+         
+          if(this.periodoTipo === "ciclo"){
+          this.horarios = this.horarios.filter(horario => horario.tipoHorario === this.opcion1 && horario.semestre === this.opcion3);
+          }else{
+            this.horarios = this.horarios.filter(horario => horario.tipoHorario === this.opcion1);
+
+          }
+          
+
+          console.log(this.horarios)
         }
       },
       error => {
@@ -142,7 +182,6 @@ export class HorarioEditComponent {
   }
 
   filtrarAsignaturas() {
-    console.log("hey")
     if (this.terminoBusquedaAsignaturaStatic !== "") {
       this.terminoBusquedaAsignaturaBoolean = true
       this.asignaturasFiltradasDropReverseBEmpty = []
@@ -221,6 +260,24 @@ export class HorarioEditComponent {
 
 
   getAsignaturas() {
+
+    this.opcion2 = this.opcion2.replace(/_/g, " ");
+
+    this.opcion1 = this.opcion1.replace(/_/g, " ");
+
+
+    if (this.opcion4) {
+      this.is_Paralelo = true
+    } else {
+      this.is_Paralelo = false
+    }
+
+    if (this.opcion1 === "Horario Diurno") {
+      this.is_Diurno = true
+    } else {
+      this.is_Diurno = false
+    }
+
     this._asignaturaService.search(this.opcion2, this.opcion3).subscribe(
       response => {
 
@@ -228,12 +285,12 @@ export class HorarioEditComponent {
           this.asignaturas = []; // Reiniciar el array de asignaturas
 
           // Iterar sobre las asignaturas obtenidas en la respuesta
-          response.asignaturas.forEach((asignatura: { creditos: number; _id: string; nombre: string; carrera: String[]; semestre: String[]; profesor: Profesor[]; horario: string; abreviatura: string; color: string; }) => {
-            const creditos = asignatura.creditos; // Obtener la cantidad de créditos de la asignatura
+          response.asignaturas.forEach((asignatura: { creditos: number; _id: string; nombre: string; carrera: String[]; semestre: String[]; profesor: Profesor[]; horario: string; abreviatura: string; color: string; paralelo: any[]; }) => {
+            let creditos = asignatura.creditos; // Obtener la cantidad de créditos de la asignatura
 
             // Clonar la asignatura por la cantidad de créditos y guardarlas en el array this.asignaturas
             for (let i = 0; i < creditos; i++) {
-              const asignaturaClonada = new Asignatura(
+              let asignaturaClonada = new Asignatura(
                 asignatura._id,
                 asignatura.nombre,
                 asignatura.carrera,
@@ -242,7 +299,8 @@ export class HorarioEditComponent {
                 asignatura.horario,
                 asignatura.creditos,
                 asignatura.abreviatura,
-                asignatura.color
+                asignatura.color,
+                asignatura.paralelo,
               );
 
               this.asignaturas.push(asignaturaClonada);
@@ -256,8 +314,21 @@ export class HorarioEditComponent {
             tipoHorarioAsig = "Nocturno"
           }
 
+          if (this.opcion4 === undefined || this.opcion4 === "") {
+            this.opcion4 = ""
+          }
+
+
           this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig)
 
+
+          if (this.opcion4 === undefined || this.opcion4 === "") {
+            this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig )
+
+          }else{
+            this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig && asignatura.paralelo && asignatura.paralelo.includes(this.opcion4))
+
+          }
           // Recorrer cada objeto del primer array
           for (let i = 0; i < this.asignaturas.length; i++) {
             // Verificar si el _id del objeto existe en el segundo array
@@ -851,12 +922,12 @@ export class HorarioEditComponent {
 
         if (colon) {
           let norte = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus norte');
-          
+
           if (norte) {
             isValid = false;
-  
+
           }
-        
+
         }
       }
 
@@ -882,7 +953,7 @@ export class HorarioEditComponent {
           let swalPromise = new Promise((resolve, reject) => {
             Swal.fire({
               title: 'Advertencia',
-              text: 'Hay aulas en diferentes ubicaciones (norte y colon) en el mismo día: '+Dias[dia]+'.',
+              text: 'Hay aulas en diferentes ubicaciones (norte y colon) en el mismo día: ' + Dias[dia] + '.',
               icon: 'warning',
               showCancelButton: true,
               confirmButtonText: 'Aceptar',
@@ -948,7 +1019,6 @@ export class HorarioEditComponent {
   }
 
 
-
   getHorario() {
     this._route.params.subscribe(params => {
       let id = params['id'];
@@ -960,6 +1030,7 @@ export class HorarioEditComponent {
             this.getDaysHorario()
 
             this.getAsignaturas()
+            this.getDataDetalles()
           } else {
             this._router.navigate(['/horarios'], { relativeTo: this._route });
           }
@@ -973,11 +1044,11 @@ export class HorarioEditComponent {
   }
 
   getDaysHorario() {
-
     let dias = this.horario.dia;
     this.opcion2 = this.horario.carrera
     this.opcion3 = this.horario.semestre
     this.opcion1 = this.horario.tipoHorario
+    this.opcion4 = this.horario.paralelo!
     this.idHorario = this.horario._id
     if (this.horario.tipoHorario === "Horario Diurno") {
       this.is_Diurno = true
@@ -986,6 +1057,11 @@ export class HorarioEditComponent {
     } else {
 
       this.periodoTipo = "ciclo"
+    }
+
+    if (this.opcion2 === "Ingles") {
+
+      this.periodoTipo = "Nivel"
     }
 
 
@@ -1291,6 +1367,11 @@ export class HorarioEditComponent {
     } else {
       periodoTipo = "Semestre"
     }
+
+    if (this.opcion2.toLowerCase() === "ingles") {
+
+      periodoTipo = "Nivel"
+    }
     let semestreText = periodoTipo + ": " + this.opcion3;
     let semestreInfoWidth = doc.getTextWidth(semestreText);
 
@@ -1452,10 +1533,10 @@ export class HorarioEditComponent {
           resultadoAgrupado[asignaturaId].dayName = item.dayName
         }
       }
-      
+
     });
 
-    
+
 
 
     // Convertir el objeto resultadoAgrupado en un array de resultados
@@ -1481,12 +1562,12 @@ export class HorarioEditComponent {
       }
     });
 
- 
+
     asignaturasProfesores.forEach((elemento1) => {
       elemento1.modalidad = ""; // Inicializamos la propiedad modalidad como un array vacío
-    
-      resultadoFinal.forEach((resultado:any) => {
-       if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
+
+      resultadoFinal.forEach((resultado: any) => {
+        if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
           elemento1.modalidad = resultado.modalidad;
         }
       });
@@ -1555,8 +1636,8 @@ export class HorarioEditComponent {
 
     rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:'])
     DataFirmas.push(["", "", ""]);
-    DataFirmas.push(["Prof. " + this.horario.creado_por.nombre, "Prof. " + this.revisador.nombre, "Prof. " + this.aprobador.nombre]);
-    DataFirmas.push(["Director de Carrera", "Decana de Facultad", "Directora Académica "]);
+    DataFirmas.push([this.horario.creado_por.nombre, this.revisador.nombre, this.aprobador.nombre]);
+    DataFirmas.push(["Director de Carrera", "Decano de Facultad", "Directora Académica"]);
 
     autoTable(doc, {
       head: rowDataHead3,
@@ -1660,6 +1741,10 @@ export class HorarioEditComponent {
       periodoTipo = "Ciclo"
     } else {
       periodoTipo = "Semestre"
+    }
+    if (this.opcion2.toLowerCase() === "ingles") {
+
+      periodoTipo = "Nivel"
     }
     // Agregar el título al Excel
     worksheet.mergeCells('A4:F4'); // Fusionar 5 celdas en la primera fila
@@ -1867,12 +1952,12 @@ export class HorarioEditComponent {
       }
     });
 
-  
+
     asignaturasProfesores.forEach((elemento1) => {
       elemento1.modalidad = ""; // Inicializamos la propiedad modalidad como un array vacío
-    
-      resultadoFinal.forEach((resultado:any) => {
-       if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
+
+      resultadoFinal.forEach((resultado: any) => {
+        if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
           elemento1.modalidad = resultado.modalidad
         }
       });
@@ -1902,7 +1987,7 @@ export class HorarioEditComponent {
     elaboradoPor.font = { size: 8 };
 
     let nombreDirector = worksheet.getCell(29, 2);
-    nombreDirector.value = 'Prof. ' + this.horario.creado_por.nombre;
+    nombreDirector.value = this.horario.creado_por.nombre;
     nombreDirector.font = { size: 8 };
 
     let directorCarrera = worksheet.getCell(30, 2);
@@ -1916,11 +2001,11 @@ export class HorarioEditComponent {
     revisadoPor.font = { size: 8 };
 
     let nombreRevisador = worksheet.getCell(29, 4);
-    nombreRevisador.value = 'Prof. ' + this.revisador.nombre;
+    nombreRevisador.value = this.revisador.nombre;
     nombreRevisador.font = { size: 8 };
 
     let cargoRevisador = worksheet.getCell(30, 4);
-    cargoRevisador.value = 'Decana de Facultad';
+    cargoRevisador.value = 'Decano de Facultad';
     cargoRevisador.font = { size: 8 };
 
 
@@ -1931,11 +2016,11 @@ export class HorarioEditComponent {
     aprobadorPor.font = { size: 8 };
 
     let nombreAprobador = worksheet.getCell(29, 6);
-    nombreAprobador.value = "Prof. " + this.aprobador.nombre;
+    nombreAprobador.value = this.aprobador.nombre;
     nombreAprobador.font = { size: 8 };
 
     let cargoAprobador = worksheet.getCell(30, 6);
-    cargoAprobador.value = 'Directora Academica';
+    cargoAprobador.value = 'Directora Académica';
     cargoAprobador.font = { size: 8 };
 
     workbook.xlsx.writeBuffer().then((buffer: ArrayBuffer) => {
@@ -1946,6 +2031,9 @@ export class HorarioEditComponent {
   }
 
   async verificarHorario() {
+    this.terminoBusquedaAsignatura = ""
+    this.terminoBusquedaAsignaturaStatic = ""
+    this.terminoBusquedaAula = ""
     await this.getHorarios
     this.aulaHorario = []
     this.asignaturaHorario = []
@@ -2103,6 +2191,7 @@ export class HorarioEditComponent {
               carrera: verify.carrera,
               semestre: verify.semestre,
               dia: verify.dia,
+              paralelo: verify.paralelo,
               tipoHorario: verify.tipoHorario,
               idAsignaturaTableVerify: verify.idTabla.map(idTabla => idTabla.idAsignatura),
               idAulaTableVerify: verify.idTabla.map(idTabla => idTabla.idAula),
@@ -2152,33 +2241,32 @@ export class HorarioEditComponent {
                       itemsBDHorario[j].itemverifyAsignatura[k] === itemsHorario.itemverifyAsignatura[i] &&
                       itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]) {
 
-                      mensaje += `
-                    
-                  <strong>¡Choque de aula y asignatura (Misma hora)</strong>!<br>
-                  Motivo: La misma asignatura y aula ya se asignó en esa hora<br>
-                  <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre}</strong><br>
-                  Dia: ${diaActual}<br>
-                  Hora: ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
-                  Asignatura: ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
-                  Aula: ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
-              `;
-
+                        mensaje += `
+                      
+                        <strong>¡Choque de aula y asignatura (Misma hora)</strong>!<br>
+                        Motivo: La misma asignatura y aula ya se asignó en esa hora<br>
+                        <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre} - ${itemsBDHorario[j].paralelo}</strong><br>
+                        Dia: ${diaActual}<br>
+                        Hora: ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
+                        Asignatura: ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
+                        Aula: ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
+                    `;
 
                     } else if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
                       itemsBDHorario[j].itemverifyprofesor[k] === itemsHorario.itemverifyprofesor[i]) {
 
 
 
-                      mensaje += `
-                  <strong>¡Choque de profesor (Misma hora)</strong>!<br>
-                  Motivo: El profesor ya se asignó a al misma hora para dar otra clase<br>
-                  <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre}</strong><br>
-                  Dia: ${diaActual}<br>
-                  Hora: ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
-                  Asignatura: ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
-                  Aula: ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
-                  Profesor: ${itemsBDHorario[j].itemverifyprofesorNombre[k]}<br>
-              `;
+                        mensaje += `
+                        <strong>¡Choque de profesor (Misma hora)</strong>!<br>
+                        Motivo: El profesor ya se asignó a al misma hora para dar otra clase<br>
+                        <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre} - ${itemsBDHorario[j].paralelo}</strong><br>
+                        Dia: ${diaActual}<br>
+                        Hora: ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
+                        Asignatura: ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
+                        Aula: ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
+                        Profesor: ${itemsBDHorario[j].itemverifyprofesorNombre[k]}<br>
+                    `;
 
 
 
@@ -2189,15 +2277,16 @@ export class HorarioEditComponent {
 
 
                       mensaje += `
-                <strong>¡Choque de aula (Misma hora)</strong>!<br>
-                Motivo: El aula ya se asignó para otra asignatura<br>
-                <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre}</strong><br>
-                Dia: ${diaActual}<br>
-                Hora: ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
-                Asignatura: ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
-                Aula: ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
-                Profesor: ${itemsBDHorario[j].itemverifyprofesorNombre[k]}<br>
-            `;
+                  <strong>¡Choque de aula (Misma hora)</strong>!<br>
+                  Motivo: El aula ya se asignó para otra asignatura<br>
+                  <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre} - ${itemsBDHorario[j].paralelo}</strong><br>
+                  Dia: ${diaActual}<br>
+                  Hora: ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
+                  Asignatura: ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
+                  Aula: ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
+                  Profesor: ${itemsBDHorario[j].itemverifyprofesorNombre[k]}<br>
+              `;
+
 
 
 
@@ -2287,7 +2376,7 @@ export class HorarioEditComponent {
 
         }
       });
-    }else {
+    } else {
       Swal.fire(
         'Horario no verificado',
         'Por favor, debe colocar todas las asignaturas.',

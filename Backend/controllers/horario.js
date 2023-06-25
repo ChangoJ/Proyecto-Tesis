@@ -46,6 +46,7 @@ var controller = {
             horario1.item = params.item
             horario1.creado_por = params.creado_por
             horario1.observacion = params.observacion
+            horario1.paralelo = params.paralelo
 
 
             //guardar el articulo

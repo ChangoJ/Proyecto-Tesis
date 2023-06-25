@@ -35,6 +35,10 @@ export class AsignaturaService {
         return this._http.get(this.url+'search/'+searchString+'/'+search2String)
     }
 
+    searchThree(searchString:any,search2String:any,search3String:any ):Observable<any>{
+        return this._http.get(this.url+'searchThree/'+searchString+'/'+search2String+'/'+search3String)
+    }
+
     searchOne(searchString:any):Observable<any>{
         return this._http.get(this.url+'searchOne/'+searchString)
     }

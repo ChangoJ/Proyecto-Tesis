@@ -1269,7 +1269,9 @@ th {
         border-radius: 4px;
         display: block;
     }
-
+    #content {
+        min-height: 1000px;
+    }
 
 }
 
@@ -1357,4 +1359,10 @@ th {
         margin-right: 5;
     }
 
+    .clearfix {
+        clear: both;
+        float: none;
+    }
+    
+   
 }

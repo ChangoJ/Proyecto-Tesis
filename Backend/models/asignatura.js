@@ -13,7 +13,8 @@ var AsignaturaScheme = Schema({
     horario: String,
     creditos: String,
     abreviatura: String,
-    color: String
+    color: String,
+    paralelo: { type: Array, required: false },
 });
 
 AsignaturaScheme.plugin(autopopulate);

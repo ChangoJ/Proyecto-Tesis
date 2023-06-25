@@ -52,7 +52,7 @@
 
             <ng-container matColumnDef="Nombre">
                 <th mat-header-cell *matHeaderCellDef>Nombre</th>
-                <td mat-cell *matCellDef="let item">{{item.nombre}}</td>
+                <td mat-cell *matCellDef="let item" >{{item.nombre}} <strong *ngIf="item.paralelo && item.paralelo.length >0">paralelo ({{item.paralelo}})</strong> </td>
             </ng-container>
 
             <ng-container matColumnDef="Carrera">
@@ -61,32 +61,26 @@
                     item.carrera.slice(0,1)+ '...(' + (item.carrera.length)+ ')' : item.carrera }}</td>
             </ng-container>
 
-           <!--  <ng-container matColumnDef="Periodo">
-                <th mat-header-cell *matHeaderCellDef>Período</th>
-                <td mat-cell *matCellDef="let item">
-                    <ng-container *ngIf="item.tipoHorario === 'Horario Nocturno'">
-                        {{ item.semestre }} ciclo
-                    </ng-container>
-                    <ng-container *ngIf="item.tipoHorario === 'Horario Diurno'">
-                        {{ item.semestre }} semestre
-                    </ng-container>
-                </td>
-            </ng-container> -->
             <ng-container matColumnDef="Periodo">
                 <th mat-header-cell *matHeaderCellDef>Periodo</th>
                 <td [matTooltip]="item.semestre" mat-cell *matCellDef="let item">
                    
-                    <ng-container *ngIf="item.horario === 'Nocturno'">
+                    <ng-container *ngIf="item.horario === 'Nocturno' && !item.carrera.includes('Ingles')">
                         {{item.semestre.length > 1 ?
                             item.semestre.slice(0,1)+ '...(' + (item.semestre.length)+ ')' : item.semestre }} Ciclo
                     </ng-container>
-                    <ng-container *ngIf="item.horario === 'Diurno'">
+                    <ng-container *ngIf="item.horario === 'Diurno' && !item.carrera.includes('Ingles')">
                         {{item.semestre.length > 1 ?
                             item.semestre.slice(0,1)+ '...(' + (item.semestre.length)+ ')' : item.semestre }} Semestre
                     </ng-container>
-                
+
+                    <ng-container *ngIf="item.carrera[0] === 'Ingles'">
+                        {{item.semestre.length > 1 ?
+                            item.semestre.slice(0,1)+ '...(' + (item.semestre.length)+ ')' : item.semestre }} Nivel
+                    </ng-container>
                 </td>
             </ng-container>
+
             <ng-container matColumnDef="Profesor">
                 <th mat-header-cell *matHeaderCellDef>Profesor</th>
                 <td mat-cell *matCellDef="let item">{{item.profesor[0].nombre}}</td>

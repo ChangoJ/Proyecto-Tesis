@@ -41,6 +41,7 @@ var controller = {
             asignatura1.horario = params.horario;
             asignatura1.abreviatura = params.abreviatura;
             asignatura1.color = params.color;
+            asignatura1.paralelo = params.paralelo;
 
 
 
@@ -111,6 +112,7 @@ var controller = {
                     asignatura1.creditos = params.creditos;
                     asignatura1.abreviatura = params.abreviatura;
                     asignatura1.color = params.color;
+                    asignatura1.paralelo = params.paralelo;
 
 
 
@@ -302,6 +304,43 @@ var controller = {
                 },
                 {
                     "semestre": { "$regex": search2Int, "$options": "i" }
+                }
+            ]
+        })
+            .sort([['date', 'descending']])
+            .then((asignaturas) => {
+                if (!asignaturas || asignaturas.length <= 0) {
+                    return res.status(404).send({
+                        status: 'error',
+                        message: 'No hay asignaturas para mostrar'
+                    });
+                }
+
+                return res.status(200).send({
+                    status: 'success',
+                    asignaturas
+                });
+            })
+
+    },searchThree: (req, res) => {
+
+        //sacar strin a buscar
+
+        var searchString = req.params.search1;
+        var search2Int = req.params.search2;
+        var search3String = req.params.search3;
+        //find and 
+
+        asignatura.find({
+            "$and": [
+                {
+                    "carrera": { "$regex": searchString, "$options": "i" }
+                },
+                {
+                    "semestre": { "$regex": search2Int, "$options": "i" }
+                },
+                {
+                    "paralelo": { "$regex": search3String, "$options": "i" }
                 }
             ]
         })

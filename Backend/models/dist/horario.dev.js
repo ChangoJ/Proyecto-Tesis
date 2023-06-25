@@ -39,6 +39,10 @@ var HorarioScheme = Schema({
   observacion: {
     type: String,
     required: false
+  },
+  paralelo: {
+    type: String,
+    required: false
   }
 });
 HorarioScheme.plugin(autopopulate);

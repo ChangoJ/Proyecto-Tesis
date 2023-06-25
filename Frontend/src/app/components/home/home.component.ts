@@ -57,28 +57,48 @@ export class HomeComponent {
 
   getAsignaturas() {
     let periodoTipo: any
+    let horario: any
     this._route.params.subscribe(params => {
       let opcion2 = params['opcion2'];
       let opcion3 = params['opcion3'];
+      let opcion4 = params['opcion4'];
 
 
       if (params['opcion1'] === "Horario_Nocturno") {
         periodoTipo = "Ciclo"
+        horario = "Nocturno"
       } else {
 
         periodoTipo = "semestre"
+        horario = "Diurno"
       }
-      if (opcion2 !== undefined || opcion3 !== undefined) {
+      console.log(opcion2)
+      if (opcion2 !== "undefined" || opcion3 !== "undefined") {
         let opcion2 = params['opcion2'];
         opcion2 = opcion2.replace(/_/g, " ");
         let opcion3 = params['opcion3'];
         opcion3 = opcion3.replace(/_/g, " ");
 
-        if (opcion2 && opcion3) {
+        if (opcion2 && opcion3 && !opcion4) {
           this._asignaturaService.search(opcion2, opcion3).subscribe(
             response => {
               if (response.asignaturas) {
-                this.is_horario = true
+                let asignaturas = []
+                asignaturas = response.asignaturas
+                asignaturas.forEach((asignatura: any) => {
+                  if (asignatura.horario === horario && asignatura.paralelo!.length === 0) {
+
+                    this.is_horario = true
+                  }
+                });
+                /* this.is_horario = true */
+                if (!this.is_horario) {
+                  Swal.fire(
+                    'Horario de la Carrera de ' + opcion2 + ' del ' + periodoTipo + ' ' + opcion3,
+                    'No hay asignaturas para mostrar',
+                    'error'
+                  )
+                }
               } else {
                 this.is_horario = false
               }
@@ -92,7 +112,47 @@ export class HomeComponent {
               )
             }
           )
+        } else if (opcion2 && opcion3 && opcion4) {
+          this._asignaturaService.searchThree(opcion2, opcion3, opcion4).subscribe(
+            response => {
+              if (response.asignaturas) {
+
+                let asignaturas = []
+                asignaturas = response.asignaturas
+                asignaturas.forEach((asignatura: any) => {
+                  if (asignatura.horario === horario) {
+
+                    this.is_horario = true
+                  }
+                });
+                /* this.is_horario = true */
+                if (!this.is_horario) {
+                  Swal.fire(
+                    'Horario ' + horario + ' de la Carrera de ' + opcion2 + ' del ' + periodoTipo + ' ' + opcion3 + ' del paralelo ' + opcion4,
+                    'No hay asignaturas para mostrar',
+                    'error'
+                  )
+                }
+              } else {
+                this.is_horario = false
+              }
+
+            },
+            error => {
+              Swal.fire(
+                'Horario ' + horario + ' de la Carrera de ' + opcion2 + ' del ' + periodoTipo + ' ' + opcion3 + ' del paralelo ' + opcion4,
+                error.error.message,
+                'error'
+              )
+            }
+          )
         }
+      }else{
+        Swal.fire(
+          "Error al mostrar",
+          "Por favor, selecciona los datos.",
+          'error'
+          )
       }
 
     })

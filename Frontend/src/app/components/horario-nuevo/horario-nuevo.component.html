@@ -30,10 +30,17 @@
     </ul>
   </nav>
   
-  <p *ngIf="is_Diurno">Estas creando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
+  <p *ngIf="is_Diurno && !is_Paralelo">Estas creando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
     <strong>{{opcion3}}</strong> {{periodoTipo}}</p>
-    <p *ngIf="!is_Diurno">Estas creando el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
-      {{periodoTipo}} <strong>{{opcion3}}</strong> </p>
+
+    <p *ngIf="is_Diurno  && is_Paralelo">Estas creando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
+      <strong>{{opcion3}}</strong>  {{periodoTipo}} - Paralelo <strong>{{opcion4}}</strong></p>
+
+    <p *ngIf="!is_Diurno && !is_Paralelo">Estas creando el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
+      <strong>{{opcion3}}</strong> {{periodoTipo}} </p>
+
+      <p *ngIf="!is_Diurno  && is_Paralelo">Estas creando el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
+        <strong>{{opcion3}}</strong>  {{periodoTipo}} - Paralelo <strong>{{opcion4}}</strong></p>
   
   
   <div class="boxcontentHorario" *ngIf="is_Diurno">
@@ -74,7 +81,7 @@
   
         <mat-grid-tile class="tablaHorario" colspan="1">
           <div class="box-table mat-elevation-z2">
-            <h2>Horario Diurno</h2>
+            <h2><strong>Horario Diurno - {{opcion2}} - {{periodoTipo}} {{opcion3}} </strong> <strong *ngIf="is_Paralelo">- Paralelo ({{opcion4}})</strong></h2>
             <table class="mat-table" id="table">
               <thead>
                 <tr class="mat-header-row">
@@ -184,10 +191,14 @@
             </table>
           </div>
         </mat-grid-tile>
+        
       </mat-grid-list>
+      
     </div>
+      
   </div>
   
+
   <!-- Nocturno -->
 
 
@@ -229,7 +240,7 @@
   
         <mat-grid-tile class="tablaHorario" colspan="1">
           <div class="box-table mat-elevation-z2">
-            <h2>Horario Nocturno - {{opcion2}} - {{opcion3}}</h2>
+            <h2><strong>Horario Nocturno - {{opcion2}} - {{periodoTipo}} {{opcion3}} </strong> <strong *ngIf="is_Paralelo">- Paralelo ({{opcion4}})</strong></h2>
             <table class="mat-table" id="table">
               <thead>
                 <tr class="mat-header-row">
@@ -360,6 +371,7 @@
         </mat-grid-tile>
       </mat-grid-list>
     </div>
+      
   </div>
   
 

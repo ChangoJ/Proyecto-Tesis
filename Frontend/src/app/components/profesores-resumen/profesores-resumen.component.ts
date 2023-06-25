@@ -94,11 +94,11 @@ export class ProfesoresResumenComponent {
   }
 
   getDataDetalles() {
-    this._detalleService.getRolesIndex().subscribe(roles => {
+    this._detalleService.getRolesCarrera().subscribe(roles => {
       this.rolesCarreras = roles
     });
     this._detalleService.getHorasDiurnas().subscribe(horasDiurnas => {
-      console.log(this.hours)
+   
       this.hours = horasDiurnas
     });
 
@@ -415,7 +415,6 @@ export class ProfesoresResumenComponent {
           } else {
             this.asignaturasFiltradas = this.asignaturas;
           }
-          console.log(this.asignaturasFiltradas)
           this.agruparAsignaturasPorProfesor(this.asignaturasFiltradas)
           this.asignaturasPorProfesorTiempoCompleto.paginator = this.paginator
           this.asignaturasPorProfesorMedioTiempo.paginator = this.paginator2
@@ -476,7 +475,7 @@ export class ProfesoresResumenComponent {
     horariosProfesores = profesoresArray.map(profesor => {
       profesorId = profesor._id;
       this.horarioProfesor = diasArray.map(dia => dia.filter(item => {
-        console.log(item)
+    
         if (item.elementoType === 'asignatura' && item.item.profesor && item.item.profesor[0]._id === profesorId) {
 
           identAsignatura = item.identificador.substring(0, 2)
@@ -489,7 +488,6 @@ export class ProfesoresResumenComponent {
           return false; // Omitir otros elementos
         }
       }));
-      console.log(horariosProfesores)
 
       // Buscar el item correspondiente a esta celda
       for (let k = 0; k < this.horarioProfesor.length; k++) {
@@ -1128,8 +1126,8 @@ export class ProfesoresResumenComponent {
 
     rowDataHead5.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:'])
     DataFirmas.push(["", "", ""]);
-    DataFirmas.push(["Prof. " + this.userData.nombre, "Prof. " + this.revisador.nombre, "Prof. " + this.aprobador.nombre]);
-    DataFirmas.push(["Director de Carrera", "Decana de Facultad", "Directora Académica "]);
+    DataFirmas.push([ this.userData.nombre, this.revisador.nombre, this.aprobador.nombre]);
+    DataFirmas.push(["Director de Carrera", "Decano de Facultad", "Directora Académica"]);
 
     autoTable(doc, {
       head: rowDataHead5,
@@ -1788,7 +1786,7 @@ export class ProfesoresResumenComponent {
      elaboradoPor.font = { size: 8 };
  
      let nombreDirector = worksheet.getCell(55, 2);
-     nombreDirector.value = 'Prof. ' + this.userData.nombre;
+     nombreDirector.value = this.userData.nombre;
      nombreDirector.font = { size: 8 };
  
      let directorCarrera = worksheet.getCell(56, 2);
@@ -1801,11 +1799,11 @@ export class ProfesoresResumenComponent {
     revisadoPor.font = { size: 8 };
 
     let nombreRevisador = worksheet.getCell(55, 4);
-    nombreRevisador.value = 'Prof. ' + this.revisador.nombre;
+    nombreRevisador.value = this.revisador.nombre;
     nombreRevisador.font = { size: 8 };
 
     let cargoRevisador = worksheet.getCell(56, 4);
-    cargoRevisador.value = 'Decana de Facultad';
+    cargoRevisador.value = 'Decano de Facultad';
     cargoRevisador.font = { size: 8 };
 
 
@@ -1816,11 +1814,11 @@ export class ProfesoresResumenComponent {
     aprobadorPor.font = { size: 8 };
 
     let nombreAprobador = worksheet.getCell(55, 6);
-    nombreAprobador.value = "Prof. " + this.aprobador.nombre;
+    nombreAprobador.value = this.aprobador.nombre;
     nombreAprobador.font = { size: 8 };
 
     let cargoAprobador = worksheet.getCell(56, 6);
-    cargoAprobador.value = 'Directora Academica';
+    cargoAprobador.value = 'Directora Académica';
     cargoAprobador.font = { size: 8 };
 
     let nombreArchivo = 'Horario ' + profesor + '.xlsx';

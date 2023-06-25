@@ -59,14 +59,20 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
         this.profesores = [];
         this.itemProfesores = [];
         this.carrerasFiltradas = [];
+        this.periodosIngles = [];
         this.selectedCarreras = [];
         this.selectedSemestres = [];
         this.selectedProfesores = [];
+        this.selectedPeriodoIngles = [];
         this.dropdownCarreras = {};
         this.dropdownSemestres = {};
         this.dropdownCiclos = {};
+        this.dropdownPeriodosIngles = {};
         this.dropdownHorarios = {};
         this.dropdownProfesores = {};
+        this.dropdownParalelos = {};
+        this.paralelos = [];
+        this.itemCarreraEdit = [];
         this.asignatura = new asignatura_1.Asignatura('', '', [], [], [], '', 0, '', '#000000');
         this.page_title = "Crear Asignatura";
         this.is_edit = false;
@@ -105,10 +111,28 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
             itemsShowLimit: 13,
             allowSearchFilter: true
         };
+        this.dropdownPeriodosIngles = {
+            singleSelection: false,
+            idField: 'id',
+            textField: 'textField',
+            selectAllText: 'Seleccionar todo',
+            unSelectAllText: 'Deseleccionar todo',
+            itemsShowLimit: 13,
+            allowSearchFilter: true
+        };
         this.dropdownProfesores = {
             singleSelection: false,
             idField: '_id',
             textField: 'nombre',
+            selectAllText: 'Seleccionar todo',
+            unSelectAllText: 'Deseleccionar todo',
+            itemsShowLimit: 13,
+            allowSearchFilter: true
+        };
+        this.dropdownParalelos = {
+            singleSelection: true,
+            idField: 'id',
+            textField: 'textField',
             selectAllText: 'Seleccionar todo',
             unSelectAllText: 'Deseleccionar todo',
             itemsShowLimit: 13,
@@ -142,13 +166,22 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
         this._detalleService.getRolesIndex().subscribe(function (roles) {
             _this.rolesCarreras = roles;
         });
+        this._detalleService.getRolesCarrera().subscribe(function (roles) {
+            _this.rolesCarrerasFilter = roles;
+        });
+        this._detalleService.getPeriodosInglesIndex().subscribe(function (periodos) {
+            _this.periodosIngles = periodos;
+        });
+        this._detalleService.getParalelosIndex().subscribe(function (paralelos) {
+            _this.paralelos = paralelos;
+        });
     };
     AsignaturaNuevoComponent.prototype.getProfesores = function () {
         var _this = this;
         this._profesorService.getProfesores().subscribe(function (response) {
             if (response.profesores) {
                 _this.profesores = response.profesores;
-                var carreraActual_1 = _this.rolesCarreras[_this.userData.rol.toLowerCase().replace(/\s/g, "")];
+                var carreraActual_1 = _this.rolesCarrerasFilter[_this.userData.rol.toLowerCase().replace(/\s/g, "")];
                 _this.carrerasFiltradas = [];
                 if (carreraActual_1) {
                     _this.carrerasFiltradas = _this.profesores.filter(function (elemento) { return elemento.carrera.includes(carreraActual_1); });
@@ -181,13 +214,14 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
     };
     AsignaturaNuevoComponent.prototype.onSubmit = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var controles, _i, _a, profesor, _b, _c, carrera, _d, _e, semestre;
+            var controles, _i, _a, profesor, _b, _c, carrera, _d, _e, semestre, _f, _g, paralelo;
             var _this = this;
-            return __generator(this, function (_f) {
-                switch (_f.label) {
+            return __generator(this, function (_h) {
+                switch (_h.label) {
                     case 0:
                         this.asignatura.semestre = [];
                         this.asignatura.carrera = [];
+                        this.asignatura.paralelo = [];
                         this.asignatura.profesor = [];
                         this.asignatura.horario = '';
                         controles = [];
@@ -196,14 +230,14 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
                             controles.push(control.status);
                         });
                         _i = 0, _a = this.selectedProfesores;
-                        _f.label = 1;
+                        _h.label = 1;
                     case 1:
                         if (!(_i < _a.length)) return [3 /*break*/, 4];
                         profesor = _a[_i];
                         return [4 /*yield*/, this.getProfesorId(profesor._id)];
                     case 2:
-                        _f.sent(); // Utiliza await para esperar a que se complete la llamada a getProfesorId
-                        _f.label = 3;
+                        _h.sent(); // Utiliza await para esperar a que se complete la llamada a getProfesorId
+                        _h.label = 3;
                     case 3:
                         _i++;
                         return [3 /*break*/, 1];
@@ -216,10 +250,15 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
                             semestre = _e[_d];
                             this.asignatura.semestre.push(semestre.textField);
                         }
+                        if (this.selectedParalelos && this.selectedParalelos.length > 0) {
+                            for (_f = 0, _g = this.selectedParalelos; _f < _g.length; _f++) {
+                                paralelo = _g[_f];
+                                this.asignatura.paralelo.push(paralelo.textField);
+                            }
+                        }
                         if (this.selectedHorarios.length !== 0) {
                             this.asignatura.horario = this.selectedHorarios[0].textField;
                         }
-                        console.log(this.asignatura);
                         if (this.asignatura.nombre === ""
                             || this.asignatura.abreviatura === ""
                             || this.asignatura.color === ""
@@ -263,15 +302,20 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
     };
     AsignaturaNuevoComponent.prototype.onItemProfesoresSelect = function (item) {
     };
+    AsignaturaNuevoComponent.prototype.onItemParaleloSelect = function (item) {
+    };
+    AsignaturaNuevoComponent.prototype.onItemPeriodoInglesSelect = function (item) {
+        this.selectedPeriodoIngles = [];
+    };
     AsignaturaNuevoComponent.prototype.onItemHorariosSelect = function (item) {
         this.selectedSemestres = [];
+        this.selectedPeriodoIngles = [];
     };
     AsignaturaNuevoComponent.prototype.onKeyUp = function () {
         this.asignatura.abreviatura = this.formatearTexto(this.asignatura.nombre);
     };
     AsignaturaNuevoComponent.prototype.formatearTexto = function (texto) {
         var palabras = texto.split(' ');
-        console.log(palabras);
         var resultado = palabras.map(function (palabra) {
             if (palabra.length > 1) {
                 return palabra.substring(0, 2).toUpperCase();

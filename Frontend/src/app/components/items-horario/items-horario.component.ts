@@ -63,7 +63,7 @@ export class ItemsHorarioComponent {
 
   getDataDetalles(){
 
-    this._detalleService.getRolesIndex().subscribe(roles => {
+    this._detalleService.getRolesCarrera().subscribe(roles => {
       this.rolesCarreras = roles
     });
   }
@@ -94,9 +94,7 @@ export class ItemsHorarioComponent {
           } else {
             this.carrerasFiltradas = this.horarios;
           }
-          console.log(this.horarios)
           
-          console.log(this.carrerasFiltradas)
           this.horariosFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas)
           this.horariosFiltrados.paginator = this.paginator
 

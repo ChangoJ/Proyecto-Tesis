@@ -14,6 +14,8 @@ export class DetalleService {
     public semestres: any[] = []
     public horasDiurnas: any[] = []
     public horasNocturnas: any[] = []
+    public horasAlternativaDiurnas: any[] = []
+    public horasAlternativaNocturnas: any[] = []
     public ciclos: any[] = []
     public carreras: any[] = []
     public roles: any = []
@@ -21,6 +23,7 @@ export class DetalleService {
     public ciclosIndex: any[] = []
     public carrerasIndex: any[] = []
     public semestresIndex: any[] = []
+    public periodoInglesIndex: any[] = []
     private rolesSubject = new BehaviorSubject<any[]>([]);
     private carrerasSubject = new BehaviorSubject<any[]>([]);
     private semestresSubject = new BehaviorSubject<any[]>([]);
@@ -29,8 +32,17 @@ export class DetalleService {
     private carrerasSubjectIndex = new BehaviorSubject<any[]>([]);
     private semestresSubjectIndex = new BehaviorSubject<any[]>([]);
     private ciclosSubjectIndex = new BehaviorSubject<any[]>([]);
+    private periodoInglesSubjectIndex = new BehaviorSubject<any[]>([]);
     private horasDiurnasSubject = new BehaviorSubject<any[]>([]);
     private horasNocturnasSubject = new BehaviorSubject<any[]>([]);
+    private horasAlternativaDiurnasSubject = new BehaviorSubject<any[]>([]);
+    private horasAlternativaNocturnasSubject = new BehaviorSubject<any[]>([]);
+    private paralelos: any[] = []
+    private paralelosSubject: any = new BehaviorSubject<any[]>([]);
+    private periodosIngles: any[] = []
+    private periodosInglesSubject: any = new BehaviorSubject<any[]>([]);
+    private paralelosIndex: any[] = []
+    private paralelosSubjectIndex: any = new BehaviorSubject<any[]>([]);
 
     Global = {
         url: 'http://localhost:3900/api/',
@@ -54,7 +66,6 @@ export class DetalleService {
 
 
 
-
     constructor(
         private _http: HttpClient
     ) {
@@ -74,24 +85,36 @@ export class DetalleService {
                 let carreras = []
                 let semestres = []
                 let ciclos = []
+                let paralelos = []
+                let periodosIngles = []
                 this.carreras = []
                 this.semestres = []
                 this.ciclos = []
+                this.paralelos = []
+                this.periodosIngles = []
                 this.carrerasIndex = []
+                this.paralelosIndex = []
+                let paralelosIndex = []
                 let rolesCarreras = []
                 let rolesCarrerasDic = []
                 let rolesCarrerasDiccionario: any = []
                 this.horasDiurnas = resultado.detalles[0].horasDiurnas;
                 this.horasNocturnas = resultado.detalles[0].horasNocturnas
+                this.horasAlternativaDiurnas = resultado.detalles[0].horasAlternativaDiurnas;
+                this.horasAlternativaNocturnas = resultado.detalles[0].horasAlternativaNocturnas
 
                 carreras = resultado.detalles[0].carreras;
                 semestres = resultado.detalles[0].semestres;
                 ciclos = resultado.detalles[0].ciclos;
+                paralelos = resultado.detalles[0].paralelos;
+                periodosIngles = resultado.detalles[0].periodoIngles;
                 rolesCarreras = resultado.detalles[0].carreras;
                 rolesCarrerasDic = resultado.detalles[0].carreras;
                 this.setCarreras(carreras);
                 this.setSemestres(semestres);
                 this.setCiclos(ciclos);
+                this.setParalelos(paralelos);
+                this.setPeriodosIngles(periodosIngles);
 
                 this.carrerasIndex = carreras.map((carrera: any, index: number) => {
                     return { id: index + 1, textField: carrera };
@@ -105,13 +128,23 @@ export class DetalleService {
                     return { id: index + 1, textField: ciclo };
                 });
 
+                this.periodoInglesIndex = periodosIngles.map((periodo: any, index: number) => {
+                    return { id: index + 1, textField: periodo };
+                });
+
+                this.paralelosIndex = paralelos.map((paralelo: any, index: number) => {
+                    return { id: index + 1, textField: paralelo };
+                });
+
 
                 this.roles = [
                     { id: 1, textField: 'Superadministrador' },
                     { id: 2, textField: 'Administrador' },
-                    { id: 3, textField: 'Revisador' },
-                    { id: 4, textField: 'Aprobador' },
+                    { id: 3, textField: 'Aprobador' },
+                    { id: 4, textField: 'Revisador' },
                 ];
+
+               
 
                 rolesCarreras.forEach((nombreCarrera: any, index: any) => {
                     let nuevoRol = {
@@ -129,18 +162,22 @@ export class DetalleService {
                     rolesCarrerasDiccionario[nombreCarreraRoles.toLowerCase().replace(/\s/g, "")] = nombreCarreraRoles;
                 });
 
-                
+
 
                 this.setRolesCarrera(rolesCarrerasDiccionario)
-                
+
 
 
                 this.setCarrerasIndex(this.carrerasIndex);
                 this.setSemestresIndex(this.semestresIndex);
                 this.setCiclosIndex(this.ciclosIndex);
+                this.setPeriodosInglesIndex(this.periodoInglesIndex);
+                this.setParalelosIndex(this.paralelosIndex);
 
                 this.setHorasDiurnas(this.horasDiurnas)
                 this.setHorasNocturnas(this.horasNocturnas)
+                this.setHorasAlternativaDiurnas(this.horasAlternativaDiurnas)
+                this.setHorasAlternativaNocturnas(this.horasAlternativaNocturnas)
 
             }
         } catch (error) {
@@ -222,6 +259,25 @@ export class DetalleService {
         return this.ciclosSubjectIndex.asObservable();
     }
 
+    public setPeriodosInglesIndex(periodosIndex: any[]): void {
+        this.periodoInglesIndex = periodosIndex;
+        this.periodoInglesSubjectIndex.next(this.periodoInglesIndex);
+    }
+
+    public getPeriodosInglesIndex(): Observable<any[]> {
+        return this.periodoInglesSubjectIndex.asObservable();
+    }
+
+    public setParalelosIndex(paralelosIndex: any[]): void {
+        this.paralelosIndex = paralelosIndex;
+        this.paralelosSubjectIndex.next(this.paralelosIndex);
+    }
+
+    public getParalelosIndex(): Observable<any[]> {
+        return this.paralelosSubjectIndex.asObservable();
+    }
+
+
 
     public setHorasDiurnas(horasDirunas: any[]): void {
         this.horasDiurnas = horasDirunas;
@@ -239,6 +295,44 @@ export class DetalleService {
 
     public getHorasNocturnas(): Observable<any[]> {
         return this.horasNocturnasSubject.asObservable();
+    }
+
+    public setHorasAlternativaDiurnas(horasAlternativaDiurnas: any[]): void {
+        this.horasAlternativaDiurnas = horasAlternativaDiurnas;
+        this.horasAlternativaDiurnasSubject.next(this.horasAlternativaDiurnas);
+    }
+
+    public getHorasAlternativaDiurnas(): Observable<any[]> {
+        return this.horasAlternativaDiurnasSubject.asObservable();
+    }
+
+    public setHorasAlternativaNocturnas(horasAlternativaNocturnas: any[]): void {
+        this.horasAlternativaNocturnas = horasAlternativaNocturnas;
+        this.horasAlternativaNocturnasSubject.next(this.horasAlternativaNocturnas);
+    }
+
+    public getHorasAlternativaNocturnas(): Observable<any[]> {
+        return this.horasAlternativaNocturnasSubject.asObservable();
+    }
+
+    
+
+    public setParalelos(paralelos: any[]): void {
+        this.paralelos = paralelos;
+        this.paralelosSubject.next(this.paralelos);
+    }
+
+    public getParalelos(): Observable<any[]> {
+        return this.paralelosSubject.asObservable();
+    }
+
+    public setPeriodosIngles(periodosIngles: any[]): void {
+        this.periodosIngles = periodosIngles;
+        this.periodosInglesSubject.next(this.periodosIngles);
+    }
+
+    public getPeriodosIngles(): Observable<any[]> {
+        return this.periodosInglesSubject.asObservable();
     }
 
 

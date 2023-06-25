@@ -7,10 +7,14 @@ var Schema = mongoose.Schema;
 
 var DetalleScheme = Schema({
     carreras: Array,
+    periodoIngles: Array,
     semestres: Array,
     ciclos: Array,
+    paralelos: Array,
     horasDiurnas: Array,
     horasNocturnas: Array,
+    horasAlternativaDiurnas: Array,
+    horasAlternativaNocturnas: Array,
 });
 
 DetalleScheme.plugin(autopopulate);

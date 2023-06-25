@@ -30,19 +30,27 @@ export class AsignaturaNuevoComponent {
   public authToken: any;
   public userData: any;
   public rolesCarreras: any;
+  public rolesCarrerasFilter: any;
   public carreras: any
   public semestres: any
   public ciclos: any
   public horariosType:any
+  public periodosIngles: any[] = [];
   public selectedCarreras: any[] = [];
   public selectedSemestres: any[] = [];
   public selectedProfesores: any[] = [];
   public selectedHorarios: any[];
+  public selectedPeriodoIngles: any[] = [];
   public dropdownCarreras: IDropdownSettings = {};
   public dropdownSemestres: IDropdownSettings = {};
   public dropdownCiclos: IDropdownSettings = {};
+  public dropdownPeriodosIngles: IDropdownSettings = {};
   public dropdownHorarios: IDropdownSettings = {};
   public dropdownProfesores: IDropdownSettings = {};
+  public dropdownParalelos: IDropdownSettings = {};
+  public paralelos: any[] = [];
+  public selectedParalelos: any;
+  itemCarreraEdit: any[] = [];
 
 
   constructor(
@@ -94,6 +102,16 @@ export class AsignaturaNuevoComponent {
       allowSearchFilter: true
     };
 
+    this.dropdownPeriodosIngles = {
+      singleSelection: false,
+      idField: 'id',
+      textField: 'textField',
+      selectAllText: 'Seleccionar todo',
+      unSelectAllText: 'Deseleccionar todo',
+      itemsShowLimit: 13,
+      allowSearchFilter: true
+    };
+
 
 
     this.dropdownProfesores = {
@@ -105,6 +123,17 @@ export class AsignaturaNuevoComponent {
       itemsShowLimit: 13,
       allowSearchFilter: true
     };
+
+    this.dropdownParalelos = {
+      singleSelection: true,
+      idField: 'id',
+      textField: 'textField',
+      selectAllText: 'Seleccionar todo',
+      unSelectAllText: 'Deseleccionar todo',
+      itemsShowLimit: 13,
+      allowSearchFilter: true
+    };
+
 
     this.dropdownHorarios = {
       singleSelection: true,
@@ -129,7 +158,7 @@ export class AsignaturaNuevoComponent {
     this._detalleService.getCarrerasIndex().subscribe(carreras => {
       this.carreras = carreras 
     });
-
+    
     this._detalleService.getSemestresIndex().subscribe(semestres => {
       this.semestres = semestres 
     });
@@ -139,6 +168,20 @@ export class AsignaturaNuevoComponent {
     this._detalleService.getRolesIndex().subscribe(roles => {
       this.rolesCarreras = roles
     });
+
+    this._detalleService.getRolesCarrera().subscribe(roles => {
+      this.rolesCarrerasFilter = roles
+    });
+
+
+    this._detalleService.getPeriodosInglesIndex().subscribe(periodos => {
+      this.periodosIngles = periodos
+    });
+
+    this._detalleService.getParalelosIndex().subscribe(paralelos => {
+      this.paralelos = paralelos
+    });
+
   }
 
   getProfesores() {
@@ -146,7 +189,7 @@ export class AsignaturaNuevoComponent {
       response => {
         if (response.profesores) {
           this.profesores = response.profesores;
-          let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase().replace(/\s/g, "")];
+          let carreraActual = this.rolesCarrerasFilter[this.userData.rol.toLowerCase().replace(/\s/g, "")];
 
           this.carrerasFiltradas = [];
 
@@ -155,7 +198,6 @@ export class AsignaturaNuevoComponent {
           } else {
             this.carrerasFiltradas = this.profesores;
           }
-
         }
       },
       error => {
@@ -185,6 +227,7 @@ export class AsignaturaNuevoComponent {
   async onSubmit() {
     this.asignatura.semestre = []
     this.asignatura.carrera = []
+    this.asignatura.paralelo = []
     this.asignatura.profesor = []
     this.asignatura.horario = ''
     let controles: string[] = []
@@ -206,10 +249,19 @@ export class AsignaturaNuevoComponent {
       this.asignatura.semestre.push(semestre.textField);
     }
 
+    if(this.selectedParalelos && this.selectedParalelos.length >0){
+      for (const paralelo of this.selectedParalelos) {
+        this.asignatura.paralelo.push(paralelo.textField);
+      }
+    }
+
+  
+
+
     if (this.selectedHorarios.length !== 0) {
       this.asignatura.horario = this.selectedHorarios[0].textField
     }
-    console.log(this.asignatura)
+   
     if (this.asignatura.nombre === ""
       || this.asignatura.abreviatura === ""
       || this.asignatura.color === ""
@@ -274,8 +326,17 @@ export class AsignaturaNuevoComponent {
   onItemProfesoresSelect(item: any) {
   }
 
+  onItemParaleloSelect(item: any) {
+  }
+
+  onItemPeriodoInglesSelect(item: any) {
+    
+    this.selectedPeriodoIngles = []
+  }
+
   onItemHorariosSelect(item: any) {
     this.selectedSemestres = []
+    this.selectedPeriodoIngles = []
   }
 
   onKeyUp() {
@@ -285,7 +346,6 @@ export class AsignaturaNuevoComponent {
 
   formatearTexto(texto: string): string {
     const palabras = texto.split(' ');
-    console.log(palabras)
     const resultado = palabras.map(palabra => {
       if (palabra.length > 1) {
         return palabra.substring(0, 2).toUpperCase();

@@ -47,6 +47,10 @@ var routes = [
         path: 'horarios', component: items_horario_component_1.ItemsHorarioComponent, canActivate: [auth_guard_1.AuthGuard]
     },
     {
+        path: 'home/creacion/:opcion1/:opcion2/:opcion3/:opcion4',
+        component: home_component_1.HomeComponent, canActivate: [auth_guard_1.AuthGuard]
+    },
+    {
         path: 'home/creacion/:opcion1/:opcion2/:opcion3',
         component: home_component_1.HomeComponent, canActivate: [auth_guard_1.AuthGuard]
     },

@@ -33,9 +33,11 @@ export class HorarioNuevoComponent {
   public indiceHora!: string
   public listaA: any[] = []
   public is_Diurno!: Boolean
+  public is_Paralelo!: Boolean
   public opcion1: string = "";
   public opcion2: string = "";
   public opcion3: string = "";
+  public opcion4: string = "";
   public status!: string;
   public horario!: Horario
   public horarios: Horario[] = []
@@ -99,13 +101,32 @@ export class HorarioNuevoComponent {
   }
 
   getDataDetalles() {
-    this._detalleService.getHorasDiurnas().subscribe(horasDiurnas => {
-      this.hours = horasDiurnas
-    });
 
-    this._detalleService.getHorasNocturnas().subscribe(horasNocturnas => {
-      this.hoursnight = horasNocturnas
-    });
+    this._route.params.subscribe(params => {
+      this.opcion2 = params['opcion2'];
+    })
+    if (this.opcion2 !== "Ingles") {
+
+      this._detalleService.getHorasDiurnas().subscribe(horasDiurnas => {
+        this.hours = horasDiurnas
+      });
+
+      this._detalleService.getHorasNocturnas().subscribe(horasNocturnas => {
+        this.hoursnight = horasNocturnas
+      });
+
+    } else {
+
+      console.log(this.opcion2)
+      this._detalleService.getHorasAlternativaDiurnas().subscribe(horasAlternativaDiurnas => {
+        this.hours = horasAlternativaDiurnas
+      });
+
+      this._detalleService.getHorasAlternativaNocturnas().subscribe(horasAlternativaNocturnas => {
+        this.hoursnight = horasAlternativaNocturnas
+      });
+    }
+
   }
 
 
@@ -113,7 +134,6 @@ export class HorarioNuevoComponent {
   filtrarAsignaturas() {
 
 
-    console.log(this.terminoBusquedaAsignaturaStatic)
     if (this.terminoBusquedaAsignaturaStatic !== "") {
       this.terminoBusquedaAsignaturaBoolean = true
     } else if (this.terminoBusquedaAsignaturaStatic === "") {
@@ -185,10 +205,17 @@ export class HorarioNuevoComponent {
       this.opcion2 = params['opcion2'];
       this.opcion1 = params['opcion1'];
       this.opcion3 = params['opcion3'];
+      this.opcion4 = params['opcion4'];
 
       this.opcion2 = this.opcion2.replace(/_/g, " ");
 
       this.opcion1 = this.opcion1.replace(/_/g, " ");
+
+      if (this.opcion4) {
+        this.is_Paralelo = true
+      } else {
+        this.is_Paralelo = false
+      }
 
       if (this.opcion1 === "Horario Diurno") {
         this.is_Diurno = true
@@ -203,7 +230,7 @@ export class HorarioNuevoComponent {
             this.asignaturas = []; // Reiniciar el array de asignaturas
 
             // Iterar sobre las asignaturas obtenidas en la respuesta
-            response.asignaturas.forEach((asignatura: { creditos: number; _id: string; nombre: string; carrera: String[]; semestre: String[]; profesor: Profesor[]; horario: string; abreviatura: string; color: string; }) => {
+            response.asignaturas.forEach((asignatura: { creditos: number; _id: string; nombre: string; carrera: String[]; semestre: String[]; profesor: Profesor[]; horario: string; abreviatura: string; color: string; paralelo: any[]; }) => {
               let creditos = asignatura.creditos; // Obtener la cantidad de créditos de la asignatura
 
               // Clonar la asignatura por la cantidad de créditos y guardarlas en el array this.asignaturas
@@ -217,7 +244,8 @@ export class HorarioNuevoComponent {
                   asignatura.horario,
                   asignatura.creditos,
                   asignatura.abreviatura,
-                  asignatura.color
+                  asignatura.color,
+                  asignatura.paralelo,
                 );
 
                 this.asignaturas.push(asignaturaClonada);
@@ -232,7 +260,21 @@ export class HorarioNuevoComponent {
               tipoHorarioAsig = "Nocturno"
             }
 
+            if (this.opcion4 === undefined || this.opcion4 === "") {
+              this.opcion4 = ""
+            }
+
             this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig)
+
+
+            if (this.opcion4 === undefined || this.opcion4 === "") {
+              this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig && asignatura.paralelo!.length ===0)
+
+            } else {
+              this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig && asignatura.paralelo && asignatura.paralelo.includes(this.opcion4))
+
+            }
+
             this.asignaturasFiltradas = this.asignaturas;
 
           }
@@ -571,21 +613,41 @@ export class HorarioNuevoComponent {
       response => {
         if (response.horarios) {
           this.horarios = response.horarios;
+          if (this.opcion4 === undefined) {
+            this.opcion4 = ""
+          }
+
 
           for (const horario of this.horarios) {
-            if (horario.carrera === this.opcion2 && horario.semestre === this.opcion3 && horario.tipoHorario === this.opcion1) {
+            if (horario.paralelo === undefined) {
+              horario.paralelo = ""
+            }
+            if (horario.carrera === this.opcion2 && horario.semestre === this.opcion3 && horario.tipoHorario === this.opcion1 && horario.paralelo === this.opcion4) {
               this.existHorarioCarrera = true
 
             }
           }
-          console.log(this.opcion1)
           if (this.opcion1 === "Horario Nocturno") {
             this.periodoTipo = "ciclo"
           } else {
             this.periodoTipo = "semestre"
           }
 
-          this.horarios = this.horarios.filter(horario => horario.tipoHorario === this.opcion1);
+
+
+
+          if (this.opcion2 === "Ingles") {
+
+            this.periodoTipo = "Nivel"
+          }
+
+          if (this.periodoTipo === "ciclo") {
+            this.horarios = this.horarios.filter(horario => horario.tipoHorario === this.opcion1 && horario.semestre === this.opcion3);
+          } else {
+            this.horarios = this.horarios.filter(horario => horario.tipoHorario === this.opcion1);
+
+          }
+
 
 
           if (this.existHorarioCarrera) {
@@ -642,6 +704,7 @@ export class HorarioNuevoComponent {
     this.horario.carrera = this.opcion2
     this.horario.semestre = this.opcion3
     this.horario.creado_por = this.userData
+    this.horario.paralelo = this.opcion4
 
     let elementoComprobarTipo: any = []
     let elementoComprobarId: any = []
@@ -862,12 +925,17 @@ export class HorarioNuevoComponent {
     doc.text(carreraText, carreraInfoX, 20);
 
     let periodoTipo: any = ""
-    console.log(this.opcion1)
     if (this.opcion1 === "Horario Diurno") {
-      
+
       periodoTipo = "Semestre"
     } else {
       periodoTipo = "Ciclo"
+    }
+
+
+    if (this.opcion2.toLowerCase() === "Ingles") {
+
+      periodoTipo = "Nivel"
     }
 
     console.log(periodoTipo)
@@ -1060,10 +1128,10 @@ export class HorarioNuevoComponent {
     });
 
     asignaturasProfesores.forEach((elemento1) => {
-      elemento1.modalidad = []; 
-    
-      resultadoFinal.forEach((resultado:any) => {
-       if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
+      elemento1.modalidad = [];
+
+      resultadoFinal.forEach((resultado: any) => {
+        if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
           elemento1.modalidad.push(resultado.modalidad);
         }
       });
@@ -1130,8 +1198,8 @@ export class HorarioNuevoComponent {
 
     rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:'])
     DataFirmas.push(["", "", ""]);
-    DataFirmas.push(["Prof. " + this.horario.creado_por.nombre, "Prof. " + this.revisador.nombre, "Prof. " + this.aprobador.nombre]);
-    DataFirmas.push(["Director de Carrera", "Decana de Facultad", "Directora Académica "]);
+    DataFirmas.push([this.horario.creado_por.nombre, this.revisador.nombre, this.aprobador.nombre]);
+    DataFirmas.push(["Director de Carrera", "Decano de Facultad", "Directora Académica "]);
 
     autoTable(doc, {
       head: rowDataHead3,
@@ -1230,6 +1298,12 @@ export class HorarioNuevoComponent {
     } else {
       periodoTipo = "Semestre"
     }
+
+    if (this.opcion2.toLowerCase() === "Ingles") {
+
+      periodoTipo = "Nivel"
+    }
+
     // Agregar el título al Excel
     worksheet.mergeCells('A4:F4'); // Fusionar 5 celdas en la primera fila
     let semestreText = worksheet.getCell(4, 1);
@@ -1440,9 +1514,9 @@ export class HorarioNuevoComponent {
 
     asignaturasProfesores.forEach((elemento1) => {
       elemento1.modalidad = ""; // Inicializamos la propiedad modalidad como un array vacío
-    
-      resultadoFinal.forEach((resultado:any) => {
-       if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
+
+      resultadoFinal.forEach((resultado: any) => {
+        if (resultado && resultado.modalidad && elemento1.asignatura === resultado.item.nombre) {
           elemento1.modalidad = resultado.modalidad;
         }
       });
@@ -1471,11 +1545,11 @@ export class HorarioNuevoComponent {
     elaboradoPor.font = { size: 8 };
 
     let nombreDirector = worksheet.getCell(29, 2);
-    nombreDirector.value = 'Prof. ' + this.horario.creado_por.nombre;
+    nombreDirector.value = this.horario.creado_por.nombre;
     nombreDirector.font = { size: 8 };
 
     let directorCarrera = worksheet.getCell(30, 2);
-    directorCarrera.value = 'Director de carrera';
+    directorCarrera.value = 'Director de Carrera';
     directorCarrera.font = { size: 8 };
 
 
@@ -1485,11 +1559,11 @@ export class HorarioNuevoComponent {
     revisadoPor.font = { size: 8 };
 
     let nombreRevisador = worksheet.getCell(29, 4);
-    nombreRevisador.value = 'Prof. ' + this.revisador.nombre;
+    nombreRevisador.value = this.revisador.nombre;
     nombreRevisador.font = { size: 8 };
 
     let cargoRevisador = worksheet.getCell(30, 4);
-    cargoRevisador.value = 'Decana de Facultad';
+    cargoRevisador.value = 'Decano de Facultad';
     cargoRevisador.font = { size: 8 };
 
 
@@ -1500,13 +1574,13 @@ export class HorarioNuevoComponent {
     aprobadorPor.font = { size: 8 };
 
     let nombreAprobador = worksheet.getCell(29, 6);
-    nombreAprobador.value = "Prof. " + this.aprobador.nombre;
+    nombreAprobador.value = this.aprobador.nombre;
     nombreAprobador.font = { size: 8 };
 
     let cargoAprobador = worksheet.getCell(30, 6);
-    cargoAprobador.value = 'Directora Academica';
+    cargoAprobador.value = 'Directora Académica';
     cargoAprobador.font = { size: 8 };
-    
+
     workbook.xlsx.writeBuffer().then((buffer: ArrayBuffer) => {
       const data = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       FileSaver.saveAs(data, nombreArchivo);
@@ -1516,6 +1590,9 @@ export class HorarioNuevoComponent {
 
   async verificarHorario() {
 
+    this.terminoBusquedaAsignatura = ""
+    this.terminoBusquedaAsignaturaStatic = ""
+    this.terminoBusquedaAula = ""
     await this.getHorarios()
     this.aulaHorario = []
     this.asignaturaHorario = []
@@ -1676,6 +1753,7 @@ export class HorarioNuevoComponent {
               carrera: verify.carrera,
               semestre: verify.semestre,
               dia: verify.dia,
+              paralelo: verify.paralelo,
               idAsignaturaTableVerify: verify.idTabla.map(idTabla => idTabla.idAsignatura),
               idAulaTableVerify: verify.idTabla.map(idTabla => idTabla.idAula),
               itemverifyAsignatura: verify.item.map(item => item.asignatura._id),
@@ -1724,7 +1802,7 @@ export class HorarioNuevoComponent {
                       
                     <strong>¡Choque de aula y asignatura (Misma hora)</strong>!<br>
                     Motivo: La misma asignatura y aula ya se asignó en esa hora<br>
-                    <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre}</strong><br>
+                    <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre} - ${itemsBDHorario[j].paralelo}</strong><br>
                     Dia: ${diaActual}<br>
                     Hora: ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
                     Asignatura: ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
@@ -1740,7 +1818,7 @@ export class HorarioNuevoComponent {
                       mensaje += `
                     <strong>¡Choque de profesor (Misma hora)</strong>!<br>
                     Motivo: El profesor ya se asignó a al misma hora para dar otra clase<br>
-                    <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre}</strong><br>
+                    <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre} - ${itemsBDHorario[j].paralelo}</strong><br>
                     Dia: ${diaActual}<br>
                     Hora: ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
                     Asignatura: ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
@@ -1759,7 +1837,7 @@ export class HorarioNuevoComponent {
                       mensaje += `
                   <strong>¡Choque de aula (Misma hora)</strong>!<br>
                   Motivo: El aula ya se asignó para otra asignatura<br>
-                  <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre}</strong><br>
+                  <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre} - ${itemsBDHorario[j].paralelo}</strong><br>
                   Dia: ${diaActual}<br>
                   Hora: ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
                   Asignatura: ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
@@ -2123,12 +2201,12 @@ export class HorarioNuevoComponent {
 
         if (colon) {
           let norte = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus norte');
-          
+
           if (norte) {
             isValid = false;
-  
+
           }
-        
+
         }
       }
 
@@ -2154,7 +2232,7 @@ export class HorarioNuevoComponent {
           let swalPromise = new Promise((resolve, reject) => {
             Swal.fire({
               title: 'Advertencia',
-              text: 'Hay aulas en diferentes ubicaciones (norte y colon) en el mismo día: '+Dias[dia]+'.',
+              text: 'Hay aulas en diferentes ubicaciones (norte y colon) en el mismo día: ' + Dias[dia] + '.',
               icon: 'warning',
               showCancelButton: true,
               confirmButtonText: 'Aceptar',

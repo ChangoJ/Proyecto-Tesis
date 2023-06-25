@@ -10,7 +10,8 @@ export class Asignatura {
         public horario: string,
         public creditos: number,
         public abreviatura: string,
-        public color: string
+        public color: string,
+        public paralelo?: Array<String>,
     ){
 
     }

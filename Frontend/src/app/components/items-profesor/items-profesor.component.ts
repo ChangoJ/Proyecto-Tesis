@@ -7,12 +7,14 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { DetalleService } from '../services/detalle.service';
 import { Router } from '@angular/router';
+import { HorarioService } from '../services/horario.service';
+import { Horario } from '../models/horario';
 
 @Component({
   selector: 'app-items-profesor',
   templateUrl: './items-profesor.component.html',
   styleUrls: ['./items-profesor.component.css'],
-  providers: [ProfesorService, DetalleService]
+  providers: [ProfesorService, DetalleService, HorarioService]
 })
 export class ItemsProfesorComponent {
   public colorCuadro = document.querySelector(".color-square")
@@ -25,15 +27,17 @@ export class ItemsProfesorComponent {
   public userData!: any;
   public carrerasFiltradas: any[] = [];
   public rolesCarreras: any
+  public horarios!: Horario[];
   public columnas = ['N°', 'Nombre', 'Contrato', 'Carreras', 'Acciones'];
   public profesoresObtenidos: any[] = [];
   @Input() profesores!: Profesor[]
 
- 
+
 
   constructor(private _profesorService: ProfesorService,
     private _router: Router,
-    private _detalleService: DetalleService) {
+    private _detalleService: DetalleService,
+    private _horarioService: HorarioService) {
     this.url = this._detalleService.Global.url
     this.is_admin = false
     this.is_aprobador = false
@@ -48,11 +52,12 @@ export class ItemsProfesorComponent {
 
     this.getProfesores()
     this.getDataDetalles()
+    this.getHorarios()
   }
 
-  getDataDetalles(){
+  getDataDetalles() {
 
-    this._detalleService.getRolesIndex().subscribe(roles => {
+    this._detalleService.getRolesCarrera().subscribe(roles => {
       this.rolesCarreras = roles
     });
   }
@@ -83,6 +88,23 @@ export class ItemsProfesorComponent {
     )
   }
 
+
+  getHorarios() {
+    this._horarioService.getHorarios().subscribe(
+      response => {
+        if (response.horarios) {
+          this.horarios = response.horarios;
+
+        }
+      },
+      error => {
+        console.log(error)
+      }
+    )
+
+  }
+
+
   delete(id: string) {
 
     Swal.fire({
@@ -95,19 +117,43 @@ export class ItemsProfesorComponent {
       confirmButtonText: 'Delete',
     }).then((result: any) => {
       if (result.isConfirmed) {
-        this._profesorService.delete(id).subscribe(
-          (response) => {
-            setTimeout(() => {
-              location.reload();
-            }, 1200);
-          },
-          (error) => {
-            console.log(error);
-            this._router.navigate(['/especificacion/profesores']);
-          }
-        );
+        let item: any = []
+        let ubicacion: any = []
+        let exist_aula: boolean = false
 
-        Swal.fire('Profesor borrada', 'El profesor ha sido borrado.', 'success');
+        this.horarios.forEach(horario => {
+          item = horario.item
+          item.forEach((item: any) => {
+            if (item.asignatura.profesor[0]._id === id) {
+              exist_aula = true
+              if (!horario.paralelo || horario.paralelo === "") {
+
+                ubicacion = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre
+              } else {
+
+                ubicacion = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre + ' Paralelo (' + horario.paralelo! + ')'
+              }
+            }
+          });
+        });
+
+        if (!exist_aula) {
+          this._profesorService.delete(id).subscribe(
+            (response) => {
+              setTimeout(() => {
+                location.reload();
+              }, 1200);
+            },
+            (error) => {
+              console.log(error);
+              this._router.navigate(['/especificacion/profesores']);
+            }
+          );
+
+          Swal.fire('Profesor borrada', 'El profesor ha sido borrado.', 'success');
+        } else {
+          Swal.fire('Profesor no borrada', 'Si deseas borrarla, primero borra el horario que la contiene: ' + ubicacion, 'error');
+        }
       } else {
         Swal.fire('Operación cancelada', 'El profesor no ha sido borrado.', 'warning');
       }
@@ -135,9 +181,9 @@ export class ItemsProfesorComponent {
 
   resumenProfesores() {
     this._router.navigate(['/especificacion/profesores/resumen-profesores'])
-   /*  setTimeout(() => {
+    setTimeout(() => {
       location.reload();
-    }, 400); */
+    }, 400);
   }
 
   redirectEdit(id: any) {

@@ -136,9 +136,9 @@ var ProfesorEditComponent = /** @class */ (function () {
     };
     ProfesorEditComponent.prototype.resumenProfesores = function () {
         this._router.navigate(['/especificacion/profesores/resumen-profesores']);
-        /*    setTimeout(() => {
-             location.reload();
-           }, 400); */
+        setTimeout(function () {
+            location.reload();
+        }, 400);
     };
     __decorate([
         core_1.ViewChild('profesorForm', { static: false })

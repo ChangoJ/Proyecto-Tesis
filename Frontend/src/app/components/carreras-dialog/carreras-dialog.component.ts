@@ -30,16 +30,21 @@ export class CarrerasDialogComponent {
   public ciclos: any
   public rolesCarreras: any;
   public carreras: any
+  public selectedOpcionPregunta: any = ""
+  public selectedParalelo!: string;
+  public selectedPeriodoIngles!: string;
+  public paralelos: any[] = [];
+  public periodosIngles: any[] = [];
 
 
   constructor(
     public dialogRef: MatDialogRef<CarrerasDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _router: Router,
-    private _route: ActivatedRoute, 
+    private _route: ActivatedRoute,
     private _horarioService: HorarioService,
     private _detalleService: DetalleService
-    ) {
+  ) {
 
 
     this.authToken = this._detalleService.authToken
@@ -81,16 +86,18 @@ export class CarrerasDialogComponent {
 
   getDataDetalles() {
 
-    
+
 
     this._detalleService.getRolesCarrera().subscribe(rolesCarrera => {
       this.rolesCarreras = rolesCarrera
     });
 
+    console.log(this.rolesCarreras)
+
     this._detalleService.getCarrerasIndex().subscribe(carreras => {
       this.carreras = carreras
       let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase().replace(/\s/g, "")];
-     
+
 
       this.carrerasFiltradas = [];
 
@@ -106,10 +113,19 @@ export class CarrerasDialogComponent {
     });
 
 
+    this._detalleService.getParalelos().subscribe(paralelos => {
+      this.paralelos = paralelos
+    });
+
+
+    this._detalleService.getPeriodosIngles().subscribe(periodos => {
+      this.periodosIngles = periodos
+    });
+
     this._detalleService.getCiclosIndex().subscribe(ciclos => {
       this.ciclos = ciclos
       if (this.datoRecibido === "Horarios Nocturnos") {
-        this.semestres = this.ciclos
+        /* this.semestres = this.ciclos */
         this.periodoTIpo = "Ciclo"
       } else {
 
@@ -121,18 +137,18 @@ export class CarrerasDialogComponent {
 
   }
 
-/*   getRolCarrera() {
-    let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase()];
-
-    this.carrerasFiltradas = [];
-
-    if (carreraActual) {
-      this.carrerasFiltradas = this.carreras.filter((carrera: { textField: string; }) => carrera.textField.toLowerCase() === carreraActual.toLowerCase());
-    } else {
-      this.carrerasFiltradas = this.carreras;
-    }
-
-  } */
+  /*   getRolCarrera() {
+      let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase()];
+  
+      this.carrerasFiltradas = [];
+  
+      if (carreraActual) {
+        this.carrerasFiltradas = this.carreras.filter((carrera: { textField: string; }) => carrera.textField.toLowerCase() === carreraActual.toLowerCase());
+      } else {
+        this.carrerasFiltradas = this.carreras;
+      }
+  
+    } */
 
   getHorarios() {
     this._horarioService.getHorarios().subscribe(
@@ -150,7 +166,6 @@ export class CarrerasDialogComponent {
 
 
   onCarreraSelected() {
-    console.log(this.datoRecibido)
     let existHorarioCarrera: boolean = false
 
     if (this.datoRecibido === "Horarios Nocturnos") {
@@ -160,22 +175,40 @@ export class CarrerasDialogComponent {
       this.datoRecibido = "Horario Diurno"
       this.periodoTIpo = "Semestre"
     }
-
+    if (this.selectedParalelo === undefined) {
+      this.selectedParalelo = ""
+    }
     for (const horario of this.horarios) {
-      if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre && horario.tipoHorario === this.datoRecibido) {
+      if (horario.paralelo === undefined) {
+        horario.paralelo = ""
+      }
+      if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre && horario.tipoHorario === this.datoRecibido && horario.paralelo === this.selectedParalelo) {
         existHorarioCarrera = true
       }
     }
+    let ruta: any = ""
+
+    let rutaEnviar: any = ""
+    if (this.selectedOpcionPregunta === "si") {
+
+
+      rutaEnviar = rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedParalelo
+
+    } else {
+      rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre
+    }
+
+
     if (!existHorarioCarrera) {
-      let ruta = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre
+      ruta = rutaEnviar
       ruta = ruta.replace(/\s+/g, "_");
       this._router.navigate([ruta], { relativeTo: this._route })
-     setTimeout(() => {
+      setTimeout(() => {
         location.reload();
       }, 350);
     } else {
       Swal.fire(
-        'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre +' '+ this.periodoTIpo + ' ya fue creado.',
+        'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + this.periodoTIpo + ' ya fue creado.',
         'Por favor, si desea modificar vaya a la sección de horarios',
         'error'
       )

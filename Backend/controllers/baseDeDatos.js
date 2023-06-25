@@ -7,7 +7,7 @@ const { MongoClient, ObjectId } = require('mongodb');
 
 // URL de conexión a la base de datos
 const url = 'mongodb://localhost:27017';
-const dbName = 'sistema_creacion_horarios';
+const dbName = 'sistema_creacion_horariosV2';
 
 var controller = {
 

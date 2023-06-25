@@ -37,7 +37,8 @@ var controller = {
       horario1.horas = params.horas;
       horario1.item = params.item;
       horario1.creado_por = params.creado_por;
-      horario1.observacion = params.observacion; //guardar el articulo
+      horario1.observacion = params.observacion;
+      horario1.paralelo = params.paralelo; //guardar el articulo
 
       horario1.save().then(function (horarioStored) {
         if (!horarioStored) {

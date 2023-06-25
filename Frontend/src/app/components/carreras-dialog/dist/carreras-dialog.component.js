@@ -29,7 +29,9 @@ var CarrerasDialogComponent = /** @class */ (function () {
         this.dropdownCarreras = {};
         this.dropdownSemestres = {};
         this.carrerasFiltradas = [];
-        this.rolesCarreras = this._detalleService.rolesCarreras;
+        this.selectedOpcionPregunta = "";
+        this.paralelos = [];
+        this.periodosIngles = [];
         this.authToken = this._detalleService.authToken;
         this.userData = this._detalleService.userData;
         this.dropdownCarreras = {
@@ -59,9 +61,13 @@ var CarrerasDialogComponent = /** @class */ (function () {
     };
     CarrerasDialogComponent.prototype.getDataDetalles = function () {
         var _this = this;
+        this._detalleService.getRolesCarrera().subscribe(function (rolesCarrera) {
+            _this.rolesCarreras = rolesCarrera;
+        });
+        console.log(this.rolesCarreras);
         this._detalleService.getCarrerasIndex().subscribe(function (carreras) {
             _this.carreras = carreras;
-            var carreraActual = _this.rolesCarreras[_this.userData.rol.toLowerCase()];
+            var carreraActual = _this.rolesCarreras[_this.userData.rol.toLowerCase().replace(/\s/g, "")];
             _this.carrerasFiltradas = [];
             if (carreraActual) {
                 _this.carrerasFiltradas = _this.carreras.filter(function (carrera) { return carrera.textField.toLowerCase() === carreraActual.toLowerCase(); });
@@ -71,13 +77,18 @@ var CarrerasDialogComponent = /** @class */ (function () {
             }
         });
         this._detalleService.getSemestresIndex().subscribe(function (semestres) {
-            console.log(semestres);
             _this.semestres = semestres;
+        });
+        this._detalleService.getParalelos().subscribe(function (paralelos) {
+            _this.paralelos = paralelos;
+        });
+        this._detalleService.getPeriodosIngles().subscribe(function (periodos) {
+            _this.periodosIngles = periodos;
         });
         this._detalleService.getCiclosIndex().subscribe(function (ciclos) {
             _this.ciclos = ciclos;
             if (_this.datoRecibido === "Horarios Nocturnos") {
-                _this.semestres = _this.ciclos;
+                /* this.semestres = this.ciclos */
                 _this.periodoTIpo = "Ciclo";
             }
             else {
@@ -108,7 +119,6 @@ var CarrerasDialogComponent = /** @class */ (function () {
         });
     };
     CarrerasDialogComponent.prototype.onCarreraSelected = function () {
-        console.log(this.datoRecibido);
         var existHorarioCarrera = false;
         if (this.datoRecibido === "Horarios Nocturnos") {
             this.datoRecibido = "Horario Nocturno";
@@ -118,14 +128,28 @@ var CarrerasDialogComponent = /** @class */ (function () {
             this.datoRecibido = "Horario Diurno";
             this.periodoTIpo = "Semestre";
         }
+        if (this.selectedParalelo === undefined) {
+            this.selectedParalelo = "";
+        }
         for (var _i = 0, _a = this.horarios; _i < _a.length; _i++) {
             var horario = _a[_i];
-            if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre && horario.tipoHorario === this.datoRecibido) {
+            if (horario.paralelo === undefined) {
+                horario.paralelo = "";
+            }
+            if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre && horario.tipoHorario === this.datoRecibido && horario.paralelo === this.selectedParalelo) {
                 existHorarioCarrera = true;
             }
         }
+        var ruta = "";
+        var rutaEnviar = "";
+        if (this.selectedOpcionPregunta === "si") {
+            rutaEnviar = rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedParalelo;
+        }
+        else {
+            rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre;
+        }
         if (!existHorarioCarrera) {
-            var ruta = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre;
+            ruta = rutaEnviar;
             ruta = ruta.replace(/\s+/g, "_");
             this._router.navigate([ruta], { relativeTo: this._route });
             setTimeout(function () {
@@ -133,7 +157,7 @@ var CarrerasDialogComponent = /** @class */ (function () {
             }, 350);
         }
         else {
-            sweetalert2_1["default"].fire('EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + this.periodoTIpo + ' ya existe', 'Por favor, si desea modificar vaya a la sección de horarios', 'error');
+            sweetalert2_1["default"].fire('EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + this.periodoTIpo + ' ya fue creado.', 'Por favor, si desea modificar vaya a la sección de horarios', 'error');
         }
     };
     CarrerasDialogComponent = __decorate([

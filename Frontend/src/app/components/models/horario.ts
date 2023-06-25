@@ -15,6 +15,7 @@ export class Horario {
         public item: { asignatura: Asignatura, aula: Aula }[],
         public creado_por: Usuario,
         public observacion?: string,
+        public paralelo?: string,
     ){
 
     }

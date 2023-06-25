@@ -43,6 +43,11 @@ const routes: Routes = [
     path: 'horarios', component: ItemsHorarioComponent, canActivate: [AuthGuard]
   },
   {
+    path: 'home/creacion/:opcion1/:opcion2/:opcion3/:opcion4',
+    component: HomeComponent, canActivate: [AuthGuard]
+  },
+  
+  {
     path: 'home/creacion/:opcion1/:opcion2/:opcion3',
     component: HomeComponent, canActivate: [AuthGuard]
   },

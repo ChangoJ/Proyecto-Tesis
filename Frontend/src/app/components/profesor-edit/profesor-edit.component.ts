@@ -187,8 +187,8 @@ export class ProfesorEditComponent {
 
   resumenProfesores() {
     this._router.navigate(['/especificacion/profesores/resumen-profesores'])
- /*    setTimeout(() => {
+ setTimeout(() => {
       location.reload();
-    }, 400); */
+    }, 400); 
   }
 }

@@ -12,12 +12,14 @@ var aula_service_1 = require("./../services/aula.service");
 var core_1 = require("@angular/core");
 var table_1 = require("@angular/material/table");
 var detalle_service_1 = require("../services/detalle.service");
+var horario_service_1 = require("../services/horario.service");
 var ItemsAulaComponent = /** @class */ (function () {
-    function ItemsAulaComponent(_aulaService, _route, _router, _detalleService) {
+    function ItemsAulaComponent(_aulaService, _route, _router, _detalleService, _horarioService) {
         this._aulaService = _aulaService;
         this._route = _route;
         this._router = _router;
         this._detalleService = _detalleService;
+        this._horarioService = _horarioService;
         this.colorCuadro = document.querySelector(".color-square");
         this.terminoBusquedaAula = '';
         this.aulasObtenidos = [];
@@ -25,16 +27,8 @@ var ItemsAulaComponent = /** @class */ (function () {
         this.url = this._detalleService.Global.url;
     }
     ItemsAulaComponent.prototype.ngOnInit = function () {
-        var _this = this;
-        this._aulaService.getAulas().subscribe(function (response) {
-            if (response.aulas) {
-                _this.aulasObtenidos = response.aulas;
-                _this.aulasFiltrados = new table_1.MatTableDataSource(_this.aulasObtenidos);
-                _this.aulasFiltrados.paginator = _this.paginator;
-            }
-        }, function (error) {
-            console.log(error);
-        });
+        this.getaulas();
+        this.getHorarios();
     };
     ItemsAulaComponent.prototype["delete"] = function (id) {
         var _this = this;
@@ -48,19 +42,65 @@ var ItemsAulaComponent = /** @class */ (function () {
             confirmButtonText: 'Delete'
         }).then(function (result) {
             if (result.isConfirmed) {
-                _this._aulaService["delete"](id).subscribe(function (response) {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1200);
-                }, function (error) {
-                    console.log(error);
-                    _this._router.navigate(['/especificacion/aulas']);
+                var item_1 = [];
+                var ubicacion_1 = [];
+                var exist_aula_1 = false;
+                _this.horarios.forEach(function (horario) {
+                    item_1 = horario.item;
+                    item_1.forEach(function (item) {
+                        if (item.aula._id === id) {
+                            console.log(id);
+                            exist_aula_1 = true;
+                            if (!horario.paralelo || horario.paralelo === "") {
+                                ubicacion_1 = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre;
+                            }
+                            else {
+                                ubicacion_1 = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre + ' Paralelo (' + horario.paralelo + ')';
+                            }
+                        }
+                    });
                 });
-                sweetalert2_1["default"].fire('Aula borrada', 'La Aula ha sido borrado', 'success');
+                if (!exist_aula_1) {
+                    _this._aulaService["delete"](id).subscribe(function (response) {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1200);
+                    }, function (error) {
+                        console.log(error);
+                        _this._router.navigate(['/especificacion/aulas']);
+                    });
+                    sweetalert2_1["default"].fire('Aula borrada', 'La Aula ha sido borrado', 'success');
+                }
+                else {
+                    sweetalert2_1["default"].fire('Aula no borrada', 'Si deseas borrarla, primero borra el horario que la contiene: ' + ubicacion_1, 'error');
+                }
             }
             else {
                 sweetalert2_1["default"].fire('Operación cancelada', 'La Aula no ha sido borrado', 'warning');
             }
+        });
+    };
+    ItemsAulaComponent.prototype.getaulas = function () {
+        var _this = this;
+        this._aulaService.getAulas().subscribe(function (response) {
+            if (response.aulas) {
+                _this.aulasObtenidos = response.aulas;
+                _this.aulasFiltrados = new table_1.MatTableDataSource(_this.aulasObtenidos);
+                _this.aulasFiltrados.paginator = _this.paginator;
+            }
+        }, function (error) {
+            console.log(error);
+        });
+    };
+    ItemsAulaComponent.prototype.getHorarios = function () {
+        var _this = this;
+        this._horarioService.getHorarios().subscribe(function (response) {
+            if (response.horarios) {
+                _this.horarios = response.horarios;
+                console.log(_this.horarios);
+            }
+        }, function (error) {
+            console.log(error);
         });
     };
     ItemsAulaComponent.prototype.filtrarAulas = function () {
@@ -103,7 +143,7 @@ var ItemsAulaComponent = /** @class */ (function () {
             selector: 'app-items-aula',
             templateUrl: './items-aula.component.html',
             styleUrls: ['./items-aula.component.css'],
-            providers: [aula_service_1.AulaService, detalle_service_1.DetalleService]
+            providers: [aula_service_1.AulaService, detalle_service_1.DetalleService, horario_service_1.HorarioService]
         })
     ], ItemsAulaComponent);
     return ItemsAulaComponent;

@@ -12,16 +12,19 @@ var core_1 = require("@angular/core");
 var asignatura_service_1 = require("../services/asignatura.service");
 var table_1 = require("@angular/material/table");
 var detalle_service_1 = require("../services/detalle.service");
+var horario_service_1 = require("../services/horario.service");
 var ItemsAsignaturaComponent = /** @class */ (function () {
-    function ItemsAsignaturaComponent(_asignaturaService, _route, _router, _detalleService) {
+    function ItemsAsignaturaComponent(_asignaturaService, _route, _router, _detalleService, _horarioService) {
         this._asignaturaService = _asignaturaService;
         this._route = _route;
         this._router = _router;
         this._detalleService = _detalleService;
+        this._horarioService = _horarioService;
         this.colorCuadro = document.querySelector(".color-square");
         this.terminoBusquedaAsignatura = '';
         this.asignaturasObtenidos = [];
         this.carrerasFiltradas = [];
+        this.rolesCarreras = [];
         this.columnas = ['N°', 'Nombre', 'Carrera', 'Periodo', 'Profesor', 'Horario', 'Creditos', 'Color', 'Acciones'];
         this.url = this._detalleService.Global.url;
         this.is_admin = false;
@@ -30,67 +33,57 @@ var ItemsAsignaturaComponent = /** @class */ (function () {
         this.userData = this._detalleService.userData;
     }
     ItemsAsignaturaComponent.prototype.ngOnInit = function () {
-        /*  this.getAsignaturas() */
         if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador") {
             this.is_admin = true;
             this.is_aprobador = true;
         }
         this.getDataDetalles();
+        this.getHorarios();
     };
     ItemsAsignaturaComponent.prototype.getDataDetalles = function () {
         var _this = this;
-        this._detalleService.getRolesIndex().subscribe(function (roles) {
+        this._detalleService.getRolesCarrera().subscribe(function (roles) {
             _this.rolesCarreras = roles;
+            _this.getAsignaturas();
         });
         this._detalleService.getCarreras().subscribe(function (carreras) {
             _this.carreras = carreras;
-            _this._asignaturaService.getAsignaturas().subscribe(function (response) {
-                if (response.asignaturas) {
-                    _this.asignaturasObtenidos = response.asignaturas;
-                    var carreraActual_1 = _this.rolesCarreras[_this.userData.rol.toLowerCase().toLowerCase().replace(/\s/g, "")];
-                    _this.carrerasFiltradas = [];
-                    if (carreraActual_1) {
-                        _this.carrerasFiltradas = _this.asignaturasObtenidos.filter(function (elemento) { return elemento.carrera.includes(carreraActual_1); });
-                    }
-                    else {
-                        _this.carrerasFiltradas = _this.asignaturasObtenidos;
-                    }
-                    _this.asignaturasFiltrados = new table_1.MatTableDataSource(_this.carrerasFiltradas);
-                    _this.asignaturasFiltrados.paginator = _this.paginator;
-                }
-            }, function (error) {
-                console.log(error);
-            });
         });
         this._detalleService.getSemestres().subscribe(function (semestres) {
             _this.semestres = semestres;
         });
     };
-    /*
-      getAsignaturas() {
-        this._asignaturaService.getAsignaturas().subscribe(
-          response => {
+    ItemsAsignaturaComponent.prototype.getAsignaturas = function () {
+        var _this = this;
+        this.asignaturasObtenidos = [];
+        this._asignaturaService.getAsignaturas().subscribe(function (response) {
             if (response.asignaturas) {
-              this.asignaturasObtenidos = response.asignaturas
-              let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase()];
-    
-              this.carrerasFiltradas = [];
-    
-              if (carreraActual) {
-                this.carrerasFiltradas = this.asignaturasObtenidos.filter(elemento => elemento.carrera.includes(carreraActual));
-              } else {
-                this.carrerasFiltradas = this.asignaturasObtenidos;
-              }
-              
-              this.asignaturasFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas);
-              this.asignaturasFiltrados.paginator = this.paginator;
+                _this.asignaturasObtenidos = response.asignaturas;
+                var carreraActual_1 = _this.rolesCarreras[_this.userData.rol.toLowerCase().replace(/\s/g, "")];
+                _this.carrerasFiltradas = [];
+                if (carreraActual_1) {
+                    _this.carrerasFiltradas = _this.asignaturasObtenidos.filter(function (elemento) { return elemento.carrera.includes(carreraActual_1); });
+                }
+                else {
+                    _this.carrerasFiltradas = _this.asignaturasObtenidos;
+                }
+                _this.asignaturasFiltrados = new table_1.MatTableDataSource(_this.carrerasFiltradas);
+                _this.asignaturasFiltrados.paginator = _this.paginator;
             }
-          },
-          error => {
-            console.log(error)
-          }
-        )
-      } */
+        }, function (error) {
+            console.log(error);
+        });
+    };
+    ItemsAsignaturaComponent.prototype.getHorarios = function () {
+        var _this = this;
+        this._horarioService.getHorarios().subscribe(function (response) {
+            if (response.horarios) {
+                _this.horarios = response.horarios;
+            }
+        }, function (error) {
+            console.log(error);
+        });
+    };
     ItemsAsignaturaComponent.prototype["delete"] = function (id) {
         var _this = this;
         sweetalert2_1["default"].fire({
@@ -103,15 +96,37 @@ var ItemsAsignaturaComponent = /** @class */ (function () {
             confirmButtonText: 'Delete'
         }).then(function (result) {
             if (result.isConfirmed) {
-                _this._asignaturaService["delete"](id).subscribe(function (response) {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1200);
-                }, function (error) {
-                    console.log(error);
-                    _this._router.navigate(['/especificacion/asignaturas']);
+                var item_1 = [];
+                var ubicacion_1 = [];
+                var exist_aula_1 = false;
+                _this.horarios.forEach(function (horario) {
+                    item_1 = horario.item;
+                    item_1.forEach(function (item) {
+                        if (item.asignatura._id === id) {
+                            exist_aula_1 = true;
+                            if (!horario.paralelo || horario.paralelo === "") {
+                                ubicacion_1 = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre;
+                            }
+                            else {
+                                ubicacion_1 = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre + ' Paralelo (' + horario.paralelo + ')';
+                            }
+                        }
+                    });
                 });
-                sweetalert2_1["default"].fire('Asignatura borrada', 'La Asignatura ha sido borrado', 'success');
+                if (!exist_aula_1) {
+                    _this._asignaturaService["delete"](id).subscribe(function (response) {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1200);
+                    }, function (error) {
+                        console.log(error);
+                        _this._router.navigate(['/especificacion/asignaturas']);
+                    });
+                    sweetalert2_1["default"].fire('Asignatura borrada', 'La Asignatura ha sido borrado', 'success');
+                }
+                else {
+                    sweetalert2_1["default"].fire('Asignatura no borrada', 'Si deseas borrarla, primero borra el horario que la contiene: ' + ubicacion_1, 'error');
+                }
             }
             else {
                 sweetalert2_1["default"].fire('Operación cancelada', 'La Asignatura no ha sido borrado', 'warning');
@@ -176,7 +191,7 @@ var ItemsAsignaturaComponent = /** @class */ (function () {
             selector: 'app-items-asignatura',
             templateUrl: './items-asignatura.component.html',
             styleUrls: ['./items-asignatura.component.css'],
-            providers: [asignatura_service_1.AsignaturaService, detalle_service_1.DetalleService]
+            providers: [asignatura_service_1.AsignaturaService, detalle_service_1.DetalleService, horario_service_1.HorarioService]
         })
     ], ItemsAsignaturaComponent);
     return ItemsAsignaturaComponent;

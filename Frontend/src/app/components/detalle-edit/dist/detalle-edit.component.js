@@ -54,12 +54,15 @@ var DetalleEditComponent = /** @class */ (function () {
         this._detalleService = _detalleService;
         this._router = _router;
         this.formBuilder = formBuilder;
-        this.detalle = new detalle_1.Detalle('', [], [], [], [], []);
+        this.detalle = new detalle_1.Detalle('', [], [], [], [], [], [], [], [], []);
         this.page_title = "Editar Detalle";
         this.is_edit = false;
         this.url = this._detalleService.Global.url;
         this.carrerasForm = this.formBuilder.group({
             carreras: this.formBuilder.array([])
+        });
+        this.periodosInglesForm = this.formBuilder.group({
+            periodos: this.formBuilder.array([])
         });
         this.horasForm = this.formBuilder.group({
             horas: this.formBuilder.array([])
@@ -85,12 +88,19 @@ var DetalleEditComponent = /** @class */ (function () {
                 if (response.detalle) {
                     _this.detalle = response.detalle;
                     _this.carrerasData = _this.detalle.carreras;
+                    _this.peridosInglesData = _this.detalle.periodoIngles;
                     _this.semestresData = _this.detalle.semestres[_this.detalle.semestres.length - 1];
                     _this.ciclosData = _this.detalle.ciclos[_this.detalle.ciclos.length - 1];
+                    _this.paraleloInicioData = _this.detalle.paralelos[0];
+                    _this.paraleloFinData = _this.detalle.paralelos[_this.detalle.paralelos.length - 1];
                     _this.horasDiurnasDesdeData = _this.detalle.horasDiurnas[0];
                     _this.horasDiurnasHastaData = _this.detalle.horasDiurnas[_this.detalle.horasDiurnas.length - 1];
                     _this.horasNocturnasDesdeData = _this.detalle.horasNocturnas[0];
                     _this.horasNocturnasHasta2Data = _this.detalle.horasNocturnas[_this.detalle.horasNocturnas.length - 1];
+                    _this.horasAlternativasDiurnasDesdeData = _this.detalle.horasAlternativaDiurnas[0];
+                    _this.horasAlternativasDiurnasHastaData = _this.detalle.horasAlternativaDiurnas[_this.detalle.horasAlternativaDiurnas.length - 1];
+                    _this.horasAlternativasNocturnasDesdeData = _this.detalle.horasAlternativaNocturnas[0];
+                    _this.horasAlternativasNocturnasHasta2Data = _this.detalle.horasAlternativaNocturnas[_this.detalle.horasAlternativaNocturnas.length - 1];
                     _this.inicializarFormularios();
                 }
                 else {
@@ -104,8 +114,11 @@ var DetalleEditComponent = /** @class */ (function () {
     // ...
     DetalleEditComponent.prototype.inicializarFormularios = function () {
         this.inicializarCarrerasForm();
+        this.inicializarPeriodoInglesForm();
         this.semestres = this.semestresData;
         this.ciclos = this.ciclosData;
+        this.paraleloInicio = this.paraleloInicioData;
+        this.paraleloFin = this.paraleloFinData;
         var partesD = this.horasDiurnasDesdeData.split("-");
         var partesD2 = this.horasDiurnasHastaData.split("-");
         var partesN = this.horasNocturnasDesdeData.split("-");
@@ -114,6 +127,14 @@ var DetalleEditComponent = /** @class */ (function () {
         this.horaFin = partesD2[1].trim();
         this.horaInicioN = partesN[0].trim();
         this.horaFinN1 = partesN2[1].trim();
+        var partesAD = this.horasAlternativasDiurnasDesdeData.split("-");
+        var partesAD2 = this.horasAlternativasDiurnasHastaData.split("-");
+        var partesAN = this.horasAlternativasNocturnasDesdeData.split("-");
+        var partesAN2 = this.horasAlternativasNocturnasHasta2Data.split("-");
+        this.horaInicioA = partesAD[0].trim();
+        this.horaFinA = partesAD2[1].trim();
+        this.horaInicioAN = partesAN[0].trim();
+        this.horaFinAN1 = partesAN2[1].trim();
     };
     DetalleEditComponent.prototype.inicializarCarrerasForm = function () {
         var carrerasArray = this.carrerasForm.get('carreras');
@@ -122,8 +143,18 @@ var DetalleEditComponent = /** @class */ (function () {
             carrerasArray.push(control);
         });
     };
+    DetalleEditComponent.prototype.inicializarPeriodoInglesForm = function () {
+        var periodoInglesArray = this.periodosInglesForm.get('periodos');
+        this.peridosInglesData.forEach(function (periodo) {
+            var control = new forms_1.FormControl(periodo);
+            periodoInglesArray.push(control);
+        });
+    };
     DetalleEditComponent.prototype.getCarrerasFormControls = function () {
         return this.carrerasForm.get('carreras').controls;
+    };
+    DetalleEditComponent.prototype.getperiodosInglesFormControls = function () {
+        return this.periodosInglesForm.get('periodos').controls;
     };
     DetalleEditComponent.prototype.getHorasFormControls = function () {
         return this.horasForm.get('horas').controls;
@@ -144,31 +175,51 @@ var DetalleEditComponent = /** @class */ (function () {
         var horas = this.horasForm.get('horas');
         horas.removeAt(index);
     };
+    DetalleEditComponent.prototype.agregarPeriodoIngles = function () {
+        var periodos = this.periodosInglesForm.get('periodos');
+        periodos.push(this.formBuilder.control(''));
+    };
+    DetalleEditComponent.prototype.removerPeriodoIngles = function (index) {
+        var periodos = this.periodosInglesForm.get('periodos');
+        periodos.removeAt(index);
+    };
     DetalleEditComponent.prototype.onSubmit = function () {
         var _this = this;
-        if (this.horasForm.invalid
-            || this.carrerasForm.invalid
+        if (this.carrerasForm.invalid ||
+            this.periodosInglesForm.invalid
             || this.semestres === undefined || this.ciclos === undefined
             || this.horaInicio === undefined || this.horaFin === undefined
-            || this.horaInicioN === undefined
-            || this.horaFinN1 === undefined) {
+            || this.horaInicioN === undefined || this.horaFinN1 === undefined
+            || this.horaInicioA === undefined || this.horaFinA === undefined
+            || this.horaInicioAN === undefined || this.horaFinAN1 === undefined) {
             sweetalert2_1["default"].fire('Detalle no creado', 'Por favor, rellene los datos correctamente.', 'error');
         }
         else {
             var carreras = this.carrerasForm.value.carreras;
+            var periodos = this.periodosInglesForm.value.periodos;
             var semestre = this.semestres;
             var semestres = [];
             var ciclo = this.ciclos;
             var ciclos = [];
+            var paraleloInicio = this.paraleloInicio.toUpperCase();
+            var paraleloFin = this.paraleloFin.toUpperCase();
+            var paralelos = [];
             for (var i = 1; i <= semestre; i++) {
                 semestres.push(i.toString());
             }
             for (var i = 1; i <= ciclo; i++) {
                 ciclos.push(i.toString());
             }
+            var abecedario = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+            var indiceInicio = abecedario.indexOf(paraleloInicio.toUpperCase());
+            var indiceFin = abecedario.indexOf(paraleloFin.toUpperCase());
+            var subarray = abecedario.slice(indiceInicio, indiceFin + 1);
+            console.log(subarray);
             this.detalle.carreras = carreras;
+            this.detalle.periodoIngles = periodos;
             this.detalle.semestres = semestres;
             this.detalle.ciclos = ciclos;
+            this.detalle.paralelos = subarray;
             // Crear un array para almacenar los pares de horas
             var paresHoras = [];
             // Convertir las horas iniciales y finales en objetos Date
@@ -209,6 +260,47 @@ var DetalleEditComponent = /** @class */ (function () {
                 }
                 this.detalle.horasNocturnas = paresHorasNocturnas;
             }
+            // Crear un array para almacenar los pares de horas
+            var paresHorasA = [];
+            // Convertir las horas iniciales y finales en objetos Date
+            var horaInicioA = new Date("1970-01-01T" + this.horaInicioA);
+            var horaFinA = new Date("1970-01-01T" + this.horaFinA);
+            // Bucle for para generar los pares de horas
+            for (var hora = horaInicioA; hora < horaFinA; hora.setHours(hora.getHours() + 1)) {
+                var horaActual = hora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                var horaSiguiente = new Date(hora);
+                horaSiguiente.setHours(horaSiguiente.getHours() + 1);
+                var parHoras = horaActual + " - " + horaSiguiente.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                paresHorasA.push(parHoras);
+            }
+            this.detalle.horasAlternativaDiurnas = paresHorasA;
+            // Crear un array para almacenar los pares de horas
+            if (this.horaFinAN !== undefined || this.horaInicioAN1 !== undefined) {
+                var paresHorasNocturnasA = [];
+                // Convertir las horas iniciales y finales en objetos Date
+                var horaInicioAN = new Date("1970-01-01T" + this.horaInicioAN);
+                var horaFinAN = new Date("1970-01-01T" + this.horaFinAN);
+                var horaInicioAN1 = new Date("1970-01-01T" + this.horaInicioAN1);
+                var horaFinAN1 = new Date("1970-01-01T" + this.horaFinAN1);
+                // Bucle for para generar los pares de horas
+                for (var hora = horaInicioAN; hora < horaFinAN; hora.setHours(hora.getHours() + 1)) {
+                    var horaActual = hora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                    var horaSiguiente = new Date(hora);
+                    horaSiguiente.setHours(horaSiguiente.getHours() + 1);
+                    var parHoras = horaActual + " - " + horaSiguiente.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                    paresHorasNocturnasA.push(parHoras);
+                }
+                // Bucle for para generar los pares de horas
+                for (var hora = horaInicioAN1; hora < horaFinAN1; hora.setHours(hora.getHours() + 1)) {
+                    var horaActual = hora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                    var horaSiguiente = new Date(hora);
+                    horaSiguiente.setHours(horaSiguiente.getHours() + 1);
+                    var parHoras = horaActual + " - " + horaSiguiente.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                    paresHorasNocturnasA.push(parHoras);
+                }
+                this.detalle.horasAlternativaNocturnas = paresHorasNocturnasA;
+            }
+            console.log(this.detalle);
             this._detalleService.update(this.detalle._id, this.detalle).subscribe(function (response) {
                 if (response.status == 'success') {
                     _this.detalle = response.detalle;
@@ -219,9 +311,9 @@ var DetalleEditComponent = /** @class */ (function () {
                 }
                 else {
                     sweetalert2_1["default"].fire('Detalle no se ha modificada', 'Por favor, rellene los datos correctamente.', 'error');
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1200);
+                    /* setTimeout(() => {
+                      location.reload();
+                    }, 1200); */
                 }
             }, function (error) {
                 sweetalert2_1["default"].fire('Detalle no modificado', error, 'error');

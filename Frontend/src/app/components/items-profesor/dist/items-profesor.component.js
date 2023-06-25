@@ -12,11 +12,13 @@ var core_1 = require("@angular/core");
 var sweetalert2_1 = require("sweetalert2");
 var table_1 = require("@angular/material/table");
 var detalle_service_1 = require("../services/detalle.service");
+var horario_service_1 = require("../services/horario.service");
 var ItemsProfesorComponent = /** @class */ (function () {
-    function ItemsProfesorComponent(_profesorService, _router, _detalleService) {
+    function ItemsProfesorComponent(_profesorService, _router, _detalleService, _horarioService) {
         this._profesorService = _profesorService;
         this._router = _router;
         this._detalleService = _detalleService;
+        this._horarioService = _horarioService;
         this.colorCuadro = document.querySelector(".color-square");
         this.terminoBusquedaProfesor = '';
         this.carrerasFiltradas = [];
@@ -31,10 +33,11 @@ var ItemsProfesorComponent = /** @class */ (function () {
     ItemsProfesorComponent.prototype.ngOnInit = function () {
         this.getProfesores();
         this.getDataDetalles();
+        this.getHorarios();
     };
     ItemsProfesorComponent.prototype.getDataDetalles = function () {
         var _this = this;
-        this._detalleService.getRolesIndex().subscribe(function (roles) {
+        this._detalleService.getRolesCarrera().subscribe(function (roles) {
             _this.rolesCarreras = roles;
         });
     };
@@ -58,6 +61,16 @@ var ItemsProfesorComponent = /** @class */ (function () {
             console.log(error);
         });
     };
+    ItemsProfesorComponent.prototype.getHorarios = function () {
+        var _this = this;
+        this._horarioService.getHorarios().subscribe(function (response) {
+            if (response.horarios) {
+                _this.horarios = response.horarios;
+            }
+        }, function (error) {
+            console.log(error);
+        });
+    };
     ItemsProfesorComponent.prototype["delete"] = function (id) {
         var _this = this;
         sweetalert2_1["default"].fire({
@@ -70,15 +83,37 @@ var ItemsProfesorComponent = /** @class */ (function () {
             confirmButtonText: 'Delete'
         }).then(function (result) {
             if (result.isConfirmed) {
-                _this._profesorService["delete"](id).subscribe(function (response) {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1200);
-                }, function (error) {
-                    console.log(error);
-                    _this._router.navigate(['/especificacion/profesores']);
+                var item_1 = [];
+                var ubicacion_1 = [];
+                var exist_aula_1 = false;
+                _this.horarios.forEach(function (horario) {
+                    item_1 = horario.item;
+                    item_1.forEach(function (item) {
+                        if (item.asignatura.profesor[0]._id === id) {
+                            exist_aula_1 = true;
+                            if (!horario.paralelo || horario.paralelo === "") {
+                                ubicacion_1 = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre;
+                            }
+                            else {
+                                ubicacion_1 = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre + ' Paralelo (' + horario.paralelo + ')';
+                            }
+                        }
+                    });
                 });
-                sweetalert2_1["default"].fire('Profesor borrada', 'El profesor ha sido borrado.', 'success');
+                if (!exist_aula_1) {
+                    _this._profesorService["delete"](id).subscribe(function (response) {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1200);
+                    }, function (error) {
+                        console.log(error);
+                        _this._router.navigate(['/especificacion/profesores']);
+                    });
+                    sweetalert2_1["default"].fire('Profesor borrada', 'El profesor ha sido borrado.', 'success');
+                }
+                else {
+                    sweetalert2_1["default"].fire('Profesor no borrada', 'Si deseas borrarla, primero borra el horario que la contiene: ' + ubicacion_1, 'error');
+                }
             }
             else {
                 sweetalert2_1["default"].fire('Operación cancelada', 'El profesor no ha sido borrado.', 'warning');
@@ -101,9 +136,9 @@ var ItemsProfesorComponent = /** @class */ (function () {
     };
     ItemsProfesorComponent.prototype.resumenProfesores = function () {
         this._router.navigate(['/especificacion/profesores/resumen-profesores']);
-        /*  setTimeout(() => {
-           location.reload();
-         }, 400); */
+        setTimeout(function () {
+            location.reload();
+        }, 400);
     };
     ItemsProfesorComponent.prototype.redirectEdit = function (id) {
         this._router.navigate(['/especificacion/profesores/editarProfesor/', id]);
@@ -119,7 +154,7 @@ var ItemsProfesorComponent = /** @class */ (function () {
             selector: 'app-items-profesor',
             templateUrl: './items-profesor.component.html',
             styleUrls: ['./items-profesor.component.css'],
-            providers: [profesor_service_1.ProfesorService, detalle_service_1.DetalleService]
+            providers: [profesor_service_1.ProfesorService, detalle_service_1.DetalleService, horario_service_1.HorarioService]
         })
     ], ItemsProfesorComponent);
     return ItemsProfesorComponent;

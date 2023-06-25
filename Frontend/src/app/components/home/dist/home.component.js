@@ -41,24 +41,39 @@ var HomeComponent = /** @class */ (function () {
     HomeComponent.prototype.getAsignaturas = function () {
         var _this = this;
         var periodoTipo;
+        var horario;
         this._route.params.subscribe(function (params) {
             var opcion2 = params['opcion2'];
             var opcion3 = params['opcion3'];
+            var opcion4 = params['opcion4'];
             if (params['opcion1'] === "Horario_Nocturno") {
                 periodoTipo = "Ciclo";
+                horario = "Nocturno";
             }
             else {
                 periodoTipo = "semestre";
+                horario = "Diurno";
             }
-            if (opcion2 !== undefined || opcion3 !== undefined) {
+            console.log(opcion2);
+            if (opcion2 !== "undefined" || opcion3 !== "undefined") {
                 var opcion2_1 = params['opcion2'];
                 opcion2_1 = opcion2_1.replace(/_/g, " ");
                 var opcion3_1 = params['opcion3'];
                 opcion3_1 = opcion3_1.replace(/_/g, " ");
-                if (opcion2_1 && opcion3_1) {
+                if (opcion2_1 && opcion3_1 && !opcion4) {
                     _this._asignaturaService.search(opcion2_1, opcion3_1).subscribe(function (response) {
                         if (response.asignaturas) {
-                            _this.is_horario = true;
+                            var asignaturas = [];
+                            asignaturas = response.asignaturas;
+                            asignaturas.forEach(function (asignatura) {
+                                if (asignatura.horario === horario && asignatura.paralelo.length === 0) {
+                                    _this.is_horario = true;
+                                }
+                            });
+                            /* this.is_horario = true */
+                            if (!_this.is_horario) {
+                                sweetalert2_1["default"].fire('Horario de la Carrera de ' + opcion2_1 + ' del ' + periodoTipo + ' ' + opcion3_1, 'No hay asignaturas para mostrar', 'error');
+                            }
                         }
                         else {
                             _this.is_horario = false;
@@ -67,6 +82,31 @@ var HomeComponent = /** @class */ (function () {
                         sweetalert2_1["default"].fire('Horario de la Carrera de ' + opcion2_1 + ' del ' + periodoTipo + ' ' + opcion3_1, error.error.message, 'error');
                     });
                 }
+                else if (opcion2_1 && opcion3_1 && opcion4) {
+                    _this._asignaturaService.searchThree(opcion2_1, opcion3_1, opcion4).subscribe(function (response) {
+                        if (response.asignaturas) {
+                            var asignaturas = [];
+                            asignaturas = response.asignaturas;
+                            asignaturas.forEach(function (asignatura) {
+                                if (asignatura.horario === horario) {
+                                    _this.is_horario = true;
+                                }
+                            });
+                            /* this.is_horario = true */
+                            if (!_this.is_horario) {
+                                sweetalert2_1["default"].fire('Horario ' + horario + ' de la Carrera de ' + opcion2_1 + ' del ' + periodoTipo + ' ' + opcion3_1 + ' del paralelo ' + opcion4, 'No hay asignaturas para mostrar', 'error');
+                            }
+                        }
+                        else {
+                            _this.is_horario = false;
+                        }
+                    }, function (error) {
+                        sweetalert2_1["default"].fire('Horario ' + horario + ' de la Carrera de ' + opcion2_1 + ' del ' + periodoTipo + ' ' + opcion3_1 + ' del paralelo ' + opcion4, error.error.message, 'error');
+                    });
+                }
+            }
+            else {
+                sweetalert2_1["default"].fire("Error al mostrar", "Por favor, selecciona los datos.", 'error');
             }
         });
     };

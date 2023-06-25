@@ -24,7 +24,7 @@
   <form class="mid-form" #usuarioForm="ngForm" (ngSubmit)="onSubmit()">
     <div class="form-group">
       <label for="nombre">Nombres y Apellidos: </label>
-      <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="user.nombre" required pattern="^[^0-9]+$" />
+      <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="user.nombre" placeholder="Ejemplo: MSc. Jose Diaz" required pattern="^[^0-9]+$" />
       <small *ngIf="nombre.errors && nombre.touched">
         El nombre no es válido. Asegúrate de no incluir números.
       </small>
@@ -46,7 +46,7 @@
     </div>
     <div class="form-group">
       <label for="nombre">Usuario: </label>
-      <input type="text" name="usuario" #usuario="ngModel" [(ngModel)]="user.username" required />
+      <input type="text" name="usuario" #usuario="ngModel" [(ngModel)]="user.username" placeholder="Ejemplo: Jose" required />
       <small *ngIf="!usuario.valid && usuario.touched">
         El usuario no es valido
       </small>
@@ -68,14 +68,14 @@
 
     <div class="form-group">
       <label for="numero">N° Celular: </label>
-      <input type="text" name="phone" #phone="ngModel" [(ngModel)]="user.phoneNumber" pattern="[0-9]{10}" required />
+      <input type="text" name="phone" #phone="ngModel" [(ngModel)]="user.phoneNumber" pattern="[0-9]{10}" placeholder="Ejemplo: 099999999" required />
       <small *ngIf="!phone.valid && phone.touched">
         El número de celular no es válido. Debe tener 10 dígitos numéricos.
       </small>
     </div>
     <div class="form-group">
       <label for="nombre">Contraseña: </label>
-      <input type="password" name="contrasena" #contrasena="ngModel" [(ngModel)]="user.contrasena" required
+      <input type="password" name="contrasena" #contrasena="ngModel" [(ngModel)]="user.contrasena" placeholder="********"required
         minlength="8" />
       <small *ngIf="contrasena.errors && contrasena.touched">
         La contraseña no es válida. Debe tener al menos 8 caracteres.

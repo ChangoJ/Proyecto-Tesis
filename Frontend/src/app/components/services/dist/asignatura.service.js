@@ -29,6 +29,9 @@ var AsignaturaService = /** @class */ (function () {
     AsignaturaService.prototype.search = function (searchString, search2String) {
         return this._http.get(this.url + 'search/' + searchString + '/' + search2String);
     };
+    AsignaturaService.prototype.searchThree = function (searchString, search2String, search3String) {
+        return this._http.get(this.url + 'searchThree/' + searchString + '/' + search2String + '/' + search3String);
+    };
     AsignaturaService.prototype.searchOne = function (searchString) {
         return this._http.get(this.url + 'searchOne/' + searchString);
     };

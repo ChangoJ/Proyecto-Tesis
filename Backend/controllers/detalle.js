@@ -14,9 +14,9 @@ var controller = {
                 && params.diasDiurnas.length !== 0 && params.diasNocturnas.length !== 0 */
 
         if (
-            params.carreras.length !== 0 && params.semestres.length !== 0
+            params.carreras.length !== 0 && params.semestres.length !== 0 && params.periodoIngles.length !== 0
             && params.ciclos.length !== 0 && params.horasDiurnas.length !== 0 && params.horasNocturnas.length !== 0
-
+            && params.horasAlternativaDiurnas.length !== 0 && params.horasAlternativaNocturnas.length !== 0
         ) {
 
 
@@ -26,11 +26,15 @@ var controller = {
 
             //asignar valores
             detalle1.carreras = params.carreras;
+            detalle1.periodoIngles = params.periodoIngles;
             detalle1.semestres = params.semestres;
             detalle1.ciclos = params.ciclos;
+            detalle1.paralelos = params.paralelos;
             detalle1.horasDiurnas = params.horasDiurnas;
             detalle1.horasNocturnas = params.horasNocturnas;
-
+            detalle1.horasAlternativaDiurnas = params.horasAlternativaDiurnas;
+            detalle1.horasAlternativaNocturnas = params.horasAlternativaNocturnas;
+            
 
             //guardar el articulo
             detalle1.save().then((detalleStored) => {
@@ -144,9 +148,10 @@ var controller = {
          && params.diasDiurnas.length !== 0 && params.diasNocturnas.length !== 0
           */
         if (
-            params.carreras.length !== 0 && params.semestres.length !== 0
+            params.carreras.length !== 0 && params.semestres.length !== 0 && params.periodoIngles.length !== 0
             && params.ciclos.length !== 0 && params.horasDiurnas.length !== 0 && params.horasNocturnas.length !== 0
-
+            && params.horasAlternativaDiurnas.length !== 0 && params.horasAlternativaNocturnas.length !== 0
+      
         ) {
             detalle.findOneAndUpdate({ _id: detalleId }, params, { new: true }).then((detalleUpdated) => {
 

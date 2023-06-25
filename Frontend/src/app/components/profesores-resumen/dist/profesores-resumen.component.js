@@ -105,11 +105,10 @@ var ProfesoresResumenComponent = /** @class */ (function () {
     };
     ProfesoresResumenComponent.prototype.getDataDetalles = function () {
         var _this = this;
-        this._detalleService.getRolesIndex().subscribe(function (roles) {
+        this._detalleService.getRolesCarrera().subscribe(function (roles) {
             _this.rolesCarreras = roles;
         });
         this._detalleService.getHorasDiurnas().subscribe(function (horasDiurnas) {
-            console.log(_this.hours);
             _this.hours = horasDiurnas;
         });
         this._detalleService.getHorasNocturnas().subscribe(function (horasNocturnas) {
@@ -376,7 +375,6 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 else {
                     _this.asignaturasFiltradas = _this.asignaturas;
                 }
-                console.log(_this.asignaturasFiltradas);
                 _this.agruparAsignaturasPorProfesor(_this.asignaturasFiltradas);
                 _this.asignaturasPorProfesorTiempoCompleto.paginator = _this.paginator;
                 _this.asignaturasPorProfesorMedioTiempo.paginator = _this.paginator2;
@@ -443,7 +441,6 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         horariosProfesores = profesoresArray.map(function (profesor) {
             profesorId = profesor._id;
             _this.horarioProfesor = diasArray.map(function (dia) { return dia.filter(function (item) {
-                console.log(item);
                 if (item.elementoType === 'asignatura' && item.item.profesor && item.item.profesor[0]._id === profesorId) {
                     identAsignatura = item.identificador.substring(0, 2);
                     semestreAsignatura = item.semestre;
@@ -456,7 +453,6 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                     return false; // Omitir otros elementos
                 }
             }); });
-            console.log(horariosProfesores);
             // Buscar el item correspondiente a esta celda
             for (var k = 0; k < _this.horarioProfesor.length; k++) {
                 var currentItem = _this.horarioProfesor[k];
@@ -960,8 +956,8 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         var DataFirmas = [];
         rowDataHead5.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:']);
         DataFirmas.push(["", "", ""]);
-        DataFirmas.push(["Prof. " + this.userData.nombre, "Prof. " + this.revisador.nombre, "Prof. " + this.aprobador.nombre]);
-        DataFirmas.push(["Director de Carrera", "Decana de Facultad", "Directora Académica "]);
+        DataFirmas.push([this.userData.nombre, this.revisador.nombre, this.aprobador.nombre]);
+        DataFirmas.push(["Director de Carrera", "Decano de Facultad", "Directora Académica"]);
         jspdf_autotable_1["default"](doc, {
             head: rowDataHead5,
             body: DataFirmas,
@@ -1472,7 +1468,7 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         elaboradoPor.value = 'Elaborado por: ';
         elaboradoPor.font = { size: 8 };
         var nombreDirector = worksheet.getCell(55, 2);
-        nombreDirector.value = 'Prof. ' + this.userData.nombre;
+        nombreDirector.value = this.userData.nombre;
         nombreDirector.font = { size: 8 };
         var directorCarrera = worksheet.getCell(56, 2);
         directorCarrera.value = 'Director de carrera';
@@ -1482,20 +1478,20 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         revisadoPor.value = 'Revisado por: ';
         revisadoPor.font = { size: 8 };
         var nombreRevisador = worksheet.getCell(55, 4);
-        nombreRevisador.value = 'Prof. ' + this.revisador.nombre;
+        nombreRevisador.value = this.revisador.nombre;
         nombreRevisador.font = { size: 8 };
         var cargoRevisador = worksheet.getCell(56, 4);
-        cargoRevisador.value = 'Decana de Facultad';
+        cargoRevisador.value = 'Decano de Facultad';
         cargoRevisador.font = { size: 8 };
         // Agregar texto al final de la página
         var aprobadorPor = worksheet.getCell(52, 6);
         aprobadorPor.value = 'Aprobado por: ';
         aprobadorPor.font = { size: 8 };
         var nombreAprobador = worksheet.getCell(55, 6);
-        nombreAprobador.value = "Prof. " + this.aprobador.nombre;
+        nombreAprobador.value = this.aprobador.nombre;
         nombreAprobador.font = { size: 8 };
         var cargoAprobador = worksheet.getCell(56, 6);
-        cargoAprobador.value = 'Directora Academica';
+        cargoAprobador.value = 'Directora Académica';
         cargoAprobador.font = { size: 8 };
         var nombreArchivo = 'Horario ' + profesor + '.xlsx';
         workbook.xlsx.writeBuffer().then(function (buffer) {

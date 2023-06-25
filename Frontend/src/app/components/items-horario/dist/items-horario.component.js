@@ -71,7 +71,7 @@ var ItemsHorarioComponent = /** @class */ (function () {
         this.getHorarios();
         this.ver = "Ver";
         this.userData = JSON.parse(this.authToken);
-        if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador") {
+        if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador" || this.userData.rol === "Superadministrador") {
             this.is_admin = true;
             this.is_aprobador = true;
         }
@@ -79,7 +79,7 @@ var ItemsHorarioComponent = /** @class */ (function () {
     };
     ItemsHorarioComponent.prototype.getDataDetalles = function () {
         var _this = this;
-        this._detalleService.getRolesIndex().subscribe(function (roles) {
+        this._detalleService.getRolesCarrera().subscribe(function (roles) {
             _this.rolesCarreras = roles;
         });
     };
@@ -106,8 +106,6 @@ var ItemsHorarioComponent = /** @class */ (function () {
                 else {
                     _this.carrerasFiltradas = _this.horarios;
                 }
-                console.log(_this.horarios);
-                console.log(_this.carrerasFiltradas);
                 _this.horariosFiltrados = new table_1.MatTableDataSource(_this.carrerasFiltradas);
                 _this.horariosFiltrados.paginator = _this.paginator;
             }

@@ -30,7 +30,7 @@
         <form class="mid-form" #profesorForm="ngForm" (ngSubmit)="onSubmit()">
             <div class="form-group">
                 <label for="nombre">Nombres y Apellidos: </label>
-                <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="profesor.nombre" pattern="^[^0-9]+$" required />
+                <input type="text" name="nombre" #nombre="ngModel" [(ngModel)]="profesor.nombre" pattern="^[^0-9]+$" placeholder="Ejemplo: MSc. Jose Diaz" required />
                 <small *ngIf="!nombre.valid && nombre.touched">
                     El nombre y apellido ingresados no son válidos. Por favor, asegúrate de que solo contengan letras.
                 </small>

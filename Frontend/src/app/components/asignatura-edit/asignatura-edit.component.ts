@@ -30,16 +30,19 @@ export class AsignaturaEditComponent {
   public authToken: any;
   public userData: any;
   public rolesCarreras: any;
+  public rolesCarrerasFilter: any;
   public carreras: any
   public semestres: any
   public ciclos: any
-  public horariosType:any
+  public horariosType: any
 
 
   selectedCarreras: any[] = [];
   selectedHorarios: any[] = [];
   selectedSemestres: any[] = [];
   selectedProfesores: any[] = [];
+  public selectedPeriodoIngles: any[] = [];
+  public periodosIngles: any[] = [];
   itemCarreraEdit: any[] = [];
   itemSemestreEdit: any[] = [];
   itemProfesoresEdit: any[] = [];
@@ -48,8 +51,13 @@ export class AsignaturaEditComponent {
   dropdownSemestres: IDropdownSettings = {};
   dropdownHorarios: IDropdownSettings = {};
   dropdownProfesores: IDropdownSettings = {};
-  
+  public dropdownPeriodosIngles: IDropdownSettings = {};
+  public dropdownParalelos: IDropdownSettings = {};
+  public paralelos: any[] = [];
+  public selectedParalelos: any;
   dropdownCiclos: IDropdownSettings = {};
+  itemParalelosEdit: any;
+  itemPeriodoInglesEdit: any;
 
 
   constructor(
@@ -100,10 +108,31 @@ export class AsignaturaEditComponent {
       allowSearchFilter: true
     };
 
+    this.dropdownPeriodosIngles = {
+      singleSelection: false,
+      idField: 'id',
+      textField: 'textField',
+      selectAllText: 'Seleccionar todo',
+      unSelectAllText: 'Deseleccionar todo',
+      itemsShowLimit: 13,
+      allowSearchFilter: true
+    };
+
+
     this.dropdownProfesores = {
       singleSelection: true,
       idField: '_id',
       textField: 'nombre',
+      selectAllText: 'Seleccionar todo',
+      unSelectAllText: 'Deseleccionar todo',
+      itemsShowLimit: 13,
+      allowSearchFilter: true
+    };
+
+    this.dropdownParalelos = {
+      singleSelection: true,
+      idField: 'id',
+      textField: 'textField',
       selectAllText: 'Seleccionar todo',
       unSelectAllText: 'Deseleccionar todo',
       itemsShowLimit: 13,
@@ -129,26 +158,42 @@ export class AsignaturaEditComponent {
   }
 
 
-  getDataDetalles(){
+  getDataDetalles() {
     this._detalleService.getCarrerasIndex().subscribe(carreras => {
-      this.carreras = carreras 
+      this.carreras = carreras
     });
 
     this._detalleService.getSemestresIndex().subscribe(semestres => {
-      this.semestres = semestres 
+      this.semestres = semestres
     });
     this._detalleService.getCiclosIndex().subscribe(ciclos => {
-      this.ciclos = ciclos 
+      this.ciclos = ciclos
     });
 
     this._detalleService.getRolesIndex().subscribe(roles => {
       this.rolesCarreras = roles
     });
+
+    this._detalleService.getPeriodosInglesIndex().subscribe(periodos => {
+      this.periodosIngles = periodos
+    });
+
+    this._detalleService.getRolesCarrera().subscribe(roles => {
+      this.rolesCarrerasFilter = roles
+    });
+
+
+
+    this._detalleService.getParalelosIndex().subscribe(paralelos => {
+      this.paralelos = paralelos
+    });
+
   }
 
   onSubmit() {
     this.asignatura.carrera = []
     this.asignatura.semestre = []
+    this.asignatura.paralelo = []
     this.asignatura.horario = ''
     let controles: string[] = []
     Object.values(this.asignaturaForm.controls).forEach(control => {
@@ -162,58 +207,64 @@ export class AsignaturaEditComponent {
     for (const semestre of this.selectedSemestres) {
       this.asignatura.semestre.push(semestre.textField);
     }
+
+    for (const paralelo of this.selectedParalelos) {
+      this.asignatura.paralelo.push(paralelo.textField);
+    }
+
     if (this.itemHorarioEdit.length !== 0) {
-    this.asignatura.horario = this.itemHorarioEdit[0].textField
-  }
-  if (this.asignatura.nombre === ""
-    || this.asignatura.abreviatura === ""
-    || this.asignatura.color === ""
-    || this.asignatura.creditos === 0
-    || this.asignatura.carrera.length === 0
-    || this.asignatura.horario === ""
-    || this.asignatura.profesor.length ===0
-    || this.asignatura.semestre.length ===0
-    || controles.includes("INVALID")
-  ) {
-    Swal.fire(
-      'Asignatura no se ha modificada',
-      'Por favor, rellene los datos correctamente.',
-      'error'
-    )
+      this.asignatura.horario = this.itemHorarioEdit[0].textField
+    }
+    console.log(this.asignatura)
+    if (this.asignatura.nombre === ""
+      || this.asignatura.abreviatura === ""
+      || this.asignatura.color === ""
+      || this.asignatura.creditos === 0
+      || this.asignatura.carrera.length === 0
+      || this.asignatura.horario === ""
+      || this.asignatura.profesor.length === 0
+      || this.asignatura.semestre.length === 0
+      || controles.includes("INVALID")
+    ) {
+      Swal.fire(
+        'Asignatura no se ha modificada',
+        'Por favor, rellene los datos correctamente.',
+        'error'
+      )
 
-  } else {
-    this._asignaturaService.update(this.asignatura._id, this.asignatura).subscribe(
-      response => {
+    } else {
+      this._asignaturaService.update(this.asignatura._id, this.asignatura).subscribe(
+        response => {
 
-        if (response.status == 'success') {
-          this.status = 'success'
-          this.asignatura = response.asignatura
+          if (response.status == 'success') {
+            this.status = 'success'
+            this.asignatura = response.asignatura
 
-          Swal.fire(
-            'Asignatura modificada',
-            'La Asignatura se ha modificado correctamente.',
-            'success'
-          )
-          setTimeout(() => {
-            this._router.navigate(['/especificacion/asignaturas']);
-          }, 1200);
-        } else {
-          Swal.fire(
-            'Asignatura no se ha modificado',
-            'Por favor, rellene los datos correctamente.',
-            'error'
-          )
+            Swal.fire(
+              'Asignatura modificada',
+              'La Asignatura se ha modificado correctamente.',
+              'success'
+            )
+            setTimeout(() => {
+              this._router.navigate(['/especificacion/asignaturas']);
+            }, 1200);
+          } else {
+            Swal.fire(
+              'Asignatura no se ha modificado',
+              'Por favor, rellene los datos correctamente.',
+              'error'
+            )
+            this.status = 'error'
+            setTimeout(() => {
+              location.reload();
+            }, 1200);
+          }
+        },
+        error => {
           this.status = 'error'
-          setTimeout(() => {
-            location.reload();
-          }, 1200);
         }
-      },
-      error => {
-        this.status = 'error'
-      }
-    )
-  }
+      )
+    }
   }
 
   onKeyUp() {
@@ -236,14 +287,14 @@ export class AsignaturaEditComponent {
   }
 
 
- 
+
 
   getProfesores() {
     this._profesorService.getProfesores().subscribe(
       response => {
         if (response.profesores) {
           this.profesores = response.profesores;
-          let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase().replace(/\s/g, "")];
+          let carreraActual = this.rolesCarrerasFilter[this.userData.rol.toLowerCase().replace(/\s/g, "")];
 
           this.carrerasFiltradas = [];
 
@@ -260,7 +311,7 @@ export class AsignaturaEditComponent {
     )
   }
 
-  
+
 
 
   getAsignatura() {
@@ -272,7 +323,13 @@ export class AsignaturaEditComponent {
             this.asignatura = response.asignatura
             this.selectedHorarios = this.horariosType.filter((horario: { textField: string; }) => horario.textField === this.asignatura.horario);
             this.selectedCarreras = this.carreras.filter((carrera: { textField: String; }) => this.asignatura.carrera.includes(carrera.textField));
+            this.selectedParalelos = this.paralelos.filter((paralelo: { textField: String; }) => this.asignatura.paralelo!.includes(paralelo.textField));
+            
             this.selectedSemestres = this.semestres.filter((semestre: { textField: String; }) => this.asignatura.semestre.includes(semestre.textField));
+            if(this.selectedCarreras[0].textField === "Ingles" && this.selectedCarreras.length === 1){
+              this.selectedSemestres = this.periodosIngles.filter((semestre: { textField: String; }) => this.asignatura.semestre.includes(semestre.textField));
+      
+            }
           } else {
             this._router.navigate(['/especificacion/asignaturas'], { relativeTo: this._route });
           }
@@ -291,6 +348,14 @@ export class AsignaturaEditComponent {
 
   onItemCarreraSelect(item: any) {
     this.itemCarreraEdit = item
+    if(item.length > 1){
+      
+    this.selectedPeriodoIngles = []
+    this.selectedSemestres = []
+    }
+    this.selectedHorarios = []
+    
+             
   }
 
   onItemSemestreSelect(item: any) {
@@ -302,8 +367,17 @@ export class AsignaturaEditComponent {
     this.itemProfesoresEdit = item
   }
 
+  onItemPeriodoInglesSelect(item: any) {
+    this.itemPeriodoInglesEdit = item
+  }
+
+  onItemParaleloSelect(item: any) {
+    this.itemParalelosEdit = item
+  }
+
   onItemHorariosSelect(item: any) {
     this.selectedSemestres = []
+    this.selectedPeriodoIngles = []
     this.itemHorarioEdit = item
   }
 
