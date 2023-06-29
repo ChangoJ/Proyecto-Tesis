@@ -12,6 +12,7 @@ export class Asignatura {
         public abreviatura: string,
         public color: string,
         public paralelo?: Array<String>,
+        public ciclo?: Array<String>,
     ){
 
     }

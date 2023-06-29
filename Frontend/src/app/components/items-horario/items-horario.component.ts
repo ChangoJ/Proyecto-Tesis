@@ -8,6 +8,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { HorarioObservacionDialogComponent } from '../horario-observacion-dialog/horario-observacion-dialog.component';
 import { DetalleService } from '../services/detalle.service';
+import { Usuario } from '../models/usuario';
 
 @Component({
   selector: 'app-items-horario',
@@ -26,12 +27,13 @@ export class ItemsHorarioComponent {
   public horario!: Horario
   public is_admin!: boolean
   public is_aprobador!: boolean
+  public is_revisador!: boolean
   public editingHorario: any = null;
   public authToken!: any;
   public userData!: any;
-  public  carrerasFiltradas: any[] = [];
+  public carrerasFiltradas: any[] = [];
   public rolesCarreras: any
-  public columnas = ['N°', 'Carrera', 'Periodo', 'Tipo', 'Acciones', 'Estado', 'Observacion'];
+  public columnas = ['N°', 'Carrera', 'Periodo', 'Tipo', 'Acciones', 'Estado(Aprobacion)', 'Estado(Revisado)', 'Observacion'];
 
   constructor(
     private _horarioService: HorarioService,
@@ -53,15 +55,20 @@ export class ItemsHorarioComponent {
     this.getHorarios()
     this.ver = "Ver";
     this.userData = JSON.parse(this.authToken!)
-    if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador"  || this.userData.rol === "Superadministrador") {
+    if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador" || this.userData.rol === "Superadministrador") {
       this.is_admin = true
       this.is_aprobador = true
+    }
+
+    if (this.userData.rol === "Administrador" || this.userData.rol === "Revisador" || this.userData.rol === "Superadministrador") {
+      this.is_admin = true
+      this.is_revisador = true
     }
 
     this.getDataDetalles()
   }
 
-  getDataDetalles(){
+  getDataDetalles() {
 
     this._detalleService.getRolesCarrera().subscribe(roles => {
       this.rolesCarreras = roles
@@ -88,13 +95,13 @@ export class ItemsHorarioComponent {
           let carreraActual = this.rolesCarreras[this.userData.rol.toLowerCase().replace(/\s/g, "")];
 
           this.carrerasFiltradas = [];
-      
+
           if (carreraActual) {
             this.carrerasFiltradas = this.horarios.filter(carrera => carrera.carrera.toLowerCase() === carreraActual.toLowerCase());
           } else {
             this.carrerasFiltradas = this.horarios;
           }
-          
+
           this.horariosFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas)
           this.horariosFiltrados.paginator = this.paginator
 
@@ -108,7 +115,7 @@ export class ItemsHorarioComponent {
 
   }
 
- 
+
 
   getHorario(id: any) {
 
@@ -202,7 +209,7 @@ export class ItemsHorarioComponent {
 
               setTimeout(() => {
                 this._router.navigate(['/horarios']);
-              }, 1200);
+              }, 1400);
             } else {
               Swal.fire(
                 'No se ha podido modificar el estado',
@@ -212,7 +219,7 @@ export class ItemsHorarioComponent {
 
               setTimeout(() => {
                 location.reload();
-              }, 1200);
+              }, 1400);
             }
           },
           error => {
@@ -222,13 +229,10 @@ export class ItemsHorarioComponent {
         Swal.fire('Estado de horario cambiado', 'El estado del horario ha sido ' + estado.toLowerCase() + '.', confirm);
         setTimeout(() => {
           location.reload();
-        }, 1300);
+        }, 1400);
       } else {
         Swal.fire('Operación cancelada', 'El estado del horario no ha sido cambiado.', 'warning');
 
-        setTimeout(() => {
-          location.reload();
-        }, 1200);
       }
     });
 
@@ -239,12 +243,87 @@ export class ItemsHorarioComponent {
 
   }
 
+  async cambiarEstadoRevision(horario: any, estado: string, usuario: any) {
+ 
+    await this.getHorario(horario._id)
+    let confirm: any = ""
+    let color = ""
+    if (estado === "Aprobado") {
+
+      this.horario.revisado_por = usuario._id
+      confirm = "success"
+      color = '#008000'
+    } else {
+      
+      this.horario.revisado_por = null
+      confirm = "error"
+
+      color = '#d33'
+     
+      
+    }
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'El horario será ' + estado.toLowerCase() + ' en su revisión' + '.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: color,
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Aceptar',
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        
+            
+        console.log(this.horario)
+        this._horarioService.update(horario._id, this.horario).subscribe(
+          response => {
+            if (response.status == 'success') {
+              this.horario = response.horario;
+              console.log(this.horario)
+
+              Swal.fire(
+                'Estado de revisón del horario ' + estado.toLowerCase() + '.',
+                'El estado de revisión horario ha sido ' + estado.toLowerCase() + '.',
+                confirm
+              );
+
+              setTimeout(() => {
+                this._router.navigate(['/horarios']);
+              }, 1400);
+            } else {
+              Swal.fire(
+                'No se ha podido modificar el estado de revision.',
+                'Existe un error.',
+                'error'
+              );
+
+              setTimeout(() => {
+                location.reload();
+              }, 1400);
+            }
+          },
+          error => {
+            console.log(error)
+          }
+        );
+        Swal.fire('Estado de revisón del horario cambiado.', 'El estado de revisión del horario ha sido ' + estado.toLowerCase() + '.', confirm);
+       setTimeout(() => {
+          location.reload();
+        }, 1400); 
+      } else {
+        Swal.fire('Operación cancelada', 'Estado de revisón del horario no ha sido cambiado.', 'warning');
+
+      }
+    });
+
+  }
+
   openDialog(observacion: string) {
     const dialogRef = this.dialog.open(HorarioObservacionDialogComponent, {
       width: '500px',
       data: observacion
     });
-  
+
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         dialogRef.componentInstance.result = result;
@@ -253,7 +332,6 @@ export class ItemsHorarioComponent {
   }
 
   async saveObservation(horario: any) {
-    console.log(horario)
     await this.getHorario(horario._id)
     this.horario.observacion = horario.observacion
 

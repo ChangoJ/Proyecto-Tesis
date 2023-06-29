@@ -30,6 +30,7 @@ router.put('/asignatura/:id', AsignaturaController.update);
 router.delete('/asignatura/:id', AsignaturaController.delete);
 router.get('/search/:search1/:search2', AsignaturaController.search);
 router.get('/searchThree/:search1/:search2/:search3', AsignaturaController.searchThree);
+router.get('/searchFour/:search1/:search2/:search3/:search4', AsignaturaController.searchFour);
 router.get('/searchOne/:search1', AsignaturaController.searchOne);
 
 

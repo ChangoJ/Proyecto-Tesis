@@ -36,7 +36,7 @@
 </p>
 
 <p *ngIf="!opcionVerHorario && is_Diurno && is_Paralelo">Estas editando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
-  <strong>{{opcion3}}</strong> {{periodoTipo}} - Paralelo <strong>{{opcion4}}</strong>
+  <strong>{{opcion3}}</strong> {{periodoTipo}} - Paralelo <strong>{{opcion5}}</strong>
 </p>
 
 <p *ngIf="!opcionVerHorario && !is_Diurno  && !is_Paralelo">Estas editando el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
@@ -44,15 +44,15 @@
 </p>
 
 <p *ngIf="!opcionVerHorario && !is_Diurno  && is_Paralelo">Estas editando el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
-  <strong>{{opcion3}}</strong> {{periodoTipo}} - Paralelo <strong>{{opcion4}}</strong>
+  semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong>  - Paralelo <strong>{{opcion5}}</strong>
 </p>
 
 <p *ngIf="opcionVerHorario && !is_Diurno && !is_Paralelo">Estas viendo el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
-  <strong>{{opcion3}}</strong> {{periodoTipo}}
+  semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong> 
 </p>
 
 <p *ngIf="opcionVerHorario && !is_Diurno && is_Paralelo">Estas viendo el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
-   <strong>{{opcion3}}</strong> {{periodoTipo}} - Paralelo <strong>{{opcion4}}</strong>
+  semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong>  - Paralelo <strong>{{opcion5}}</strong>
 </p>
 
 <p *ngIf="opcionVerHorario && is_Diurno && !is_Paralelo">Estas viendo el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
@@ -60,7 +60,7 @@
 </p>
 
 <p *ngIf="opcionVerHorario && is_Diurno && is_Paralelo">Estas viendo el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
-  {{periodoTipo}} <strong>{{opcion3}}</strong> - Paralelo <strong>{{opcion4}}</strong>
+  {{periodoTipo}} <strong>{{opcion3}}</strong> - Paralelo <strong>{{opcion5}}</strong>
 </p>
 
 
@@ -104,7 +104,7 @@
 
       <mat-grid-tile [ngClass]="{ 'tablaHorario-activo': opcionVerHorario, 'tablaHorario-inactivo': !opcionVerHorario }"colspan="1">
         <div class="box-table mat-elevation-z2">
-          <h2><strong>Horario Diurno - {{opcion2}} - {{periodoTipo}} {{opcion3}} </strong> <strong *ngIf="is_Paralelo">- Paralelo ({{opcion4}})</strong></h2>
+          <h2><strong>Horario Diurno - {{opcion2}} - {{periodoTipo}} {{opcion3}} </strong> <strong *ngIf="is_Paralelo">- Paralelo ({{opcion5}})</strong></h2>
           <table class="mat-table">
             <thead>
               <tr class="mat-header-row">
@@ -276,7 +276,7 @@
         <mat-grid-tile [ngClass]="{ 'tablaHorario-activo': opcionVerHorario, 'tablaHorario-inactivo': !opcionVerHorario }"colspan="1">
         
         <div class="box-table mat-elevation-z2">
-          <h2><strong>Horario Nocturno - {{opcion2}} - {{periodoTipo}} {{opcion3}} </strong> <strong *ngIf="is_Paralelo">- Paralelo ({{opcion4}})</strong></h2>
+          <h2><strong>Horario Nocturno - {{opcion2}} - Semestre {{opcion3}} - {{periodoTipo}} {{opcion4}} </strong> <strong *ngIf="is_Paralelo">- Paralelo ({{opcion5}})</strong></h2>
           <table class="mat-table" id="table">
             <thead>
               <tr class="mat-header-row">

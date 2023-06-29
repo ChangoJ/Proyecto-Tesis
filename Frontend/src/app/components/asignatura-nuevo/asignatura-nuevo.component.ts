@@ -34,10 +34,11 @@ export class AsignaturaNuevoComponent {
   public carreras: any
   public semestres: any
   public ciclos: any
-  public horariosType:any
+  public horariosType: any
   public periodosIngles: any[] = [];
   public selectedCarreras: any[] = [];
   public selectedSemestres: any[] = [];
+  public selectedCiclos: any[] = [];
   public selectedProfesores: any[] = [];
   public selectedHorarios: any[];
   public selectedPeriodoIngles: any[] = [];
@@ -154,16 +155,16 @@ export class AsignaturaNuevoComponent {
     this.getDataDetalles()
   }
 
-  getDataDetalles(){
+  getDataDetalles() {
     this._detalleService.getCarrerasIndex().subscribe(carreras => {
-      this.carreras = carreras 
+      this.carreras = carreras
     });
-    
+
     this._detalleService.getSemestresIndex().subscribe(semestres => {
-      this.semestres = semestres 
+      this.semestres = semestres
     });
     this._detalleService.getCiclosIndex().subscribe(ciclos => {
-      this.ciclos = ciclos 
+      this.ciclos = ciclos
     });
     this._detalleService.getRolesIndex().subscribe(roles => {
       this.rolesCarreras = roles
@@ -228,6 +229,7 @@ export class AsignaturaNuevoComponent {
     this.asignatura.semestre = []
     this.asignatura.carrera = []
     this.asignatura.paralelo = []
+    this.asignatura.ciclo = []
     this.asignatura.profesor = []
     this.asignatura.horario = ''
     let controles: string[] = []
@@ -249,19 +251,25 @@ export class AsignaturaNuevoComponent {
       this.asignatura.semestre.push(semestre.textField);
     }
 
-    if(this.selectedParalelos && this.selectedParalelos.length >0){
+    if (this.selectedCiclos && this.selectedCiclos.length > 0) {
+      for (const ciclo of this.selectedCiclos) {
+        this.asignatura.ciclo.push(ciclo.textField);
+      }
+    }
+
+    if (this.selectedParalelos && this.selectedParalelos.length > 0) {
       for (const paralelo of this.selectedParalelos) {
         this.asignatura.paralelo.push(paralelo.textField);
       }
     }
 
-  
+
 
 
     if (this.selectedHorarios.length !== 0) {
       this.asignatura.horario = this.selectedHorarios[0].textField
     }
-   
+
     if (this.asignatura.nombre === ""
       || this.asignatura.abreviatura === ""
       || this.asignatura.color === ""
@@ -279,7 +287,7 @@ export class AsignaturaNuevoComponent {
       )
 
     } else {
-      
+
       this._asignaturaService.create(this.asignatura).subscribe(
         response => {
           if (response.status == 'success') {
@@ -322,6 +330,9 @@ export class AsignaturaNuevoComponent {
   onItemSemestreSelect(item: any) {
   }
 
+  onItemCicloSelect(item: any) {
+  }
+
 
   onItemProfesoresSelect(item: any) {
   }
@@ -330,7 +341,7 @@ export class AsignaturaNuevoComponent {
   }
 
   onItemPeriodoInglesSelect(item: any) {
-    
+
     this.selectedPeriodoIngles = []
   }
 

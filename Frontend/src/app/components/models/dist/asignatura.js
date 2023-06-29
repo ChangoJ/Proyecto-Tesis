@@ -2,7 +2,7 @@
 exports.__esModule = true;
 exports.Asignatura = void 0;
 var Asignatura = /** @class */ (function () {
-    function Asignatura(_id, nombre, carrera, semestre, profesor, horario, creditos, abreviatura, color, paralelo) {
+    function Asignatura(_id, nombre, carrera, semestre, profesor, horario, creditos, abreviatura, color, paralelo, ciclo) {
         this._id = _id;
         this.nombre = nombre;
         this.carrera = carrera;
@@ -13,6 +13,7 @@ var Asignatura = /** @class */ (function () {
         this.abreviatura = abreviatura;
         this.color = color;
         this.paralelo = paralelo;
+        this.ciclo = ciclo;
     }
     return Asignatura;
 }());

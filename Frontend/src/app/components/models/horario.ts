@@ -16,6 +16,10 @@ export class Horario {
         public creado_por: Usuario,
         public observacion?: string,
         public paralelo?: string,
+        public ciclo?: string,
+        public horarioHoras?: string,
+        public revisado_por?: Usuario | null,
+        
     ){
 
     }

@@ -64,7 +64,6 @@ var CarrerasDialogComponent = /** @class */ (function () {
         this._detalleService.getRolesCarrera().subscribe(function (rolesCarrera) {
             _this.rolesCarreras = rolesCarrera;
         });
-        console.log(this.rolesCarreras);
         this._detalleService.getCarrerasIndex().subscribe(function (carreras) {
             _this.carreras = carreras;
             var carreraActual = _this.rolesCarreras[_this.userData.rol.toLowerCase().replace(/\s/g, "")];
@@ -128,6 +127,7 @@ var CarrerasDialogComponent = /** @class */ (function () {
             this.datoRecibido = "Horario Diurno";
             this.periodoTIpo = "Semestre";
         }
+        console.log(this.selectedParalelo);
         if (this.selectedParalelo === undefined) {
             this.selectedParalelo = "";
         }
@@ -142,19 +142,25 @@ var CarrerasDialogComponent = /** @class */ (function () {
         }
         var ruta = "";
         var rutaEnviar = "";
-        if (this.selectedOpcionPregunta === "si") {
+        if (this.datoRecibido === "Horario Diurno" && this.selectedOpcionPregunta === "si") {
             rutaEnviar = rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedParalelo;
         }
-        else {
+        else if (this.datoRecibido === "Horario Diurno") {
             rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre;
+        }
+        if (this.datoRecibido === "Horario Nocturno" && this.selectedOpcionPregunta === "si") {
+            rutaEnviar = rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedCiclo + '/' + this.selectedParalelo;
+        }
+        else if (this.datoRecibido === "Horario Nocturno") {
+            rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedCiclo;
         }
         if (!existHorarioCarrera) {
             ruta = rutaEnviar;
             ruta = ruta.replace(/\s+/g, "_");
             this._router.navigate([ruta], { relativeTo: this._route });
-            setTimeout(function () {
-                location.reload();
-            }, 350);
+            /* setTimeout(() => {
+              location.reload();
+            }, 350); */
         }
         else {
             sweetalert2_1["default"].fire('EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + this.periodoTIpo + ' ya fue creado.', 'Por favor, si desea modificar vaya a la sección de horarios', 'error');

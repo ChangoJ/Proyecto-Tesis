@@ -37,27 +37,29 @@ export class AsignaturaEditComponent {
   public horariosType: any
 
 
-  selectedCarreras: any[] = [];
-  selectedHorarios: any[] = [];
-  selectedSemestres: any[] = [];
-  selectedProfesores: any[] = [];
+  public selectedCarreras: any[] = [];
+  public selectedHorarios: any[] = [];
+  public selectedSemestres: any[] = [];
+  public selectedProfesores: any[] = [];
   public selectedPeriodoIngles: any[] = [];
   public periodosIngles: any[] = [];
-  itemCarreraEdit: any[] = [];
-  itemSemestreEdit: any[] = [];
-  itemProfesoresEdit: any[] = [];
-  itemHorarioEdit: any[] = []
-  dropdownCarreras: IDropdownSettings = {};
-  dropdownSemestres: IDropdownSettings = {};
-  dropdownHorarios: IDropdownSettings = {};
-  dropdownProfesores: IDropdownSettings = {};
+  public itemCarreraEdit: any[] = [];
+  public itemSemestreEdit: any[] = [];
+  public itemProfesoresEdit: any[] = [];
+  public itemHorarioEdit: any[] = []
+  public dropdownCarreras: IDropdownSettings = {};
+  public dropdownSemestres: IDropdownSettings = {};
+  public dropdownHorarios: IDropdownSettings = {};
+  public dropdownProfesores: IDropdownSettings = {};
   public dropdownPeriodosIngles: IDropdownSettings = {};
   public dropdownParalelos: IDropdownSettings = {};
   public paralelos: any[] = [];
   public selectedParalelos: any;
-  dropdownCiclos: IDropdownSettings = {};
-  itemParalelosEdit: any;
-  itemPeriodoInglesEdit: any;
+  public dropdownCiclos: IDropdownSettings = {};
+  public itemParalelosEdit: any;
+  public itemPeriodoInglesEdit: any;
+  public itemCicloEdit: any;
+  public selectedCiclos: any[] = [];
 
 
   constructor(
@@ -194,6 +196,7 @@ export class AsignaturaEditComponent {
     this.asignatura.carrera = []
     this.asignatura.semestre = []
     this.asignatura.paralelo = []
+    this.asignatura.ciclo = []
     this.asignatura.horario = ''
     let controles: string[] = []
     Object.values(this.asignaturaForm.controls).forEach(control => {
@@ -208,8 +211,16 @@ export class AsignaturaEditComponent {
       this.asignatura.semestre.push(semestre.textField);
     }
 
-    for (const paralelo of this.selectedParalelos) {
-      this.asignatura.paralelo.push(paralelo.textField);
+    if (this.selectedCiclos && this.selectedCiclos.length > 0) {
+      for (const ciclo of this.selectedCiclos) {
+        this.asignatura.ciclo.push(ciclo.textField);
+      }
+    }
+
+    if (this.selectedParalelos && this.selectedParalelos.length > 0) {
+      for (const paralelo of this.selectedParalelos) {
+        this.asignatura.paralelo.push(paralelo.textField);
+      }
     }
 
     if (this.itemHorarioEdit.length !== 0) {
@@ -326,10 +337,12 @@ export class AsignaturaEditComponent {
             this.selectedParalelos = this.paralelos.filter((paralelo: { textField: String; }) => this.asignatura.paralelo!.includes(paralelo.textField));
             
             this.selectedSemestres = this.semestres.filter((semestre: { textField: String; }) => this.asignatura.semestre.includes(semestre.textField));
+            this.selectedCiclos = this.ciclos.filter((ciclo: { textField: String; }) => this.asignatura.ciclo!.includes(ciclo.textField));
+            
             if(this.selectedCarreras[0].textField === "Ingles" && this.selectedCarreras.length === 1){
               this.selectedSemestres = this.periodosIngles.filter((semestre: { textField: String; }) => this.asignatura.semestre.includes(semestre.textField));
-      
             }
+
           } else {
             this._router.navigate(['/especificacion/asignaturas'], { relativeTo: this._route });
           }
@@ -352,6 +365,7 @@ export class AsignaturaEditComponent {
       
     this.selectedPeriodoIngles = []
     this.selectedSemestres = []
+    this.selectedCiclos = []
     }
     this.selectedHorarios = []
     
@@ -360,6 +374,10 @@ export class AsignaturaEditComponent {
 
   onItemSemestreSelect(item: any) {
     this.itemSemestreEdit = item
+  }
+
+  onItemCicloSelect(item: any) {
+    this.itemCicloEdit = item
   }
 
 
@@ -377,6 +395,7 @@ export class AsignaturaEditComponent {
 
   onItemHorariosSelect(item: any) {
     this.selectedSemestres = []
+    this.selectedCiclos = []
     this.selectedPeriodoIngles = []
     this.itemHorarioEdit = item
   }

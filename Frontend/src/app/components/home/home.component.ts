@@ -62,6 +62,7 @@ export class HomeComponent {
       let opcion2 = params['opcion2'];
       let opcion3 = params['opcion3'];
       let opcion4 = params['opcion4'];
+      let opcion5 = params['opcion5'];
 
 
       if (params['opcion1'] === "Horario_Nocturno") {
@@ -72,8 +73,8 @@ export class HomeComponent {
         periodoTipo = "semestre"
         horario = "Diurno"
       }
-      console.log(opcion2)
-      if (opcion2 !== "undefined" || opcion3 !== "undefined") {
+
+      if (opcion2 !== "undefined" && opcion3 !== "undefined") {
         let opcion2 = params['opcion2'];
         opcion2 = opcion2.replace(/_/g, " ");
         let opcion3 = params['opcion3'];
@@ -86,7 +87,7 @@ export class HomeComponent {
                 let asignaturas = []
                 asignaturas = response.asignaturas
                 asignaturas.forEach((asignatura: any) => {
-                  if (asignatura.horario === horario && asignatura.paralelo!.length === 0) {
+                  if (asignatura.horario === horario && asignatura.paralelo!.length === 0 && asignatura.ciclo!.length === 0) {
 
                     this.is_horario = true
                   }
@@ -112,17 +113,26 @@ export class HomeComponent {
               )
             }
           )
-        } else if (opcion2 && opcion3 && opcion4) {
+        } else if (opcion2 && opcion3 && opcion4 && !opcion5) {
           this._asignaturaService.searchThree(opcion2, opcion3, opcion4).subscribe(
             response => {
+              
               if (response.asignaturas) {
 
                 let asignaturas = []
                 asignaturas = response.asignaturas
                 asignaturas.forEach((asignatura: any) => {
-                  if (asignatura.horario === horario) {
+                  if (horario === "Diurno") {
 
-                    this.is_horario = true
+                    if (asignatura.horario === horario && asignatura.ciclo!.length === 0) {
+
+                      this.is_horario = true
+                    }
+                  } else {
+                    if (asignatura.horario === horario && asignatura.paralelo!.length === 0) {
+
+                      this.is_horario = true
+                    }
                   }
                 });
                 /* this.is_horario = true */
@@ -139,6 +149,7 @@ export class HomeComponent {
 
             },
             error => {
+              
               Swal.fire(
                 'Horario ' + horario + ' de la Carrera de ' + opcion2 + ' del ' + periodoTipo + ' ' + opcion3 + ' del paralelo ' + opcion4,
                 error.error.message,
@@ -146,15 +157,49 @@ export class HomeComponent {
               )
             }
           )
+        } else {
+          this._asignaturaService.searchFour(opcion2, opcion3, opcion4, opcion5).subscribe(
+            response => {
+              if (response.asignaturas) {
+
+                let asignaturas = []
+                asignaturas = response.asignaturas
+                asignaturas.forEach((asignatura: any) => {
+                  if (asignatura.horario === horario) {
+
+                    this.is_horario = true
+                  }
+                });
+                /* this.is_horario = true */
+                if (!this.is_horario) {
+                  Swal.fire(
+                    'Horario ' + horario + ' de la Carrera de ' + opcion2 + ' del ' + periodoTipo + ' ' + opcion3 + ' del paralelo ' + opcion5,
+                    'No hay asignaturas para mostrar',
+                    'error'
+                  )
+                }
+              } else {
+                this.is_horario = false
+              }
+
+            },
+            error => {
+              console.log("her")
+              Swal.fire(
+                'Horario ' + horario + ' de la Carrera de ' + opcion2 + ' del ' + periodoTipo + ' ' + opcion3 + ' del paralelo ' + opcion5,
+                error.error.message,
+                'error'
+              )
+            }
+          )
         }
-      }else{
+      } else {
         Swal.fire(
           "Error al mostrar",
           "Por favor, selecciona los datos.",
           'error'
-          )
+        )
       }
-
     })
   }
 }

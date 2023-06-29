@@ -36,6 +36,7 @@ export class HorarioEditComponent {
   public opcion2: string = "";
   public opcion3: string = "";
   public opcion4: string = "";
+  public opcion5: string = "";
   public idHorario: string = "";
   public status!: string;
   public horario!: Horario
@@ -103,22 +104,23 @@ export class HorarioEditComponent {
   }
 
   getDataDetalles() {
-    if (this.opcion2 !== "Ingles") {
+    console.log(this.horario)
+    if (this.horario.horarioHoras === "1D") {
 
       this._detalleService.getHorasDiurnas().subscribe(horasDiurnas => {
         this.hours = horasDiurnas
       });
-
+    } else if (this.horario.horarioHoras === "1N") {
       this._detalleService.getHorasNocturnas().subscribe(horasNocturnas => {
         this.hoursnight = horasNocturnas
       });
 
-    } else {
+    } else if (this.horario.horarioHoras === "2D") {
 
       this._detalleService.getHorasAlternativaDiurnas().subscribe(horasAlternativaDiurnas => {
         this.hours = horasAlternativaDiurnas
       });
-
+    } else if (this.horario.horarioHoras === "2N") {
       this._detalleService.getHorasAlternativaNocturnas().subscribe(horasAlternativaNocturnas => {
         this.hoursnight = horasAlternativaNocturnas
       });
@@ -145,14 +147,29 @@ export class HorarioEditComponent {
           if (this.opcion4 === undefined) {
             this.opcion4 = ""
           }
+          if (this.opcion5 === undefined) {
+            this.opcion5 = ""
+          }
           for (const horario of this.horarios) {
             if (horario.paralelo === undefined) {
               horario.paralelo = ""
             }
-            if (horario.carrera === this.opcion2 && horario.semestre === this.opcion3 && horario.tipoHorario === this.opcion1 && horario.paralelo === this.opcion4) {
-              this.existHorarioCarrera = true
-
+            if (horario.ciclo === undefined) {
+              horario.ciclo = ""
             }
+
+            if (this.opcion1 === "Horario Nocturno") {
+              if (horario.carrera === this.opcion2 && horario.semestre === this.opcion3 && horario.tipoHorario === this.opcion1 && horario.ciclo === this.opcion4 && horario.paralelo === this.opcion5) {
+                this.existHorarioCarrera = true
+
+              }
+            } else {
+              if (horario.carrera === this.opcion2 && horario.semestre === this.opcion3 && horario.tipoHorario === this.opcion1 && horario.paralelo === this.opcion4) {
+                this.existHorarioCarrera = true
+
+              }
+            }
+
           }
           if (this.opcion1 === "Horario Nocturno") {
             this.periodoTipo = "ciclo"
@@ -163,16 +180,14 @@ export class HorarioEditComponent {
 
             this.periodoTipo = "Nivel"
           }
-         
-          if(this.periodoTipo === "ciclo"){
-          this.horarios = this.horarios.filter(horario => horario.tipoHorario === this.opcion1 && horario.semestre === this.opcion3);
-          }else{
+
+          if (this.periodoTipo === "ciclo") {
+            this.horarios = this.horarios.filter(horario => horario.tipoHorario === this.opcion1 && horario.ciclo === this.opcion4);
+          } else {
             this.horarios = this.horarios.filter(horario => horario.tipoHorario === this.opcion1);
 
           }
-          
 
-          console.log(this.horarios)
         }
       },
       error => {
@@ -266,7 +281,7 @@ export class HorarioEditComponent {
     this.opcion1 = this.opcion1.replace(/_/g, " ");
 
 
-    if (this.opcion4) {
+    if (this.opcion5) {
       this.is_Paralelo = true
     } else {
       this.is_Paralelo = false
@@ -285,7 +300,7 @@ export class HorarioEditComponent {
           this.asignaturas = []; // Reiniciar el array de asignaturas
 
           // Iterar sobre las asignaturas obtenidas en la respuesta
-          response.asignaturas.forEach((asignatura: { creditos: number; _id: string; nombre: string; carrera: String[]; semestre: String[]; profesor: Profesor[]; horario: string; abreviatura: string; color: string; paralelo: any[]; }) => {
+          response.asignaturas.forEach((asignatura: { creditos: number; _id: string; nombre: string; carrera: String[]; semestre: String[]; profesor: Profesor[]; horario: string; abreviatura: string; color: string; paralelo: any[]; ciclo: any[]; }) => {
             let creditos = asignatura.creditos; // Obtener la cantidad de créditos de la asignatura
 
             // Clonar la asignatura por la cantidad de créditos y guardarlas en el array this.asignaturas
@@ -301,6 +316,7 @@ export class HorarioEditComponent {
                 asignatura.abreviatura,
                 asignatura.color,
                 asignatura.paralelo,
+                asignatura.ciclo,
               );
 
               this.asignaturas.push(asignaturaClonada);
@@ -314,21 +330,31 @@ export class HorarioEditComponent {
             tipoHorarioAsig = "Nocturno"
           }
 
+          if (this.opcion5 === undefined || this.opcion5 === "") {
+            this.opcion5 = ""
+          }
+
           if (this.opcion4 === undefined || this.opcion4 === "") {
             this.opcion4 = ""
           }
 
-
           this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig)
 
 
-          if (this.opcion4 === undefined || this.opcion4 === "") {
-            this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig )
+          if ((this.opcion5 === undefined || this.opcion5 === "") && (this.opcion4 === undefined || this.opcion4 === "")) {
+            this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig && asignatura.paralelo!.length === 0 && asignatura.ciclo!.length === 0)
 
-          }else{
-            this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig && asignatura.paralelo && asignatura.paralelo.includes(this.opcion4))
+          } else if ((this.opcion4 === undefined || this.opcion4 === "") && (this.opcion5 !== undefined || this.opcion5 !== "")) {
+            this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig && asignatura.paralelo && asignatura.paralelo.includes(this.opcion5))
+            console.log(this.asignaturas)
+          } else if ((this.opcion4 !== undefined || this.opcion4 !== "") && (this.opcion5 === undefined || this.opcion5 === "")) {
+            this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig && asignatura.ciclo && asignatura.ciclo.includes(this.opcion4))
+
+          } else if ((this.opcion4 !== undefined || this.opcion4 !== "") && (this.opcion5 !== undefined || this.opcion5 !== "")) {
+            this.asignaturas = this.asignaturas.filter(asignatura => asignatura.horario === tipoHorarioAsig && asignatura.paralelo && asignatura.paralelo.includes(this.opcion5) && asignatura.ciclo && asignatura.ciclo.includes(this.opcion4))
 
           }
+
           // Recorrer cada objeto del primer array
           for (let i = 0; i < this.asignaturas.length; i++) {
             // Verificar si el _id del objeto existe en el segundo array
@@ -1026,7 +1052,7 @@ export class HorarioEditComponent {
         response => {
           if (response.horario) {
             this.horario = response.horario
-
+            console.log(this.horario)
             this.getDaysHorario()
 
             this.getAsignaturas()
@@ -1048,7 +1074,8 @@ export class HorarioEditComponent {
     this.opcion2 = this.horario.carrera
     this.opcion3 = this.horario.semestre
     this.opcion1 = this.horario.tipoHorario
-    this.opcion4 = this.horario.paralelo!
+    this.opcion5 = this.horario.paralelo!
+    this.opcion4 = this.horario.ciclo!
     this.idHorario = this.horario._id
     if (this.horario.tipoHorario === "Horario Diurno") {
       this.is_Diurno = true
@@ -1132,7 +1159,7 @@ export class HorarioEditComponent {
     await this.getHorarios()
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario, '', '')
     const arreglosHorario = [
       this.monday,
       this.tuesday,
@@ -1150,6 +1177,8 @@ export class HorarioEditComponent {
     this.horario.carrera = this.opcion2
     this.horario.semestre = this.opcion3
     this.horario._id = this.idHorario
+    this.horario.paralelo = this.opcion5
+    this.horario.ciclo = this.opcion4
 
 
     let elementoComprobarTipo: any = []
@@ -1633,11 +1662,20 @@ export class HorarioEditComponent {
 
     doc.addPage();
 
+    if (this.horario.revisado_por) {
+      rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:'])
+      DataFirmas.push(["", "", ""]);
+      DataFirmas.push([this.horario.creado_por.nombre, this.horario.revisado_por!.nombre, this.aprobador.nombre]);
+      DataFirmas.push(["Director de Carrera", "Decano de Facultad", "Directora Académica"]);
 
-    rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:'])
-    DataFirmas.push(["", "", ""]);
-    DataFirmas.push([this.horario.creado_por.nombre, this.revisador.nombre, this.aprobador.nombre]);
-    DataFirmas.push(["Director de Carrera", "Decano de Facultad", "Directora Académica"]);
+    } else {
+
+      rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:'])
+      DataFirmas.push(["", "", ""]);
+      DataFirmas.push([this.horario.creado_por.nombre, "", this.aprobador.nombre]);
+      DataFirmas.push(["Director de Carrera", "Decano de Facultad", "Directora Académica"]);
+    }
+
 
     autoTable(doc, {
       head: rowDataHead3,
@@ -2000,9 +2038,17 @@ export class HorarioEditComponent {
     revisadoPor.value = 'Revisado por: ';
     revisadoPor.font = { size: 8 };
 
-    let nombreRevisador = worksheet.getCell(29, 4);
-    nombreRevisador.value = this.revisador.nombre;
-    nombreRevisador.font = { size: 8 };
+    if (this.horario.revisado_por) {
+
+      let nombreRevisador = worksheet.getCell(29, 4);
+      nombreRevisador.value = this.horario.revisado_por!.nombre!
+      nombreRevisador.font = { size: 8 };
+    } else {
+      
+      let nombreRevisador = worksheet.getCell(29, 4);
+      nombreRevisador.value = ""
+      nombreRevisador.font = { size: 8 };
+    }
 
     let cargoRevisador = worksheet.getCell(30, 4);
     cargoRevisador.value = 'Decano de Facultad';
@@ -2241,7 +2287,7 @@ export class HorarioEditComponent {
                       itemsBDHorario[j].itemverifyAsignatura[k] === itemsHorario.itemverifyAsignatura[i] &&
                       itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]) {
 
-                        mensaje += `
+                      mensaje += `
                       
                         <strong>¡Choque de aula y asignatura (Misma hora)</strong>!<br>
                         Motivo: La misma asignatura y aula ya se asignó en esa hora<br>
@@ -2257,7 +2303,7 @@ export class HorarioEditComponent {
 
 
 
-                        mensaje += `
+                      mensaje += `
                         <strong>¡Choque de profesor (Misma hora)</strong>!<br>
                         Motivo: El profesor ya se asignó a al misma hora para dar otra clase<br>
                         <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre} - ${itemsBDHorario[j].paralelo}</strong><br>

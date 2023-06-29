@@ -1,379 +1,403 @@
 <nav id="submenuHorario">
-    <ul>
-      <li>
-        <div class="center-icon">
-          <mat-icon id="verified" aria-hidden="false" aria-label="verified"
-            fontIcon="verified"></mat-icon>
-          <a mat-raised-button [disabled]="!isActiveBtnV" (click)="verificarHorario()">Verificar</a>
-        </div>
-      </li>
-      <li>
-        <div class="center-icon">
-          <mat-icon id="save" aria-hidden="false" aria-label="save" fontIcon="save"></mat-icon>
-          <a mat-raised-button [disabled]="!isActiveBtn" (click)="submit()">Guardar</a>
-        </div>
-      </li>
-      <li>
-        <div class="center-icon">
-          <mat-icon id="local_printshop" aria-hidden="false" aria-label="local_printshop"
-            fontIcon="local_printshop"></mat-icon>
-          <a mat-raised-button [disabled]="!isActiveBtnG" (click)="exportarPDF()">Exportar PDF</a>
-        </div>
-      </li>
-      <li>
-        <div class="center-icon">
-          <mat-icon id="local_printshop" aria-hidden="false" aria-label="local_printshop"
-            fontIcon="local_printshop"></mat-icon>
-          <a mat-raised-button [disabled]="!isActiveBtnG" (click)="exportarExcel()">Exportar Excel</a>
-        </div>
-      </li>
-    </ul>
-  </nav>
-  
-  <p *ngIf="is_Diurno && !is_Paralelo">Estas creando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
-    <strong>{{opcion3}}</strong> {{periodoTipo}}</p>
+  <ul>
+    <li>
+      <div class="center-icon">
+        <mat-icon id="verified" aria-hidden="false" aria-label="verified" fontIcon="verified"></mat-icon>
+        <a mat-raised-button [disabled]="!isActiveBtnV" (click)="verificarHorario()">Verificar</a>
+      </div>
+    </li>
+    <li>
+      <div class="center-icon">
+        <mat-icon id="save" aria-hidden="false" aria-label="save" fontIcon="save"></mat-icon>
+        <a mat-raised-button [disabled]="!isActiveBtn" (click)="submit()">Guardar</a>
+      </div>
+    </li>
+    <li>
+      <div class="center-icon">
+        <mat-icon id="local_printshop" aria-hidden="false" aria-label="local_printshop"
+          fontIcon="local_printshop"></mat-icon>
+        <a mat-raised-button [disabled]="!isActiveBtnG" (click)="exportarPDF()">Exportar PDF</a>
+      </div>
+    </li>
+    <li>
+      <div class="center-icon">
+        <mat-icon id="local_printshop" aria-hidden="false" aria-label="local_printshop"
+          fontIcon="local_printshop"></mat-icon>
+        <a mat-raised-button [disabled]="!isActiveBtnG" (click)="exportarExcel()">Exportar Excel</a>
+      </div>
+    </li>
+  </ul>
+</nav>
 
-    <p *ngIf="is_Diurno  && is_Paralelo">Estas creando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
-      <strong>{{opcion3}}</strong>  {{periodoTipo}} - Paralelo <strong>{{opcion4}}</strong></p>
+<p *ngIf="is_Diurno && !is_Paralelo">Estas creando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
+  <strong>{{opcion3}}</strong> {{periodoTipo}}
+</p>
 
-    <p *ngIf="!is_Diurno && !is_Paralelo">Estas creando el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
-      <strong>{{opcion3}}</strong> {{periodoTipo}} </p>
+<p *ngIf="is_Diurno  && is_Paralelo">Estas creando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
+  <strong>{{opcion3}}</strong> {{periodoTipo}} - Paralelo <strong>{{opcion4}}</strong>
+</p>
 
-      <p *ngIf="!is_Diurno  && is_Paralelo">Estas creando el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
-        <strong>{{opcion3}}</strong>  {{periodoTipo}} - Paralelo <strong>{{opcion4}}</strong></p>
-  
-  
-  <div class="boxcontentHorario" *ngIf="is_Diurno">
-    <div cdkDropListGroup class="mat-elevation-z2 ">
-      <mat-grid-list cols="10" rowHeight="2:10" class="CajaHorario">
-        <mat-grid-tile class="mat-grid-tile-materias listaMaterias" rowspan="2">
-          <h2 class="h2Materias">Asignaturas</h2>
-          <input id="buscadorHorarioA" [(ngModel)]="terminoBusquedaAsignatura" type="text" placeholder="Buscar por nombre" (input)="filtrarAsignaturas()">
-    
-          <div cdkDropList [cdkDropListData]="asignaturasFiltradas" id="IdListaAsignaturas" class="cdk-drop-listAsignaturas contenedor-listas"
-            (cdkDropListDropped)="drop($event)">
-            <ng-container *ngFor="let asignatura of asignaturasFiltradas; let i=index ">
-              <ng-container *ngFor="let profesor of asignatura.profesor; let j=index">
-                <div style="background-color: {{asignatura.color}}; font-size: 13px;" id="{{'asignatura-' + i + '-' + j}}"
-                  class="cdk-drag-box mat-elevation-z1 listArrastre" cdkDrag [attr.data-idProfesor]="profesor._id">
-                  <strong>Asignatura: </strong> {{asignatura.nombre}} <br>
-                  <strong>Profesor: </strong> {{ profesor.nombre }}
-                </div>
-              </ng-container>
-            </ng-container>
-          </div>
-        </mat-grid-tile>
-        <mat-grid-tile class="mat-grid-tile-materias listaAulas" rowspan="2">
-          <h2 class="h2Materias">Aulas</h2>
-          <input id="buscadorHorarioA" [(ngModel)]="terminoBusquedaAula" type="text" placeholder="Buscar por nombre" (input)="filtrarAulas()">
-          <div cdkDropList [cdkDropListData]="aulasFiltradas"id="IdListaAulas" class="cdk-drop-listAulas contenedor-listas"
-            (cdkDropListDropped)="drop($event)">
-            <ng-container *ngFor="let aula of aulasFiltradas; let i=index ">
-              <div style="background-color: {{aula.color}}; font-size: 13px;" id="{{'aula-' + i }}"
-                class="cdk-drag-box mat-elevation-z1 listArrastre" cdkDrag>
-                <strong>Aula: </strong> {{aula?.nombre}} <br>
-                <strong>Ub: </strong> {{ aula?.ubicacion }}
+<p *ngIf="!is_Diurno && !is_Paralelo">Estas creando el horario nocturno de la carrera de <strong>{{opcion2}}</strong>
+  del
+  semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong>
+
+<p *ngIf="!is_Diurno  && is_Paralelo">Estas creando el horario nocturno de la carrera de <strong>{{opcion2}}</strong>
+  del
+  semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong> - Paralelo
+  <strong>{{opcion5}}</strong></p>
+
+<!-- Diruno -->
+<mat-form-field class="seleccionHorario" *ngIf="is_Diurno">
+  <mat-label >Cambiar horas del horario</mat-label>
+  <mat-select (selectionChange)="onOptionSelectedHorario($event.value)">
+    <mat-option value="horasDiurnas">Horas Diurnas</mat-option>
+    <mat-option value="horasAlternativaDiurnas">Horas Alternativa Diurnas</mat-option>
+  </mat-select>
+  </mat-form-field>
+
+<div class="boxcontentHorario" *ngIf="is_Diurno">
+  <div cdkDropListGroup class="mat-elevation-z2 ">
+    <mat-grid-list cols="10" rowHeight="2:10" class="CajaHorario">
+      <mat-grid-tile class="mat-grid-tile-materias listaMaterias" rowspan="2">
+        <h2 class="h2Materias">Asignaturas</h2>
+        <input id="buscadorHorarioA" [(ngModel)]="terminoBusquedaAsignatura" type="text" placeholder="Buscar por nombre"
+          (input)="filtrarAsignaturas()">
+
+        <div cdkDropList [cdkDropListData]="asignaturasFiltradas" id="IdListaAsignaturas"
+          class="cdk-drop-listAsignaturas contenedor-listas" (cdkDropListDropped)="drop($event)">
+          <ng-container *ngFor="let asignatura of asignaturasFiltradas; let i=index ">
+            <ng-container *ngFor="let profesor of asignatura.profesor; let j=index">
+              <div style="background-color: {{asignatura.color}}; font-size: 13px;" id="{{'asignatura-' + i + '-' + j}}"
+                class="cdk-drag-box mat-elevation-z1 listArrastre" cdkDrag [attr.data-idProfesor]="profesor._id">
+                <strong>Asignatura: </strong> {{asignatura.nombre}} <br>
+                <strong>Profesor: </strong> {{ profesor.nombre }}
               </div>
             </ng-container>
-          </div>
-        </mat-grid-tile>
-  
-  
-        <mat-grid-tile class="tablaHorario" colspan="1">
-          <div class="box-table mat-elevation-z2">
-            <h2><strong>Horario Diurno - {{opcion2}} - {{periodoTipo}} {{opcion3}} </strong> <strong *ngIf="is_Paralelo">- Paralelo ({{opcion4}})</strong></h2>
-            <table class="mat-table" id="table">
-              <thead>
-                <tr class="mat-header-row">
-                  <th class="mat-header-cell">Horas</th>
-                  <th class="mat-header-cell">Lunes</th>
-                  <th class="mat-header-cell">Martes</th>
-                  <th class="mat-header-cell">Miércoles</th>
-                  <th class="mat-header-cell">Jueves</th>
-                  <th class="mat-header-cell">Viernes</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let hour of hours ; let i=index" class="mat-row">
-                  <td class="mat-cell">{{ hour.split('-')[0] }} - {{hour.split('-')[1]}}</td>
-                  <td cdkDropList [cdkDropListData]="getDayData(0, hour)" (cdkDropListDropped)="drop($event)"
-                    id="0-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list" style="overflow: hidden;">
-                    <div
-                      [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                      matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
-                      class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(0, hour); let i=index" cdkDrag>
-                      <ng-container *ngIf="item.profesor">
-                        <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
-                        '' }}
-                        <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
-                        : '' }}
-                      </ng-container>
-                      <ng-container *ngIf="!item.profesor">
-                        <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
-                        '' }} <br>
-                      </ng-container>
-                    </div>
-                  </td>
-                  <td cdkDropList [cdkDropListData]="getDayData(1, hour)" (cdkDropListDropped)="drop($event)"
-                    id="1-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
-                    <div
-                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
+          </ng-container>
+        </div>
+      </mat-grid-tile>
+      <mat-grid-tile class="mat-grid-tile-materias listaAulas" rowspan="2">
+        <h2 class="h2Materias">Aulas</h2>
+        <input id="buscadorHorarioA" [(ngModel)]="terminoBusquedaAula" type="text" placeholder="Buscar por nombre"
+          (input)="filtrarAulas()">
+        <div cdkDropList [cdkDropListData]="aulasFiltradas" id="IdListaAulas"
+          class="cdk-drop-listAulas contenedor-listas" (cdkDropListDropped)="drop($event)">
+          <ng-container *ngFor="let aula of aulasFiltradas; let i=index ">
+            <div style="background-color: {{aula.color}}; font-size: 13px;" id="{{'aula-' + i }}"
+              class="cdk-drag-box mat-elevation-z1 listArrastre" cdkDrag>
+              <strong>Aula: </strong> {{aula?.nombre}} <br>
+              <strong>Ub: </strong> {{ aula?.ubicacion }}
+            </div>
+          </ng-container>
+        </div>
+      </mat-grid-tile>
+
+
+      <mat-grid-tile class="tablaHorario" colspan="1">
+        <div class="box-table mat-elevation-z2">
+          <h2><strong>Horario Diurno - {{opcion2}} - {{periodoTipo}} {{opcion3}} </strong> <strong *ngIf="is_Paralelo">-
+              Paralelo ({{opcion4}})</strong></h2>
+          <table class="mat-table" id="table">
+            <thead>
+              <tr class="mat-header-row">
+                <th class="mat-header-cell">Horas</th>
+                <th class="mat-header-cell">Lunes</th>
+                <th class="mat-header-cell">Martes</th>
+                <th class="mat-header-cell">Miércoles</th>
+                <th class="mat-header-cell">Jueves</th>
+                <th class="mat-header-cell">Viernes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let hour of hours ; let i=index" class="mat-row">
+                <td class="mat-cell">{{ hour.split('-')[0] }} - {{hour.split('-')[1]}}</td>
+                <td cdkDropList [cdkDropListData]="getDayData(0, hour)" (cdkDropListDropped)="drop($event)"
+                  id="0-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list" style="overflow: hidden;">
+                  <div
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
                     matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
-                      class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(1, hour); let i=index" cdkDrag>
-                      <ng-container *ngIf="item.profesor">
-                        <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
-                        '' }}
-                        <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
-                        : '' }}
-                      </ng-container>
-                      <ng-container *ngIf="!item.profesor">
-                        <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
-                        '' }} <br>
-                      </ng-container>
-                    </div>
-                  </td>
-                  <td cdkDropList [cdkDropListData]="getDayData(2, hour)" (cdkDropListDropped)="drop($event)"
-                    id="2-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
-                    <div
-                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
+                    class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(0, hour); let i=index" cdkDrag>
+                    <ng-container *ngIf="item.profesor">
+                      <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
+                      '' }}
+                      <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
+                      : '' }}
+                    </ng-container>
+                    <ng-container *ngIf="!item.profesor">
+                      <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
+                      '' }} <br>
+                    </ng-container>
+                  </div>
+                </td>
+                <td cdkDropList [cdkDropListData]="getDayData(1, hour)" (cdkDropListDropped)="drop($event)"
+                  id="1-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
+                  <div
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
                     matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
-                      class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(2, hour); let i=index" cdkDrag>
-                      <ng-container *ngIf="item.profesor">
-                        <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
-                        '' }}
-                        <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
-                        : '' }}
-                      </ng-container>
-                      <ng-container *ngIf="!item.profesor">
-                        <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
-                        '' }} <br>
-                      </ng-container>
-                    </div>
-                  </td>
-                  <td cdkDropList [cdkDropListData]="getDayData(3, hour)" (cdkDropListDropped)="drop($event)"
-                    id="3-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
-                    <div
-                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
+                    class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(1, hour); let i=index" cdkDrag>
+                    <ng-container *ngIf="item.profesor">
+                      <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
+                      '' }}
+                      <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
+                      : '' }}
+                    </ng-container>
+                    <ng-container *ngIf="!item.profesor">
+                      <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
+                      '' }} <br>
+                    </ng-container>
+                  </div>
+                </td>
+                <td cdkDropList [cdkDropListData]="getDayData(2, hour)" (cdkDropListDropped)="drop($event)"
+                  id="2-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
+                  <div
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
                     matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
-                      class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(3, hour); let i=index" cdkDrag>
-                      <ng-container *ngIf="item.profesor">
-                        <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
-                        '' }}
-                        <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
-                        : '' }}
-                      </ng-container>
-                      <ng-container *ngIf="!item.profesor">
-                        <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
-                        '' }} <br>
-                      </ng-container>
-                    </div>
-                  </td>
-                  <td cdkDropList [cdkDropListData]="getDayData(4, hour)" (cdkDropListDropped)="drop($event)"
-                    id="4-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
-                    <div
-                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
+                    class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(2, hour); let i=index" cdkDrag>
+                    <ng-container *ngIf="item.profesor">
+                      <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
+                      '' }}
+                      <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
+                      : '' }}
+                    </ng-container>
+                    <ng-container *ngIf="!item.profesor">
+                      <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
+                      '' }} <br>
+                    </ng-container>
+                  </div>
+                </td>
+                <td cdkDropList [cdkDropListData]="getDayData(3, hour)" (cdkDropListDropped)="drop($event)"
+                  id="3-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
+                  <div
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
                     matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
-                      class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(4, hour); let i=index" cdkDrag>
-                      <ng-container *ngIf="item.profesor">
-                        <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
-                        '' }}
-                        <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
-                        : '' }}
-                      </ng-container>
-                      <ng-container *ngIf="!item.profesor">
-                        <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
-                        '' }} <br>
-                      </ng-container>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </mat-grid-tile>
-        
-      </mat-grid-list>
-      
-    </div>
-      
+                    class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(3, hour); let i=index" cdkDrag>
+                    <ng-container *ngIf="item.profesor">
+                      <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
+                      '' }}
+                      <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
+                      : '' }}
+                    </ng-container>
+                    <ng-container *ngIf="!item.profesor">
+                      <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
+                      '' }} <br>
+                    </ng-container>
+                  </div>
+                </td>
+                <td cdkDropList [cdkDropListData]="getDayData(4, hour)" (cdkDropListDropped)="drop($event)"
+                  id="4-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
+                  <div
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(4, hour); let i=index" cdkDrag>
+                    <ng-container *ngIf="item.profesor">
+                      <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
+                      '' }}
+                      <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
+                      : '' }}
+                    </ng-container>
+                    <ng-container *ngIf="!item.profesor">
+                      <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
+                      '' }} <br>
+                    </ng-container>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-grid-tile>
+
+    </mat-grid-list>
+
   </div>
-  
 
-  <!-- Nocturno -->
+</div>
 
 
-  <div class="boxcontentHorario" *ngIf="!is_Diurno">
-    <div cdkDropListGroup class="mat-elevation-z2 ">
-      <mat-grid-list cols="10" rowHeight="2:10" class="CajaHorario">
-        <mat-grid-tile class="mat-grid-tile-materias listaMaterias" rowspan="2">
-          <h2 class="h2Materias">Asignaturas</h2>
-          <input id="buscadorHorarioA" [(ngModel)]="terminoBusquedaAsignatura" type="text" placeholder="Buscar por nombre" (input)="filtrarAsignaturas()">
-    
-          <div cdkDropList [cdkDropListData]="asignaturasFiltradas" id="IdListaAsignaturas" class="cdk-drop-listAsignaturas contenedor-listas"
-            (cdkDropListDropped)="drop($event)">
-            <ng-container *ngFor="let asignatura of asignaturasFiltradas; let i=index ">
-              <ng-container *ngFor="let profesor of asignatura.profesor; let j=index">
-                <div style="background-color: {{asignatura.color}}; font-size: 13px;" id="{{'asignatura-' + i + '-' + j}}"
-                  class="cdk-drag-box mat-elevation-z1 listArrastre" cdkDrag [attr.data-idProfesor]="profesor._id">
-                  <strong>Asignatura: </strong> {{asignatura.nombre}} <br>
-                  <strong>Profesor: </strong> {{ profesor.nombre }}
-                </div>
-              </ng-container>
-            </ng-container>
-          </div>
-        </mat-grid-tile>
-        <mat-grid-tile class="mat-grid-tile-materias listaAulas" rowspan="2">
-          <h2 class="h2Materias">Aulas</h2>
-          <input id="buscadorHorarioA" [(ngModel)]="terminoBusquedaAula" type="text" placeholder="Buscar por nombre" (input)="filtrarAulas()">
-          <div cdkDropList [cdkDropListData]="aulasFiltradas"id="IdListaAulas" class="cdk-drop-listAulas contenedor-listas"
-            (cdkDropListDropped)="drop($event)">
-            <ng-container *ngFor="let aula of aulasFiltradas; let i=index ">
-              <div style="background-color: {{aula.color}}; font-size: 13px;" id="{{'aula-' + i }}"
-                class="cdk-drag-box mat-elevation-z1 listArrastre" cdkDrag>
-                <strong>Aula: </strong> {{aula?.nombre}} <br>
-                <strong>Ub: </strong> {{ aula?.ubicacion }}
+<!-- Nocturno -->
+<mat-form-field class="seleccionHorario" *ngIf="!is_Diurno">
+<mat-label >Cambiar horas del horario</mat-label>
+<mat-select (selectionChange)="onOptionSelectedHorario($event.value)">
+  <mat-option value="horasNocturnas">Horas Nocturnas</mat-option>
+  <mat-option value="horasAlternativaNocturnas">Horas Alternativa Nocturnas</mat-option>
+</mat-select>
+</mat-form-field>
+
+<div class="boxcontentHorario" *ngIf="!is_Diurno">
+  <div cdkDropListGroup class="mat-elevation-z2 ">
+    <mat-grid-list cols="10" rowHeight="2:10" class="CajaHorario">
+      <mat-grid-tile class="mat-grid-tile-materias listaMaterias" rowspan="2">
+        <h2 class="h2Materias">Asignaturas</h2>
+        <input id="buscadorHorarioA" [(ngModel)]="terminoBusquedaAsignatura" type="text" placeholder="Buscar por nombre"
+          (input)="filtrarAsignaturas()">
+
+        <div cdkDropList [cdkDropListData]="asignaturasFiltradas" id="IdListaAsignaturas"
+          class="cdk-drop-listAsignaturas contenedor-listas" (cdkDropListDropped)="drop($event)">
+          <ng-container *ngFor="let asignatura of asignaturasFiltradas; let i=index ">
+            <ng-container *ngFor="let profesor of asignatura.profesor; let j=index">
+              <div style="background-color: {{asignatura.color}}; font-size: 13px;" id="{{'asignatura-' + i + '-' + j}}"
+                class="cdk-drag-box mat-elevation-z1 listArrastre" cdkDrag [attr.data-idProfesor]="profesor._id">
+                <strong>Asignatura: </strong> {{asignatura.nombre}} <br>
+                <strong>Profesor: </strong> {{ profesor.nombre }}
               </div>
             </ng-container>
-          </div>
-        </mat-grid-tile>
-  
-  
-        <mat-grid-tile class="tablaHorario" colspan="1">
-          <div class="box-table mat-elevation-z2">
-            <h2><strong>Horario Nocturno - {{opcion2}} - {{periodoTipo}} {{opcion3}} </strong> <strong *ngIf="is_Paralelo">- Paralelo ({{opcion4}})</strong></h2>
-            <table class="mat-table" id="table">
-              <thead>
-                <tr class="mat-header-row">
-                  <th class="mat-header-cell">Horas</th>
-                  <th class="mat-header-cell">Lunes</th>
-                  <th class="mat-header-cell">Martes</th>
-                  <th class="mat-header-cell">Miércoles</th>
-                  <th class="mat-header-cell">Jueves</th>
-                  <th class="mat-header-cell">Viernes</th>
-                  <th class="mat-header-cell">Sábado</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let hour of hoursnight ; let i=index" class="mat-row">
-                  <td class="mat-cell">{{ hour.split('-')[0] }} - {{hour.split('-')[1]}}</td>
-                  <td cdkDropList [cdkDropListData]="getDayData(0, hour)" (cdkDropListDropped)="drop($event)"
-                    id="0-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list" style="overflow: hidden;">
-                    <div
-                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
-                      class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(0, hour); let i=index" cdkDrag>
-                      <ng-container *ngIf="item.profesor">
-                        <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
-                        '' }}
-                        <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
-                        : '' }}
-                      </ng-container>
-                      <ng-container *ngIf="!item.profesor">
-                        <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
-                        '' }} <br>
-                      </ng-container>
-                    </div>
-                  </td>
-                  <td cdkDropList [cdkDropListData]="getDayData(1, hour)" (cdkDropListDropped)="drop($event)"
-                    id="1-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
-                    <div
-                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
-                      class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(1, hour); let i=index" cdkDrag>
-                      <ng-container *ngIf="item.profesor">
-                        <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
-                        '' }}
-                        <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
-                        : '' }}
-                      </ng-container>
-                      <ng-container *ngIf="!item.profesor">
-                        <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
-                        '' }} <br>
-                      </ng-container>
-                    </div>
-                  </td>
-                  <td cdkDropList [cdkDropListData]="getDayData(2, hour)" (cdkDropListDropped)="drop($event)"
-                    id="2-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
-                    <div
-                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
-                      class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(2, hour); let i=index" cdkDrag>
-                      <ng-container *ngIf="item.profesor">
-                        <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
-                        '' }}
-                        <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
-                        : '' }}
-                      </ng-container>
-                      <ng-container *ngIf="!item.profesor">
-                        <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
-                        '' }} <br>
-                      </ng-container>
-                    </div>
-                  </td>
-                  <td cdkDropList [cdkDropListData]="getDayData(3, hour)" (cdkDropListDropped)="drop($event)"
-                    id="3-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
-                    <div
-                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
-                      class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(3, hour); let i=index" cdkDrag>
-                      <ng-container *ngIf="item.profesor">
-                        <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
-                        '' }}
-                        <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
-                        : '' }}
-                      </ng-container>
-                      <ng-container *ngIf="!item.profesor">
-                        <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
-                        '' }} <br>
-                      </ng-container>
-                    </div>
-                  </td>
-                  <td cdkDropList [cdkDropListData]="getDayData(4, hour)" (cdkDropListDropped)="drop($event)"
-                    id="4-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
-                    <div
-                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
-                      class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(4, hour); let i=index" cdkDrag>
-                      <ng-container *ngIf="item.profesor">
-                        <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
-                        '' }}
-                        <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
-                        : '' }}
-                      </ng-container>
-                      <ng-container *ngIf="!item.profesor">
-                        <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
-                        '' }} <br>
-                      </ng-container>
-                    </div>
-                  </td>
-                  <td cdkDropList [cdkDropListData]="getDayData(5, hour)" (cdkDropListDropped)="drop($event)"
-                    id="5-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
-                    <div
-                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
-                      class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(5, hour); let i=index" cdkDrag>
-                      <ng-container *ngIf="item.profesor">
-                        <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
-                        '' }}
-                        <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
-                        : '' }}
-                      </ng-container>
-                      <ng-container *ngIf="!item.profesor">
-                        <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
-                        '' }} <br>
-                      </ng-container>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </mat-grid-tile>
-      </mat-grid-list>
-    </div>
-      
-  </div>
-  
+          </ng-container>
+        </div>
+      </mat-grid-tile>
+      <mat-grid-tile class="mat-grid-tile-materias listaAulas" rowspan="2">
+        <h2 class="h2Materias">Aulas</h2>
+        <input id="buscadorHorarioA" [(ngModel)]="terminoBusquedaAula" type="text" placeholder="Buscar por nombre"
+          (input)="filtrarAulas()">
+        <div cdkDropList [cdkDropListData]="aulasFiltradas" id="IdListaAulas"
+          class="cdk-drop-listAulas contenedor-listas" (cdkDropListDropped)="drop($event)">
+          <ng-container *ngFor="let aula of aulasFiltradas; let i=index ">
+            <div style="background-color: {{aula.color}}; font-size: 13px;" id="{{'aula-' + i }}"
+              class="cdk-drag-box mat-elevation-z1 listArrastre" cdkDrag>
+              <strong>Aula: </strong> {{aula?.nombre}} <br>
+              <strong>Ub: </strong> {{ aula?.ubicacion }}
+            </div>
+          </ng-container>
+        </div>
+      </mat-grid-tile>
 
-  
-  <div class="clearfix"></div>
+
+      <mat-grid-tile class="tablaHorario" colspan="1">
+        <div class="box-table mat-elevation-z2">
+          <h2><strong>Horario Nocturno - {{opcion2}} - Semestre {{opcion3}} - {{periodoTipo}} {{opcion4}} </strong>
+            <strong *ngIf="is_Paralelo">- Paralelo ({{opcion5}})</strong></h2>
+          <table class="mat-table" id="table">
+            <thead>
+              <tr class="mat-header-row">
+                <th class="mat-header-cell">Horas</th>
+                <th class="mat-header-cell">Lunes</th>
+                <th class="mat-header-cell">Martes</th>
+                <th class="mat-header-cell">Miércoles</th>
+                <th class="mat-header-cell">Jueves</th>
+                <th class="mat-header-cell">Viernes</th>
+                <th class="mat-header-cell">Sábado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let hour of hoursnight ; let i=index" class="mat-row">
+                <td class="mat-cell">{{ hour.split('-')[0] }} - {{hour.split('-')[1]}}</td>
+                <td cdkDropList [cdkDropListData]="getDayData(0, hour)" (cdkDropListDropped)="drop($event)"
+                  id="0-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list" style="overflow: hidden;">
+                  <div
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(0, hour); let i=index" cdkDrag>
+                    <ng-container *ngIf="item.profesor">
+                      <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
+                      '' }}
+                      <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
+                      : '' }}
+                    </ng-container>
+                    <ng-container *ngIf="!item.profesor">
+                      <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
+                      '' }} <br>
+                    </ng-container>
+                  </div>
+                </td>
+                <td cdkDropList [cdkDropListData]="getDayData(1, hour)" (cdkDropListDropped)="drop($event)"
+                  id="1-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
+                  <div
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(1, hour); let i=index" cdkDrag>
+                    <ng-container *ngIf="item.profesor">
+                      <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
+                      '' }}
+                      <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
+                      : '' }}
+                    </ng-container>
+                    <ng-container *ngIf="!item.profesor">
+                      <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
+                      '' }} <br>
+                    </ng-container>
+                  </div>
+                </td>
+                <td cdkDropList [cdkDropListData]="getDayData(2, hour)" (cdkDropListDropped)="drop($event)"
+                  id="2-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
+                  <div
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(2, hour); let i=index" cdkDrag>
+                    <ng-container *ngIf="item.profesor">
+                      <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
+                      '' }}
+                      <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
+                      : '' }}
+                    </ng-container>
+                    <ng-container *ngIf="!item.profesor">
+                      <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
+                      '' }} <br>
+                    </ng-container>
+                  </div>
+                </td>
+                <td cdkDropList [cdkDropListData]="getDayData(3, hour)" (cdkDropListDropped)="drop($event)"
+                  id="3-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
+                  <div
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(3, hour); let i=index" cdkDrag>
+                    <ng-container *ngIf="item.profesor">
+                      <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
+                      '' }}
+                      <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
+                      : '' }}
+                    </ng-container>
+                    <ng-container *ngIf="!item.profesor">
+                      <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
+                      '' }} <br>
+                    </ng-container>
+                  </div>
+                </td>
+                <td cdkDropList [cdkDropListData]="getDayData(4, hour)" (cdkDropListDropped)="drop($event)"
+                  id="4-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
+                  <div
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(4, hour); let i=index" cdkDrag>
+                    <ng-container *ngIf="item.profesor">
+                      <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
+                      '' }}
+                      <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
+                      : '' }}
+                    </ng-container>
+                    <ng-container *ngIf="!item.profesor">
+                      <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
+                      '' }} <br>
+                    </ng-container>
+                  </div>
+                </td>
+                <td cdkDropList [cdkDropListData]="getDayData(5, hour)" (cdkDropListDropped)="drop($event)"
+                  id="5-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
+                  <div
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(5, hour); let i=index" cdkDrag>
+                    <ng-container *ngIf="item.profesor">
+                      <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
+                      '' }}
+                      <strong>Prof: </strong>{{ item.profesor[0].nombre | slice:0:3 }}{{ item.nombre.length > 3 ? '...'
+                      : '' }}
+                    </ng-container>
+                    <ng-container *ngIf="!item.profesor">
+                      <strong>Aula: </strong> {{ item.abreviatura | slice:0:4 }}{{ item.abreviatura.length > 4 ? '...' :
+                      '' }} <br>
+                    </ng-container>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-grid-tile>
+    </mat-grid-list>
+  </div>
+
+</div>
+
+
+
+<div class="clearfix"></div>

@@ -46,6 +46,7 @@ var HomeComponent = /** @class */ (function () {
             var opcion2 = params['opcion2'];
             var opcion3 = params['opcion3'];
             var opcion4 = params['opcion4'];
+            var opcion5 = params['opcion5'];
             if (params['opcion1'] === "Horario_Nocturno") {
                 periodoTipo = "Ciclo";
                 horario = "Nocturno";
@@ -54,8 +55,7 @@ var HomeComponent = /** @class */ (function () {
                 periodoTipo = "semestre";
                 horario = "Diurno";
             }
-            console.log(opcion2);
-            if (opcion2 !== "undefined" || opcion3 !== "undefined") {
+            if (opcion2 !== "undefined" && opcion3 !== "undefined") {
                 var opcion2_1 = params['opcion2'];
                 opcion2_1 = opcion2_1.replace(/_/g, " ");
                 var opcion3_1 = params['opcion3'];
@@ -66,7 +66,7 @@ var HomeComponent = /** @class */ (function () {
                             var asignaturas = [];
                             asignaturas = response.asignaturas;
                             asignaturas.forEach(function (asignatura) {
-                                if (asignatura.horario === horario && asignatura.paralelo.length === 0) {
+                                if (asignatura.horario === horario && asignatura.paralelo.length === 0 && asignatura.ciclo.length === 0) {
                                     _this.is_horario = true;
                                 }
                             });
@@ -82,14 +82,21 @@ var HomeComponent = /** @class */ (function () {
                         sweetalert2_1["default"].fire('Horario de la Carrera de ' + opcion2_1 + ' del ' + periodoTipo + ' ' + opcion3_1, error.error.message, 'error');
                     });
                 }
-                else if (opcion2_1 && opcion3_1 && opcion4) {
+                else if (opcion2_1 && opcion3_1 && opcion4 && !opcion5) {
                     _this._asignaturaService.searchThree(opcion2_1, opcion3_1, opcion4).subscribe(function (response) {
                         if (response.asignaturas) {
                             var asignaturas = [];
                             asignaturas = response.asignaturas;
                             asignaturas.forEach(function (asignatura) {
-                                if (asignatura.horario === horario) {
-                                    _this.is_horario = true;
+                                if (horario === "Diurno") {
+                                    if (asignatura.horario === horario && asignatura.ciclo.length === 0) {
+                                        _this.is_horario = true;
+                                    }
+                                }
+                                else {
+                                    if (asignatura.horario === horario && asignatura.paralelo.length === 0) {
+                                        _this.is_horario = true;
+                                    }
                                 }
                             });
                             /* this.is_horario = true */
@@ -102,6 +109,29 @@ var HomeComponent = /** @class */ (function () {
                         }
                     }, function (error) {
                         sweetalert2_1["default"].fire('Horario ' + horario + ' de la Carrera de ' + opcion2_1 + ' del ' + periodoTipo + ' ' + opcion3_1 + ' del paralelo ' + opcion4, error.error.message, 'error');
+                    });
+                }
+                else {
+                    _this._asignaturaService.searchFour(opcion2_1, opcion3_1, opcion4, opcion5).subscribe(function (response) {
+                        if (response.asignaturas) {
+                            var asignaturas = [];
+                            asignaturas = response.asignaturas;
+                            asignaturas.forEach(function (asignatura) {
+                                if (asignatura.horario === horario) {
+                                    _this.is_horario = true;
+                                }
+                            });
+                            /* this.is_horario = true */
+                            if (!_this.is_horario) {
+                                sweetalert2_1["default"].fire('Horario ' + horario + ' de la Carrera de ' + opcion2_1 + ' del ' + periodoTipo + ' ' + opcion3_1 + ' del paralelo ' + opcion5, 'No hay asignaturas para mostrar', 'error');
+                            }
+                        }
+                        else {
+                            _this.is_horario = false;
+                        }
+                    }, function (error) {
+                        console.log("her");
+                        sweetalert2_1["default"].fire('Horario ' + horario + ' de la Carrera de ' + opcion2_1 + ' del ' + periodoTipo + ' ' + opcion3_1 + ' del paralelo ' + opcion5, error.error.message, 'error');
                     });
                 }
             }

@@ -1111,6 +1111,17 @@ th {
     margin-right: 10px;
     margin-bottom: 10px;
   }
+
+  .seleccionHorario{
+    width: 30%;
+  }
+
+  .mat-grid-tile {
+    overflow: visible !important;
+
+    font-size: 14px !important
+}
+
   
   @media (max-width: 768px) {
     .col {

@@ -60,7 +60,7 @@ var ItemsHorarioComponent = /** @class */ (function () {
         this.terminoBusquedaHorario = '';
         this.editingHorario = null;
         this.carrerasFiltradas = [];
-        this.columnas = ['N°', 'Carrera', 'Periodo', 'Tipo', 'Acciones', 'Estado', 'Observacion'];
+        this.columnas = ['N°', 'Carrera', 'Periodo', 'Tipo', 'Acciones', 'Estado(Aprobacion)', 'Estado(Revisado)', 'Observacion'];
         this.is_horario = false;
         this.is_admin = false;
         this.is_aprobador = false;
@@ -74,6 +74,10 @@ var ItemsHorarioComponent = /** @class */ (function () {
         if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador" || this.userData.rol === "Superadministrador") {
             this.is_admin = true;
             this.is_aprobador = true;
+        }
+        if (this.userData.rol === "Administrador" || this.userData.rol === "Revisador" || this.userData.rol === "Superadministrador") {
+            this.is_admin = true;
+            this.is_revisador = true;
         }
         this.getDataDetalles();
     };
@@ -193,13 +197,13 @@ var ItemsHorarioComponent = /** @class */ (function () {
                                         sweetalert2_1["default"].fire('Estado de horario ' + estado.toLowerCase(), 'El estado del horario ha sido ' + estado.toLowerCase() + '.', confirm);
                                         setTimeout(function () {
                                             _this._router.navigate(['/horarios']);
-                                        }, 1200);
+                                        }, 1400);
                                     }
                                     else {
                                         sweetalert2_1["default"].fire('No se ha podido modificar el estado', 'Por favor, complete los datos correctamente.', 'error');
                                         setTimeout(function () {
                                             location.reload();
-                                        }, 1200);
+                                        }, 1400);
                                     }
                                 }, function (error) {
                                     console.log(error);
@@ -207,13 +211,10 @@ var ItemsHorarioComponent = /** @class */ (function () {
                                 sweetalert2_1["default"].fire('Estado de horario cambiado', 'El estado del horario ha sido ' + estado.toLowerCase() + '.', confirm);
                                 setTimeout(function () {
                                     location.reload();
-                                }, 1300);
+                                }, 1400);
                             }
                             else {
                                 sweetalert2_1["default"].fire('Operación cancelada', 'El estado del horario no ha sido cambiado.', 'warning');
-                                setTimeout(function () {
-                                    location.reload();
-                                }, 1200);
                             }
                         });
                         return [2 /*return*/];
@@ -223,6 +224,70 @@ var ItemsHorarioComponent = /** @class */ (function () {
     };
     ItemsHorarioComponent.prototype.startEditing = function (horario) {
         this.editingHorario = horario;
+    };
+    ItemsHorarioComponent.prototype.cambiarEstadoRevision = function (horario, estado, usuario) {
+        return __awaiter(this, void 0, void 0, function () {
+            var confirm, color;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getHorario(horario._id)];
+                    case 1:
+                        _a.sent();
+                        confirm = "";
+                        color = "";
+                        if (estado === "Aprobado") {
+                            this.horario.revisado_por = usuario._id;
+                            confirm = "success";
+                            color = '#008000';
+                        }
+                        else {
+                            this.horario.revisado_por = null;
+                            confirm = "error";
+                            color = '#d33';
+                        }
+                        sweetalert2_1["default"].fire({
+                            title: '¿Estás seguro?',
+                            text: 'El horario será ' + estado.toLowerCase() + ' en su revisión' + '.',
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: color,
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Aceptar'
+                        }).then(function (result) {
+                            if (result.isConfirmed) {
+                                console.log(_this.horario);
+                                _this._horarioService.update(horario._id, _this.horario).subscribe(function (response) {
+                                    if (response.status == 'success') {
+                                        _this.horario = response.horario;
+                                        console.log(_this.horario);
+                                        sweetalert2_1["default"].fire('Estado de revisón del horario ' + estado.toLowerCase() + '.', 'El estado de revisión horario ha sido ' + estado.toLowerCase() + '.', confirm);
+                                        setTimeout(function () {
+                                            _this._router.navigate(['/horarios']);
+                                        }, 1400);
+                                    }
+                                    else {
+                                        sweetalert2_1["default"].fire('No se ha podido modificar el estado de revision.', 'Existe un error.', 'error');
+                                        setTimeout(function () {
+                                            location.reload();
+                                        }, 1400);
+                                    }
+                                }, function (error) {
+                                    console.log(error);
+                                });
+                                sweetalert2_1["default"].fire('Estado de revisón del horario cambiado.', 'El estado de revisión del horario ha sido ' + estado.toLowerCase() + '.', confirm);
+                                setTimeout(function () {
+                                    location.reload();
+                                }, 1400);
+                            }
+                            else {
+                                sweetalert2_1["default"].fire('Operación cancelada', 'Estado de revisón del horario no ha sido cambiado.', 'warning');
+                            }
+                        });
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     ItemsHorarioComponent.prototype.openDialog = function (observacion) {
         var dialogRef = this.dialog.open(horario_observacion_dialog_component_1.HorarioObservacionDialogComponent, {
@@ -240,9 +305,7 @@ var ItemsHorarioComponent = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        console.log(horario);
-                        return [4 /*yield*/, this.getHorario(horario._id)];
+                    case 0: return [4 /*yield*/, this.getHorario(horario._id)];
                     case 1:
                         _a.sent();
                         this.horario.observacion = horario.observacion;

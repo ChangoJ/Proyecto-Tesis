@@ -6,17 +6,20 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
 import Swal from 'sweetalert2';
 import { DetalleService } from '../services/detalle.service';
+import { HorarioService } from '../services/horario.service';
+import { Horario } from '../models/horario';
 
 @Component({
   selector: 'app-items-usuario',
   templateUrl: './items-usuario.component.html',
   styleUrls: ['./items-usuario.component.css'],
-  providers: [UsuarioService, DetalleService]
+  providers: [UsuarioService, DetalleService, HorarioService]
 })
 export class ItemsUsuarioComponent {
   public url: string
   public usuariosFiltrados!: MatTableDataSource<any>;
   public terminoBusquedaUsuarios: string = '';
+  public horarios!: Horario[];
 
   @Input() usuarios!: Usuario[]
   columnas = ['N°', 'Nombre', 'Usuario','CI', 'Email', 'N° Celular', 'Rol', 'Acciones'];
@@ -25,7 +28,8 @@ export class ItemsUsuarioComponent {
   constructor(private _usuarioService: UsuarioService,
     private _route: ActivatedRoute,
     private _router: Router,
-    private _detalleService: DetalleService) {
+    private _detalleService: DetalleService,
+    private _horarioService: HorarioService) {
     this.url = this._detalleService.Global.url
 
   }
@@ -33,7 +37,13 @@ export class ItemsUsuarioComponent {
   @ViewChild('paginatorU', { static: false }) paginator!: MatPaginator;
 
   ngOnInit() {
-    
+    this.getUsuarios()
+   
+    this.getHorarios()
+
+  }
+
+  getUsuarios(){
     this._usuarioService.getUsuarios().subscribe(
       response => {
         if (response.usuarios) {
@@ -46,8 +56,22 @@ export class ItemsUsuarioComponent {
         console.log(error)
       }
     )
+  }
+
+  getHorarios() {
+    this._horarioService.getHorarios().subscribe(
+      response => {
+        if (response.horarios) {
+          this.horarios = response.horarios;
+        }
+      },
+      error => {
+        console.log(error)
+      }
+    )
 
   }
+
 
   delete(id: string) {
 
@@ -61,7 +85,25 @@ export class ItemsUsuarioComponent {
       confirmButtonText: 'Delete',
     }).then((result: any) => {
       if (result.isConfirmed) {
-        this._usuarioService.delete(id).subscribe(
+        let item: any = []
+        let ubicacion: any = []
+        let exist_usuario: boolean = false
+        this.horarios.forEach(horario => {
+          item = horario.creado_por
+            if (item._id === id) {
+              exist_usuario = true
+              if (!horario.paralelo || horario.paralelo === "") {
+
+                ubicacion = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre
+              } else {
+
+                ubicacion = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre + ' Paralelo (' + horario.paralelo! + ')'
+              }
+            }
+      
+        });
+        if (!exist_usuario) {
+    this._usuarioService.delete(id).subscribe(
           (response) => {
             setTimeout(() => {
               location.reload();
@@ -71,9 +113,14 @@ export class ItemsUsuarioComponent {
             console.log(error);
             this._router.navigate(['/especificacion/usuarios']);
           }
-        );
+        ); 
 
         Swal.fire('Usuario borrado', 'El usuario ha sido borrado', 'success');
+
+      } else {
+        Swal.fire('Usuario no borrada', 'Si deseas borrarlo, primero borra el horario que creo el usuario: ' + ubicacion, 'error');
+      }
+
       } else {
         Swal.fire('Operación cancelada', 'El usuario no ha sido borrado', 'warning');
       }

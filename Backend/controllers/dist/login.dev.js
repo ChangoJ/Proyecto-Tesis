@@ -12,10 +12,9 @@ var controller = {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            console.log(req.body);
             _req$body = req.body, username = _req$body.username, password = _req$body.password;
-            _context.prev = 2;
-            _context.next = 5;
+            _context.prev = 1;
+            _context.next = 4;
             return regeneratorRuntime.awrap(User.findOne({
               $or: [{
                 username: username
@@ -24,11 +23,11 @@ var controller = {
               }]
             }));
 
-          case 5:
+          case 4:
             user = _context.sent;
 
             if (user) {
-              _context.next = 8;
+              _context.next = 7;
               break;
             }
 
@@ -36,15 +35,15 @@ var controller = {
               message: 'Usuario no encontrado'
             }));
 
-          case 8:
-            _context.next = 10;
+          case 7:
+            _context.next = 9;
             return regeneratorRuntime.awrap(bcrypt.compare(password, user.contrasena));
 
-          case 10:
+          case 9:
             isPasswordMatch = _context.sent;
 
             if (isPasswordMatch) {
-              _context.next = 13;
+              _context.next = 12;
               break;
             }
 
@@ -52,7 +51,7 @@ var controller = {
               message: 'Contraseña incorrecta'
             }));
 
-          case 13:
+          case 12:
             // La contraseña coincide, puedes generar el token de autenticación y enviarlo al cliente
             token = jwt.sign({
               userId: user._id
@@ -62,22 +61,22 @@ var controller = {
             res.json({
               token: token
             });
-            _context.next = 20;
+            _context.next = 19;
             break;
 
-          case 17:
-            _context.prev = 17;
-            _context.t0 = _context["catch"](2);
+          case 16:
+            _context.prev = 16;
+            _context.t0 = _context["catch"](1);
             res.status(200).json({
               message: 'Error en el servidor'
             });
 
-          case 20:
+          case 19:
           case "end":
             return _context.stop();
         }
       }
-    }, null, null, [[2, 17]]);
+    }, null, null, [[1, 16]]);
   }
 };
 module.exports = controller;

@@ -15,6 +15,7 @@ var AsignaturaScheme = Schema({
     abreviatura: String,
     color: String,
     paralelo: { type: Array, required: false },
+    ciclo: { type: Array, required: false },
 });
 
 AsignaturaScheme.plugin(autopopulate);

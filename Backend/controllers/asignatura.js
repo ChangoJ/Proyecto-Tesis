@@ -42,6 +42,7 @@ var controller = {
             asignatura1.abreviatura = params.abreviatura;
             asignatura1.color = params.color;
             asignatura1.paralelo = params.paralelo;
+            asignatura1.ciclo = params.ciclo;
 
 
 
@@ -113,6 +114,7 @@ var controller = {
                     asignatura1.abreviatura = params.abreviatura;
                     asignatura1.color = params.color;
                     asignatura1.paralelo = params.paralelo;
+                    asignatura1.ciclo = params.ciclo;
 
 
 
@@ -340,7 +342,56 @@ var controller = {
                     "semestre": { "$regex": search2Int, "$options": "i" }
                 },
                 {
-                    "paralelo": { "$regex": search3String, "$options": "i" }
+                    "$or": [
+                        {
+                            "paralelo": { "$regex": search3String, "$options": "i" }
+                        },
+                        {
+                            "ciclo": { "$regex": search3String, "$options": "i" }
+                        }
+                    ]
+                }
+            ]
+        })
+            .sort([['date', 'descending']])
+            .then((asignaturas) => {
+                if (!asignaturas || asignaturas.length <= 0) {
+                    return res.status(404).send({
+                        status: 'error',
+                        message: 'No hay asignaturas para mostrar'
+                    });
+                }
+
+                return res.status(200).send({
+                    status: 'success',
+                    asignaturas
+                });
+            })
+
+    }
+    ,searchFour: (req, res) => {
+
+        //sacar strin a buscar
+
+        var searchString = req.params.search1;
+        var search2Int = req.params.search2;
+        var search3String = req.params.search3;
+        var search4String = req.params.search4;
+        //find and 
+
+        asignatura.find({
+            "$and": [
+                {
+                    "carrera": { "$regex": searchString, "$options": "i" }
+                },
+                {
+                    "semestre": { "$regex": search2Int, "$options": "i" }
+                },
+                {
+                    "ciclo": { "$regex": search3String, "$options": "i" }
+                },
+                {
+                    "paralelo": { "$regex": search4String, "$options": "i" }
                 }
             ]
         })
@@ -360,6 +411,7 @@ var controller = {
             })
 
     },
+
 
     searchOne: (req, res) => {
 

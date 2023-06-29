@@ -55,6 +55,10 @@ var routes = [
         component: home_component_1.HomeComponent, canActivate: [auth_guard_1.AuthGuard]
     },
     {
+        path: 'home/creacion/:opcion1/:opcion2/:opcion3/:opcion4/:opcion5',
+        component: home_component_1.HomeComponent, canActivate: [auth_guard_1.AuthGuard]
+    },
+    {
         path: 'especificacion', component: especificacion_component_1.EspecificacionComponent, canActivate: [auth_guard_1.AuthGuard],
         children: [
             {

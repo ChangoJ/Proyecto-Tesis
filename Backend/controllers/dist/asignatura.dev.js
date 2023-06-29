@@ -39,7 +39,8 @@ var controller = {
       asignatura1.horario = params.horario;
       asignatura1.abreviatura = params.abreviatura;
       asignatura1.color = params.color;
-      asignatura1.paralelo = params.paralelo; //guardar el articulo
+      asignatura1.paralelo = params.paralelo;
+      asignatura1.ciclo = params.ciclo; //guardar el articulo
 
       asignatura1.save().then(function (asignaturaStored) {
         if (!asignaturaStored) {
@@ -97,7 +98,8 @@ var controller = {
           asignatura1.creditos = params.creditos;
           asignatura1.abreviatura = params.abreviatura;
           asignatura1.color = params.color;
-          asignatura1.paralelo = params.paralelo; //guardar el articulo
+          asignatura1.paralelo = params.paralelo;
+          asignatura1.ciclo = params.ciclo; //guardar el articulo
 
           asignatura1.save().then(function (asignaturaStored) {
             if (!asignaturaStored) {
@@ -295,6 +297,56 @@ var controller = {
       }, {
         "semestre": {
           "$regex": search2Int,
+          "$options": "i"
+        }
+      }, {
+        "$or": [{
+          "paralelo": {
+            "$regex": search3String,
+            "$options": "i"
+          }
+        }, {
+          "ciclo": {
+            "$regex": search3String,
+            "$options": "i"
+          }
+        }]
+      }]
+    }).sort([['date', 'descending']]).then(function (asignaturas) {
+      if (!asignaturas || asignaturas.length <= 0) {
+        return res.status(404).send({
+          status: 'error',
+          message: 'No hay asignaturas para mostrar'
+        });
+      }
+
+      return res.status(200).send({
+        status: 'success',
+        asignaturas: asignaturas
+      });
+    });
+  },
+  searchFour: function searchFour(req, res) {
+    //sacar strin a buscar
+    var searchString = req.params.search1;
+    var search2Int = req.params.search2;
+    var search3String = req.params.search3;
+    var search4String = req.params.search4; //find and 
+
+    asignatura.find({
+      "$and": [{
+        "carrera": {
+          "$regex": searchString,
+          "$options": "i"
+        }
+      }, {
+        "semestre": {
+          "$regex": search2Int,
+          "$options": "i"
+        }
+      }, {
+        "ciclo": {
+          "$regex": search4String,
           "$options": "i"
         }
       }, {

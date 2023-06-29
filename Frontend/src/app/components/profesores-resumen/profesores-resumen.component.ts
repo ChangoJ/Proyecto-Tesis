@@ -98,7 +98,7 @@ export class ProfesoresResumenComponent {
       this.rolesCarreras = roles
     });
     this._detalleService.getHorasDiurnas().subscribe(horasDiurnas => {
-   
+
       this.hours = horasDiurnas
     });
 
@@ -296,7 +296,19 @@ export class ProfesoresResumenComponent {
       let dias = horario.dia;
 
       for (let i = 0; i < dias.length; i++) {
-        let nuevoObjetoAsignatura = {
+        let nuevoObjetoAsignatura: any = {
+          dayName: '',
+          elementoType: '',
+          hourEnd: '',
+          hourStart: '',
+          identificador: '',
+          semestre: '',
+          ciclo: '',
+          carrera: '',
+          item: {}
+        };
+
+        let nuevoObjetoAula: any = {
           dayName: '',
           elementoType: '',
           hourEnd: '',
@@ -304,16 +316,6 @@ export class ProfesoresResumenComponent {
           identificador: '',
           semestre: '',
           carrera: '',
-          item: {}
-        };
-
-        let nuevoObjetoAula = {
-          dayName: '',
-          elementoType: '',
-          hourEnd: '',
-          hourStart: '',
-          identificador: '',
-          semestre: '',
           item: {}
         };
 
@@ -328,6 +330,7 @@ export class ProfesoresResumenComponent {
         nuevoObjetoAsignatura.elementoType = 'asignatura';
         nuevoObjetoAsignatura.semestre = horario.semestre;
         nuevoObjetoAsignatura.carrera = horario.carrera;
+        nuevoObjetoAsignatura.ciclo = horario.ciclo;
 
         /* Aula */
         nuevoObjetoAula.dayName = String(dias[i]);
@@ -337,6 +340,7 @@ export class ProfesoresResumenComponent {
         nuevoObjetoAula.item = horario.item[i].aula;
         nuevoObjetoAula.elementoType = 'aula';
         nuevoObjetoAula.semestre = horario.semestre;
+        nuevoObjetoAula.ciclo = horario.ciclo;
 
 
 
@@ -462,6 +466,7 @@ export class ProfesoresResumenComponent {
     ]
     let identAsignatura: any
     let semestreAsignatura: any
+    let cicloAsignatura: any
     let profesoresArray = this.carrerasFiltradas;
     let profesorId: any = ''
     let horariosProfesores: any = []
@@ -475,16 +480,33 @@ export class ProfesoresResumenComponent {
     horariosProfesores = profesoresArray.map(profesor => {
       profesorId = profesor._id;
       this.horarioProfesor = diasArray.map(dia => dia.filter(item => {
-    
+        if (!item.ciclo) {
+
+          item.ciclo = ""
+
+          cicloAsignatura = item.ciclo
+        }
+
         if (item.elementoType === 'asignatura' && item.item.profesor && item.item.profesor[0]._id === profesorId) {
 
           identAsignatura = item.identificador.substring(0, 2)
           semestreAsignatura = item.semestre
+          if (!item.ciclo) {
+
+            item.ciclo = ""
+
+            cicloAsignatura = item.ciclo
+          } else {
+
+            cicloAsignatura = item.ciclo
+          }
           return true; // Mantener las asignaturas filtradas
-        } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura) {
+        } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura && item.ciclo === cicloAsignatura) {
+
 
           return true; // Mantener las aulas con identificador igual al profesor
         } else {
+
           return false; // Omitir otros elementos
         }
       }));
@@ -499,20 +521,23 @@ export class ProfesoresResumenComponent {
 
           let currentElement = currentItem[l];
           if (currentElement.elementoType === 'asignatura') {
-
             let currentAsignaturaId = currentElement.item._id;
             let currentAsignatura = currentElement.item.nombre;
             let currentAsignaturaH = currentElement.item.horario;
             let currentAsignaturaC = currentElement.carrera;
             let currentAsignaturaS = currentElement.semestre;
+            let currentAsignaturaCiclo = currentElement.ciclo;
             let currentProfesoresId = currentElement.item.profesor[0]._id;
             let currentProfesores = currentElement.item.profesor[0].nombre;
             let currentProfesoresContrato = currentElement.item.profesor[0].contrato;
             let currentProfesoresObservacion = currentElement.item.profesor[0].observacion;
             let currentAsignaturaCreditos = currentElement.item.creditos;
 
-            if (!asignaturasProfesores.some((ap: any) => ap.asigId === currentAsignaturaId && (ap.asignatura === currentAsignatura && ap.semestre === currentAsignaturaS) && ap.profesor === currentProfesores)) {
-              asignaturasProfesores.push({ profeId: currentProfesoresId, asigId: currentAsignaturaId, carrera: currentAsignaturaC, semestre: currentAsignaturaS, asignatura: currentAsignatura, horario: currentAsignaturaH, profesor: currentProfesores, profesorContrato: currentProfesoresContrato, horas: currentAsignaturaCreditos, profesorObservacion: currentProfesoresObservacion });
+
+            if (!asignaturasProfesores.some((ap: any) => ap.asigId === currentAsignaturaId && (ap.asignatura === currentAsignatura && ap.semestre === currentAsignaturaS && ap.ciclo === currentAsignaturaCiclo) && ap.profesor === currentProfesores)) {
+
+
+              asignaturasProfesores.push({ profeId: currentProfesoresId, asigId: currentAsignaturaId, carrera: currentAsignaturaC, semestre: currentAsignaturaS, ciclo: currentAsignaturaCiclo, asignatura: currentAsignatura, horario: currentAsignaturaH, profesor: currentProfesores, profesorContrato: currentProfesoresContrato, horas: currentAsignaturaCreditos, profesorObservacion: currentProfesoresObservacion });
 
             }
 
@@ -542,7 +567,8 @@ export class ProfesoresResumenComponent {
         horas: profesor.horas,
         horario: profesor.horario,
         carrera: profesor.carrera,
-        semestre: profesor.semestre
+        semestre: profesor.semestre,
+        ciclo: profesor.ciclo
       }
 
 
@@ -575,7 +601,6 @@ export class ProfesoresResumenComponent {
         asignaturasPorProfesorTiempoParcial.push(asigPro);
       }
     }
-
 
 
 
@@ -1126,7 +1151,7 @@ export class ProfesoresResumenComponent {
 
     rowDataHead5.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:'])
     DataFirmas.push(["", "", ""]);
-    DataFirmas.push([ this.userData.nombre, this.revisador.nombre, this.aprobador.nombre]);
+    DataFirmas.push([this.userData.nombre, "", this.aprobador.nombre]);
     DataFirmas.push(["Director de Carrera", "Decano de Facultad", "Directora Académica"]);
 
     autoTable(doc, {
@@ -1203,10 +1228,12 @@ export class ProfesoresResumenComponent {
 
     let identAsignatura: any = ""
     let semestreAsignatura: any = ""
+    let cicloAsignatura: any = ""
     let asignaturasProfesoresNocturnoCicloUno: any[] = [];
     let asignaturasProfesoresNocturnoCicloDos: any[] = [];
     let asignaturasProfesoresDiurno: any[] = [];
     asignaturasProfesoresDiurno = this.horarioProfesor.map(item => item.filter(item => {
+
       if (item.elementoType === 'asignatura' && item.item.horario === 'Diurno' && item.item.profesor) {
 
         identAsignatura = item.identificador.substring(0, 2)
@@ -1223,13 +1250,16 @@ export class ProfesoresResumenComponent {
 
     identAsignatura = ""
     semestreAsignatura = ""
+    identAsignatura = ""
+    cicloAsignatura = ""
     asignaturasProfesoresNocturnoCicloUno = this.horarioProfesor.map(item => item.filter(item => {
-      if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.semestre[0] === "1" && item.item.profesor) {
+      if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.ciclo[0] === "1" && item.item.profesor) {
 
         identAsignatura = item.identificador.substring(0, 2)
         semestreAsignatura = item.semestre
+        cicloAsignatura = item.ciclo
         return true; // Mantener las asignaturas filtradas
-      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura) {
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura && item.ciclo === cicloAsignatura) {
         return true;
       } else {
         return false;
@@ -1238,19 +1268,24 @@ export class ProfesoresResumenComponent {
     }))
     identAsignatura = ""
     semestreAsignatura = ""
+    cicloAsignatura = ""
     asignaturasProfesoresNocturnoCicloDos = this.horarioProfesor.map(item => item.filter(item => {
-      if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.semestre[0] === "2" && item.item.profesor) {
+      if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.ciclo[0] === "2" && item.item.profesor) {
 
         identAsignatura = item.identificador.substring(0, 2)
         semestreAsignatura = item.semestre
+        cicloAsignatura = item.ciclo
+
         return true; // Mantener las asignaturas filtradas
-      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura) {
+      } else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura && item.ciclo === cicloAsignatura) {
         return true;
       } else {
         return false;
       }
 
     }))
+
+    console.log(asignaturasProfesoresNocturnoCicloUno)
 
     worksheet.mergeCells('B1:E1'); // Fusionar 4 celdas en la primera fila
     let texto1 = worksheet.getCell(1, 2); // Seleccionar la celda B1
@@ -1305,7 +1340,7 @@ export class ProfesoresResumenComponent {
       row = [this.hours[i]];
 
       // Iterar sobre los arreglos correspondientes a cada día de la semana
-      for (let j = 0; j < days.length; j++) {
+      for (let j = 0; j <= days.length; j++) {
 
 
         // Buscar el item correspondiente a esta celda
@@ -1424,13 +1459,12 @@ export class ProfesoresResumenComponent {
     });
 
 
-
-    let rowC1 = []
+    
     for (let i = 0; i < this.hoursnight.length; i++) {
-      rowC1 = [this.hoursnight[i]];
+      row = [this.hoursnight[i]];
 
       // Iterar sobre los arreglos correspondientes a cada día de la semana
-      for (let j = 0; j < days.length; j++) {
+      for (let j = 0; j <= days.length; j++) {
 
 
         // Buscar el item correspondiente a esta celda
@@ -1449,12 +1483,13 @@ export class ProfesoresResumenComponent {
               let currentAsignaturaH = currentElement.item.horario;
               let currentAsignaturaC = currentElement.carrera;
               let currentAsignaturaS = currentElement.semestre;
+              let currentAsignaturaCiclo = currentElement.ciclo;
               let currentProfesores = currentElement.item.profesor[0].nombre;
               let currentAsignaturaCreditos = currentElement.item.creditos;
 
 
-              if (!asignaturasProfesores.some(ap => ap.asigId === currentAsignaturaId && (ap.asignatura === currentAsignatura && ap.semestre === currentAsignaturaS) && ap.profesores === currentProfesores)) {
-                asignaturasProfesores.push({ asigId: currentAsignaturaId, carrera: currentAsignaturaC, semestre: currentAsignaturaS, asignatura: currentAsignatura, horario: currentAsignaturaH, profesores: currentProfesores, horas: currentAsignaturaCreditos });
+              if (!asignaturasProfesores.some(ap => ap.asigId === currentAsignaturaId && (ap.asignatura === currentAsignatura && ap.semestre === currentAsignaturaS && ap.ciclo === currentAsignaturaCiclo) && ap.profesores === currentProfesores)) {
+                asignaturasProfesores.push({ asigId: currentAsignaturaId, carrera: currentAsignaturaC, semestre: currentAsignaturaS, ciclo: currentAsignaturaCiclo, asignatura: currentAsignatura, horario: currentAsignaturaH, profesores: currentProfesores, horas: currentAsignaturaCreditos });
 
               }
 
@@ -1466,23 +1501,22 @@ export class ProfesoresResumenComponent {
 
             // Comprobar si las horas son iguales
             let rowIndex = i + 1; // Sumar 1 para evitar reemplazar la primera fila (encabezado)
-            let colIndex = j + 1; // Sumar 1 para evitar reemplazar la primera columna (horario)
+            let colIndex = j +1; // Sumar 1 para evitar reemplazar la primera columna (horario)
 
             // Insertar el valor en la celda correspondiente
-
-            if (i === this.hours.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
-
-              if (typeof rowC1[colIndex] === 'undefined') {
-                rowC1[colIndex] = '';
+            if (i === this.hoursnight.indexOf(elementHourStart + '-' + elementHourEnd) && j === (daysN.indexOf(currentElement.dayName))) {
+             
+              if (typeof row[colIndex] === 'undefined') {
+                row[colIndex] = '';
               }
               if (currentElement.elementoType === 'aula') {
                 agrupaciones.push(currentElement)
-                rowC1[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
+                row[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
 
               } else {
                 agrupaciones.push(currentElement)
-                rowC1[colIndex] += currentElement.item.nombre.trim();
-                rowC1[colIndex] += " ( " + currentElement.semestre + ' semestre' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )"
+                row[colIndex] += currentElement.item.nombre.trim();
+                row[colIndex] += " ( " + currentElement.semestre + ' semestre' + ' - '+ currentElement.ciclo + ' Ciclo' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )"
 
 
               }
@@ -1556,7 +1590,7 @@ export class ProfesoresResumenComponent {
       let row = [this.hoursnight[i]];
 
       // Iterar sobre los arreglos correspondientes a cada día de la semana
-      for (let j = 0; j < days.length; j++) {
+      for (let j = 0; j <= days.length; j++) {
 
 
         // Buscar el item correspondiente a esta celda
@@ -1575,12 +1609,13 @@ export class ProfesoresResumenComponent {
               let currentAsignaturaH = currentElement.item.horario;
               let currentAsignaturaC = currentElement.carrera;
               let currentAsignaturaS = currentElement.semestre;
+              let currentAsignaturaCiclo = currentElement.ciclo;
               let currentProfesores = currentElement.item.profesor[0].nombre;
               let currentAsignaturaCreditos = currentElement.item.creditos;
 
 
-              if (!asignaturasProfesores.some(ap => ap.asigId === currentAsignaturaId && (ap.asignatura === currentAsignatura && ap.semestre === currentAsignaturaS) && ap.profesores === currentProfesores)) {
-                asignaturasProfesores.push({ asigId: currentAsignaturaId, carrera: currentAsignaturaC, semestre: currentAsignaturaS, asignatura: currentAsignatura, horario: currentAsignaturaH, profesores: currentProfesores, horas: currentAsignaturaCreditos });
+              if (!asignaturasProfesores.some(ap => ap.asigId === currentAsignaturaId && (ap.asignatura === currentAsignatura && ap.semestre === currentAsignaturaS && ap.ciclo === currentAsignaturaCiclo) && ap.profesores === currentProfesores)) {
+                asignaturasProfesores.push({ asigId: currentAsignaturaId, carrera: currentAsignaturaC, semestre: currentAsignaturaS, ciclo: currentAsignaturaCiclo, asignatura: currentAsignatura, horario: currentAsignaturaH, profesores: currentProfesores, horas: currentAsignaturaCreditos });
 
               }
 
@@ -1596,7 +1631,7 @@ export class ProfesoresResumenComponent {
 
             // Insertar el valor en la celda correspondiente
 
-            if (i === this.hours.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
+            if (i === this.hoursnight.indexOf(elementHourStart + '-' + elementHourEnd) && j === (daysN.indexOf(currentElement.dayName))) {
 
               if (typeof row[colIndex] === 'undefined') {
                 row[colIndex] = '';
@@ -1608,7 +1643,7 @@ export class ProfesoresResumenComponent {
               } else {
                 agrupaciones.push(currentElement)
                 row[colIndex] += currentElement.item.nombre.trim();
-                row[colIndex] += " ( " + currentElement.semestre + ' semestre' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )"
+                row[colIndex] += " ( " + currentElement.semestre + ' semestre' + ' - ' + currentElement.ciclo + ' ciclo' + ' - '+ currentElement.carrera + ' - ' + currentElement.item.horario + " )"
 
 
               }
@@ -1679,7 +1714,7 @@ export class ProfesoresResumenComponent {
 
     let asignaturaId: string | number;
 
-    agrupaciones.forEach((item: { elementoType: string; item: { _id: any; }; carrera: any; dayName: any; hourEnd: any; hourStart: any; identificador: any; semestre: any; }) => {
+    agrupaciones.forEach((item: { elementoType: string; item: { _id: any; }; carrera: any; dayName: any; hourEnd: any; hourStart: any; identificador: any; semestre: any; ciclo: any; }) => {
       if (item.elementoType === "asignatura") {
         asignaturaId = item.item._id;
         if (!resultadoAgrupado[asignaturaId]) {
@@ -1692,6 +1727,7 @@ export class ProfesoresResumenComponent {
             identificador: item.identificador,
             item: item.item,
             semestre: item.semestre,
+            ciclo: item.ciclo,
             aulas: []
           };
         }
@@ -1745,22 +1781,35 @@ export class ProfesoresResumenComponent {
     let totalHoras = 0;
     asignaturasProfesores.forEach(ap => {
       let tipoPeriodo: any
+      let tipoPeriodo2: any
       if (ap.horario === "Diurno") {
         tipoPeriodo = "Semestre"
+        worksheet.addRow([ap.asignatura + ' ( ' + ap.semestre + '  ' + tipoPeriodo + ' - ' + ap.carrera + ' ) ' + '( ' + ap.horario + ' )', ap.horas, ap.modalidad]).eachCell({ includeEmpty: true }, function (cell) {
+
+          cell.font = { size: 8 };
+          cell.border = {
+            top: { style: 'thin', color: { argb: '000000' } },
+            left: { style: 'thin', color: { argb: '000000' } },
+            bottom: { style: 'thin', color: { argb: '000000' } },
+            right: { style: 'thin', color: { argb: '000000' } }
+          };
+        })
       } else {
-        tipoPeriodo = "Ciclo"
+        tipoPeriodo = "Semestre"
+        tipoPeriodo2 = "Ciclo"
+        worksheet.addRow([ap.asignatura + ' ( ' + ap.semestre + '  ' + tipoPeriodo +'-' + ap.ciclo + '  ' + tipoPeriodo2+ ' - ' + ap.carrera + ' ) ' + '( ' + ap.horario + ' )', ap.horas, ap.modalidad]).eachCell({ includeEmpty: true }, function (cell) {
+
+          cell.font = { size: 8 };
+          cell.border = {
+            top: { style: 'thin', color: { argb: '000000' } },
+            left: { style: 'thin', color: { argb: '000000' } },
+            bottom: { style: 'thin', color: { argb: '000000' } },
+            right: { style: 'thin', color: { argb: '000000' } }
+          };
+        })
+  
       }
-      worksheet.addRow([ap.asignatura + ' ( ' + ap.semestre + ' ' + tipoPeriodo + ' - ' + ap.carrera + ' ) ' + '( ' + ap.horario + ' )', ap.horas, ap.modalidad]).eachCell({ includeEmpty: true }, function (cell) {
-
-        cell.font = { size: 8 };
-        cell.border = {
-          top: { style: 'thin', color: { argb: '000000' } },
-          left: { style: 'thin', color: { argb: '000000' } },
-          bottom: { style: 'thin', color: { argb: '000000' } },
-          right: { style: 'thin', color: { argb: '000000' } }
-        };
-      })
-
+     
       totalHoras += parseInt(ap.horas);
       indiceCellList++
     });
@@ -1780,18 +1829,18 @@ export class ProfesoresResumenComponent {
       rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Activar el ajuste de texto
     }
 
-     // Agregar texto al final de la página
-     let elaboradoPor = worksheet.getCell(52, 2);
-     elaboradoPor.value = 'Elaborado por: ';
-     elaboradoPor.font = { size: 8 };
- 
-     let nombreDirector = worksheet.getCell(55, 2);
-     nombreDirector.value = this.userData.nombre;
-     nombreDirector.font = { size: 8 };
- 
-     let directorCarrera = worksheet.getCell(56, 2);
-     directorCarrera.value = 'Director de carrera';
-     directorCarrera.font = { size: 8 };
+    // Agregar texto al final de la página
+    let elaboradoPor = worksheet.getCell(52, 2);
+    elaboradoPor.value = 'Elaborado por: ';
+    elaboradoPor.font = { size: 8 };
+
+    let nombreDirector = worksheet.getCell(55, 2);
+    nombreDirector.value = this.userData.nombre;
+    nombreDirector.font = { size: 8 };
+
+    let directorCarrera = worksheet.getCell(56, 2);
+    directorCarrera.value = 'Director de carrera';
+    directorCarrera.font = { size: 8 };
 
     // Agregar texto al final de la página
     let revisadoPor = worksheet.getCell(52, 4);
@@ -1799,7 +1848,7 @@ export class ProfesoresResumenComponent {
     revisadoPor.font = { size: 8 };
 
     let nombreRevisador = worksheet.getCell(55, 4);
-    nombreRevisador.value = this.revisador.nombre;
+    nombreRevisador.value = "";
     nombreRevisador.font = { size: 8 };
 
     let cargoRevisador = worksheet.getCell(56, 4);

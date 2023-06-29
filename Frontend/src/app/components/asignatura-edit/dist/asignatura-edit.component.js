@@ -40,6 +40,7 @@ var AsignaturaEditComponent = /** @class */ (function () {
         this.dropdownParalelos = {};
         this.paralelos = [];
         this.dropdownCiclos = {};
+        this.selectedCiclos = [];
         this.asignatura = new asignatura_1.Asignatura('', '', [], [], [], '', 0, '', '#000000');
         this.page_title = "Editar Asignatura";
         this.is_edit = true;
@@ -148,6 +149,7 @@ var AsignaturaEditComponent = /** @class */ (function () {
         this.asignatura.carrera = [];
         this.asignatura.semestre = [];
         this.asignatura.paralelo = [];
+        this.asignatura.ciclo = [];
         this.asignatura.horario = '';
         var controles = [];
         Object.values(this.asignaturaForm.controls).forEach(function (control) {
@@ -162,9 +164,17 @@ var AsignaturaEditComponent = /** @class */ (function () {
             var semestre = _c[_b];
             this.asignatura.semestre.push(semestre.textField);
         }
-        for (var _d = 0, _e = this.selectedParalelos; _d < _e.length; _d++) {
-            var paralelo = _e[_d];
-            this.asignatura.paralelo.push(paralelo.textField);
+        if (this.selectedCiclos && this.selectedCiclos.length > 0) {
+            for (var _d = 0, _e = this.selectedCiclos; _d < _e.length; _d++) {
+                var ciclo = _e[_d];
+                this.asignatura.ciclo.push(ciclo.textField);
+            }
+        }
+        if (this.selectedParalelos && this.selectedParalelos.length > 0) {
+            for (var _f = 0, _g = this.selectedParalelos; _f < _g.length; _f++) {
+                var paralelo = _g[_f];
+                this.asignatura.paralelo.push(paralelo.textField);
+            }
         }
         if (this.itemHorarioEdit.length !== 0) {
             this.asignatura.horario = this.itemHorarioEdit[0].textField;
@@ -249,6 +259,7 @@ var AsignaturaEditComponent = /** @class */ (function () {
                     _this.selectedCarreras = _this.carreras.filter(function (carrera) { return _this.asignatura.carrera.includes(carrera.textField); });
                     _this.selectedParalelos = _this.paralelos.filter(function (paralelo) { return _this.asignatura.paralelo.includes(paralelo.textField); });
                     _this.selectedSemestres = _this.semestres.filter(function (semestre) { return _this.asignatura.semestre.includes(semestre.textField); });
+                    _this.selectedCiclos = _this.ciclos.filter(function (ciclo) { return _this.asignatura.ciclo.includes(ciclo.textField); });
                     if (_this.selectedCarreras[0].textField === "Ingles" && _this.selectedCarreras.length === 1) {
                         _this.selectedSemestres = _this.periodosIngles.filter(function (semestre) { return _this.asignatura.semestre.includes(semestre.textField); });
                     }
@@ -269,11 +280,15 @@ var AsignaturaEditComponent = /** @class */ (function () {
         if (item.length > 1) {
             this.selectedPeriodoIngles = [];
             this.selectedSemestres = [];
+            this.selectedCiclos = [];
         }
         this.selectedHorarios = [];
     };
     AsignaturaEditComponent.prototype.onItemSemestreSelect = function (item) {
         this.itemSemestreEdit = item;
+    };
+    AsignaturaEditComponent.prototype.onItemCicloSelect = function (item) {
+        this.itemCicloEdit = item;
     };
     AsignaturaEditComponent.prototype.onItemProfesoresSelect = function (item) {
         this.itemProfesoresEdit = item;
@@ -286,6 +301,7 @@ var AsignaturaEditComponent = /** @class */ (function () {
     };
     AsignaturaEditComponent.prototype.onItemHorariosSelect = function (item) {
         this.selectedSemestres = [];
+        this.selectedCiclos = [];
         this.selectedPeriodoIngles = [];
         this.itemHorarioEdit = item;
     };

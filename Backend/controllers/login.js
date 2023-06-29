@@ -7,7 +7,6 @@
 var controller = {
 
   login: async  (req, res) => {
-    console.log(req.body)
     let { username, password } = req.body;
                 
     try {

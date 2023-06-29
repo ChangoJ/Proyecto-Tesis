@@ -19,7 +19,11 @@ var AsignaturaScheme = Schema({
   abreviatura: String,
   color: String,
   paralelo: {
-    type: String,
+    type: Array,
+    required: false
+  },
+  ciclo: {
+    type: Array,
     required: false
   }
 });

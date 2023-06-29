@@ -17,6 +17,7 @@ export class CarrerasDialogComponent {
   public datoRecibido!: any;
   public selectedCarrera!: string;
   public selectedSemestre!: string;
+  public selectedCiclo!: string;
   public periodoTIpo!: any
   public horarios: Horario[] = []
   public selectedCarreras: any[] = [];
@@ -92,7 +93,6 @@ export class CarrerasDialogComponent {
       this.rolesCarreras = rolesCarrera
     });
 
-    console.log(this.rolesCarreras)
 
     this._detalleService.getCarrerasIndex().subscribe(carreras => {
       this.carreras = carreras
@@ -175,6 +175,7 @@ export class CarrerasDialogComponent {
       this.datoRecibido = "Horario Diurno"
       this.periodoTIpo = "Semestre"
     }
+    console.log(this.selectedParalelo)
     if (this.selectedParalelo === undefined) {
       this.selectedParalelo = ""
     }
@@ -189,13 +190,21 @@ export class CarrerasDialogComponent {
     let ruta: any = ""
 
     let rutaEnviar: any = ""
-    if (this.selectedOpcionPregunta === "si") {
+    if (this.datoRecibido === "Horario Diurno" && this.selectedOpcionPregunta === "si") {
 
 
       rutaEnviar = rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedParalelo
 
-    } else {
+    } else if (this.datoRecibido === "Horario Diurno") {
       rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre
+    }
+
+    if (this.datoRecibido === "Horario Nocturno" && this.selectedOpcionPregunta === "si") {
+      rutaEnviar = rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedCiclo + '/' + this.selectedParalelo
+
+    } else if (this.datoRecibido === "Horario Nocturno") {
+      rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedCiclo
+
     }
 
 
@@ -203,9 +212,9 @@ export class CarrerasDialogComponent {
       ruta = rutaEnviar
       ruta = ruta.replace(/\s+/g, "_");
       this._router.navigate([ruta], { relativeTo: this._route })
-      setTimeout(() => {
+      /* setTimeout(() => {
         location.reload();
-      }, 350);
+      }, 350); */
     } else {
       Swal.fire(
         'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + this.periodoTIpo + ' ya fue creado.',

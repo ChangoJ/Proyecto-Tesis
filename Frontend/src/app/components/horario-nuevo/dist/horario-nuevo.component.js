@@ -91,6 +91,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
         this.opcion2 = "";
         this.opcion3 = "";
         this.opcion4 = "";
+        this.opcion5 = "";
         this.horarios = [];
         this.asignaturaHorario = [];
         this.aulaHorario = [];
@@ -117,6 +118,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
         this.revisador = [];
         this.aprobador = [];
         this.arrastreAsignaturas = [];
+        this.horarioHoras = "";
         this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
         this.existHorarioCarrera = false;
         this.getHorarios();
@@ -125,17 +127,25 @@ var HorarioNuevoComponent = /** @class */ (function () {
     }
     HorarioNuevoComponent.prototype.ngOnInit = function () {
         this.getHorarios();
-        this.getAsignaturas();
         this.getAulas();
         this.getUsuarios();
         this.getDataDetalles();
+        this.getAsignaturas();
     };
     HorarioNuevoComponent.prototype.getDataDetalles = function () {
         var _this = this;
         this._route.params.subscribe(function (params) {
             _this.opcion2 = params['opcion2'];
+            _this.opcion1 = params['opcion1'];
+            console.log(_this.opcion1);
         });
         if (this.opcion2 !== "Ingles") {
+            if (this.opcion1 === "Horario_Diurno") {
+                this.horarioHoras = "1D";
+            }
+            else {
+                this.horarioHoras = "1N";
+            }
             this._detalleService.getHorasDiurnas().subscribe(function (horasDiurnas) {
                 _this.hours = horasDiurnas;
             });
@@ -144,12 +154,52 @@ var HorarioNuevoComponent = /** @class */ (function () {
             });
         }
         else {
-            console.log(this.opcion2);
+            if (this.opcion1 === "Horario_Diurno") {
+                this.horarioHoras = "2D";
+            }
+            else {
+                this.horarioHoras = "2N";
+            }
             this._detalleService.getHorasAlternativaDiurnas().subscribe(function (horasAlternativaDiurnas) {
                 _this.hours = horasAlternativaDiurnas;
             });
             this._detalleService.getHorasAlternativaNocturnas().subscribe(function (horasAlternativaNocturnas) {
                 _this.hoursnight = horasAlternativaNocturnas;
+            });
+        }
+    };
+    HorarioNuevoComponent.prototype.onOptionSelectedHorario = function (horario) {
+        var _this = this;
+        this.monday = [];
+        this.tuesday = [];
+        this.wednesday = [];
+        this.thursday = [];
+        this.friday = [];
+        this.saturday = [];
+        this.asignaturasFiltradas = [];
+        this.getAsignaturas();
+        if (horario === "horasNocturnas") {
+            this._detalleService.getHorasNocturnas().subscribe(function (horasNocturnas) {
+                _this.hoursnight = horasNocturnas;
+                _this.horarioHoras = "1N";
+            });
+        }
+        else if (horario === "horasAlternativaNocturnas") {
+            this._detalleService.getHorasAlternativaNocturnas().subscribe(function (horasAlternativaNocturnas) {
+                _this.hoursnight = horasAlternativaNocturnas;
+                _this.horarioHoras = "2N";
+            });
+        }
+        else if (horario === "horasDiurnas") {
+            this._detalleService.getHorasDiurnas().subscribe(function (horasDiurnas) {
+                _this.hours = horasDiurnas;
+                _this.horarioHoras = "1D";
+            });
+        }
+        else if (horario === "horasAlternativaDiurnas") {
+            this._detalleService.getHorasAlternativaDiurnas().subscribe(function (horasAlternativaDiurnas) {
+                _this.hours = horasAlternativaDiurnas;
+                _this.horarioHoras = "2D";
             });
         }
     };
@@ -214,9 +264,10 @@ var HorarioNuevoComponent = /** @class */ (function () {
             _this.opcion1 = params['opcion1'];
             _this.opcion3 = params['opcion3'];
             _this.opcion4 = params['opcion4'];
+            _this.opcion5 = params['opcion5'];
             _this.opcion2 = _this.opcion2.replace(/_/g, " ");
             _this.opcion1 = _this.opcion1.replace(/_/g, " ");
-            if (_this.opcion4) {
+            if (_this.opcion5) {
                 _this.is_Paralelo = true;
             }
             else {
@@ -236,7 +287,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
                         var creditos = asignatura.creditos; // Obtener la cantidad de créditos de la asignatura
                         // Clonar la asignatura por la cantidad de créditos y guardarlas en el array this.asignaturas
                         for (var i = 0; i < creditos; i++) {
-                            var asignaturaClonada = new asignatura_1.Asignatura(asignatura._id, asignatura.nombre, asignatura.carrera, asignatura.semestre, asignatura.profesor, asignatura.horario, asignatura.creditos, asignatura.abreviatura, asignatura.color, asignatura.paralelo);
+                            var asignaturaClonada = new asignatura_1.Asignatura(asignatura._id, asignatura.nombre, asignatura.carrera, asignatura.semestre, asignatura.profesor, asignatura.horario, asignatura.creditos, asignatura.abreviatura, asignatura.color, asignatura.paralelo, asignatura.ciclo);
                             _this.asignaturas.push(asignaturaClonada);
                         }
                     });
@@ -247,15 +298,24 @@ var HorarioNuevoComponent = /** @class */ (function () {
                     else {
                         tipoHorarioAsig_1 = "Nocturno";
                     }
+                    if (_this.opcion5 === undefined || _this.opcion5 === "") {
+                        _this.opcion5 = "";
+                    }
                     if (_this.opcion4 === undefined || _this.opcion4 === "") {
                         _this.opcion4 = "";
                     }
                     _this.asignaturas = _this.asignaturas.filter(function (asignatura) { return asignatura.horario === tipoHorarioAsig_1; });
-                    if (_this.opcion4 === undefined || _this.opcion4 === "") {
-                        _this.asignaturas = _this.asignaturas.filter(function (asignatura) { return asignatura.horario === tipoHorarioAsig_1 && asignatura.paralelo.length === 0; });
+                    if ((_this.opcion5 === undefined || _this.opcion5 === "") && (_this.opcion4 === undefined || _this.opcion4 === "")) {
+                        _this.asignaturas = _this.asignaturas.filter(function (asignatura) { return asignatura.horario === tipoHorarioAsig_1 && asignatura.paralelo.length === 0 && asignatura.ciclo.length === 0; });
                     }
-                    else {
+                    else if ((tipoHorarioAsig_1 === "Diurno") && (_this.opcion4 !== undefined || _this.opcion4 !== "") && (_this.opcion5 === undefined || _this.opcion5 === "")) {
                         _this.asignaturas = _this.asignaturas.filter(function (asignatura) { return asignatura.horario === tipoHorarioAsig_1 && asignatura.paralelo && asignatura.paralelo.includes(_this.opcion4); });
+                    }
+                    else if ((tipoHorarioAsig_1 === "Nocturno") && (_this.opcion4 !== undefined || _this.opcion4 !== "") && (_this.opcion5 === undefined || _this.opcion5 === "")) {
+                        _this.asignaturas = _this.asignaturas.filter(function (asignatura) { return asignatura.horario === tipoHorarioAsig_1 && asignatura.ciclo && asignatura.ciclo.includes(_this.opcion4); });
+                    }
+                    else if ((_this.opcion4 !== undefined || _this.opcion4 !== "") && (_this.opcion5 !== undefined || _this.opcion5 !== "")) {
+                        _this.asignaturas = _this.asignaturas.filter(function (asignatura) { return asignatura.horario === tipoHorarioAsig_1 && asignatura.paralelo && asignatura.paralelo.includes(_this.opcion5) && asignatura.ciclo && asignatura.ciclo.includes(_this.opcion4); });
                     }
                     _this.asignaturasFiltradas = _this.asignaturas;
                 }
@@ -558,13 +618,26 @@ var HorarioNuevoComponent = /** @class */ (function () {
                         if (_this.opcion4 === undefined) {
                             _this.opcion4 = "";
                         }
+                        if (_this.opcion5 === undefined) {
+                            _this.opcion5 = "";
+                        }
                         for (var _i = 0, _a = _this.horarios; _i < _a.length; _i++) {
                             var horario = _a[_i];
                             if (horario.paralelo === undefined) {
                                 horario.paralelo = "";
                             }
-                            if (horario.carrera === _this.opcion2 && horario.semestre === _this.opcion3 && horario.tipoHorario === _this.opcion1 && horario.paralelo === _this.opcion4) {
-                                _this.existHorarioCarrera = true;
+                            if (horario.ciclo === undefined) {
+                                horario.ciclo = "";
+                            }
+                            if (_this.opcion1 === "Horario Nocturno") {
+                                if (horario.carrera === _this.opcion2 && horario.semestre === _this.opcion3 && horario.tipoHorario === _this.opcion1 && horario.ciclo === _this.opcion4 && horario.paralelo === _this.opcion5) {
+                                    _this.existHorarioCarrera = true;
+                                }
+                            }
+                            else {
+                                if (horario.carrera === _this.opcion2 && horario.semestre === _this.opcion3 && horario.tipoHorario === _this.opcion1 && horario.paralelo === _this.opcion4) {
+                                    _this.existHorarioCarrera = true;
+                                }
                             }
                         }
                         if (_this.opcion1 === "Horario Nocturno") {
@@ -577,7 +650,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
                             _this.periodoTipo = "Nivel";
                         }
                         if (_this.periodoTipo === "ciclo") {
-                            _this.horarios = _this.horarios.filter(function (horario) { return horario.tipoHorario === _this.opcion1 && horario.semestre === _this.opcion3; });
+                            _this.horarios = _this.horarios.filter(function (horario) { return horario.tipoHorario === _this.opcion1 && horario.ciclo === _this.opcion4; });
                         }
                         else {
                             _this.horarios = _this.horarios.filter(function (horario) { return horario.tipoHorario === _this.opcion1; });
@@ -619,7 +692,8 @@ var HorarioNuevoComponent = /** @class */ (function () {
                         _d.sent();
                         this.aulaHorario = [];
                         this.asignaturaHorario = [];
-                        this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
+                        this.horario.horarioHoras = "";
+                        this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario, '', '', '', '');
                         arreglosHorario = [
                             this.monday,
                             this.tuesday,
@@ -641,7 +715,15 @@ var HorarioNuevoComponent = /** @class */ (function () {
                         this.horario.carrera = this.opcion2;
                         this.horario.semestre = this.opcion3;
                         this.horario.creado_por = this.userData;
-                        this.horario.paralelo = this.opcion4;
+                        this.horario.horarioHoras = this.horarioHoras;
+                        if (this.opcion1 == "Horario Diurno") {
+                            this.horario.paralelo = this.opcion4;
+                            this.horario.ciclo = "";
+                        }
+                        else {
+                            this.horario.paralelo = this.opcion5;
+                            this.horario.ciclo = this.opcion4;
+                        }
                         elementoComprobarTipo = [];
                         elementoComprobarId = [];
                         asig = 0;
@@ -1047,7 +1129,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
         doc.addPage();
         rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:']);
         DataFirmas.push(["", "", ""]);
-        DataFirmas.push([this.horario.creado_por.nombre, this.revisador.nombre, this.aprobador.nombre]);
+        DataFirmas.push([this.horario.creado_por.nombre, this.horario.revisado_por.nombre, this.aprobador.nombre]);
         DataFirmas.push(["Director de Carrera", "Decano de Facultad", "Directora Académica "]);
         jspdf_autotable_1["default"](doc, {
             head: rowDataHead3,
@@ -1348,7 +1430,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
         revisadoPor.value = 'Revisado por: ';
         revisadoPor.font = { size: 8 };
         var nombreRevisador = worksheet.getCell(29, 4);
-        nombreRevisador.value = this.revisador.nombre;
+        nombreRevisador.value = this.horario.revisado_por.nombre;
         nombreRevisador.font = { size: 8 };
         var cargoRevisador = worksheet.getCell(30, 4);
         cargoRevisador.value = 'Decano de Facultad';

@@ -2,7 +2,7 @@
 exports.__esModule = true;
 exports.Horario = void 0;
 var Horario = /** @class */ (function () {
-    function Horario(_id, tipoHorario, estado, carrera, semestre, dia, idTabla, horas, item, creado_por, observacion, paralelo) {
+    function Horario(_id, tipoHorario, estado, carrera, semestre, dia, idTabla, horas, item, creado_por, observacion, paralelo, ciclo) {
         this._id = _id;
         this.tipoHorario = tipoHorario;
         this.estado = estado;
@@ -15,6 +15,7 @@ var Horario = /** @class */ (function () {
         this.creado_por = creado_por;
         this.observacion = observacion;
         this.paralelo = paralelo;
+        this.ciclo = ciclo;
     }
     return Horario;
 }());

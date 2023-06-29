@@ -62,6 +62,7 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
         this.periodosIngles = [];
         this.selectedCarreras = [];
         this.selectedSemestres = [];
+        this.selectedCiclos = [];
         this.selectedProfesores = [];
         this.selectedPeriodoIngles = [];
         this.dropdownCarreras = {};
@@ -214,14 +215,15 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
     };
     AsignaturaNuevoComponent.prototype.onSubmit = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var controles, _i, _a, profesor, _b, _c, carrera, _d, _e, semestre, _f, _g, paralelo;
+            var controles, _i, _a, profesor, _b, _c, carrera, _d, _e, semestre, _f, _g, ciclo, _h, _j, paralelo;
             var _this = this;
-            return __generator(this, function (_h) {
-                switch (_h.label) {
+            return __generator(this, function (_k) {
+                switch (_k.label) {
                     case 0:
                         this.asignatura.semestre = [];
                         this.asignatura.carrera = [];
                         this.asignatura.paralelo = [];
+                        this.asignatura.ciclo = [];
                         this.asignatura.profesor = [];
                         this.asignatura.horario = '';
                         controles = [];
@@ -230,14 +232,14 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
                             controles.push(control.status);
                         });
                         _i = 0, _a = this.selectedProfesores;
-                        _h.label = 1;
+                        _k.label = 1;
                     case 1:
                         if (!(_i < _a.length)) return [3 /*break*/, 4];
                         profesor = _a[_i];
                         return [4 /*yield*/, this.getProfesorId(profesor._id)];
                     case 2:
-                        _h.sent(); // Utiliza await para esperar a que se complete la llamada a getProfesorId
-                        _h.label = 3;
+                        _k.sent(); // Utiliza await para esperar a que se complete la llamada a getProfesorId
+                        _k.label = 3;
                     case 3:
                         _i++;
                         return [3 /*break*/, 1];
@@ -250,9 +252,15 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
                             semestre = _e[_d];
                             this.asignatura.semestre.push(semestre.textField);
                         }
+                        if (this.selectedCiclos && this.selectedCiclos.length > 0) {
+                            for (_f = 0, _g = this.selectedCiclos; _f < _g.length; _f++) {
+                                ciclo = _g[_f];
+                                this.asignatura.ciclo.push(ciclo.textField);
+                            }
+                        }
                         if (this.selectedParalelos && this.selectedParalelos.length > 0) {
-                            for (_f = 0, _g = this.selectedParalelos; _f < _g.length; _f++) {
-                                paralelo = _g[_f];
+                            for (_h = 0, _j = this.selectedParalelos; _h < _j.length; _h++) {
+                                paralelo = _j[_h];
                                 this.asignatura.paralelo.push(paralelo.textField);
                             }
                         }
@@ -299,6 +307,8 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
     AsignaturaNuevoComponent.prototype.onItemCarreraSelect = function (item) {
     };
     AsignaturaNuevoComponent.prototype.onItemSemestreSelect = function (item) {
+    };
+    AsignaturaNuevoComponent.prototype.onItemCicloSelect = function (item) {
     };
     AsignaturaNuevoComponent.prototype.onItemProfesoresSelect = function (item) {
     };

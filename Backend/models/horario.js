@@ -17,7 +17,10 @@ var HorarioScheme = Schema({
     creado_por: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', autopopulate: true },
     observacion: { type: String, required: false },
     paralelo: { type: String, required: false },
-
+    ciclo: { type: String, required: false },
+    horarioHoras: { type: String, required: false },
+    revisado_por: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', autopopulate: true, required: false },
+    
 });
 
 HorarioScheme.plugin(autopopulate);

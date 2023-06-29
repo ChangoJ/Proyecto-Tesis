@@ -12,24 +12,40 @@ var usuario_service_1 = require("../services/usuario.service");
 var table_1 = require("@angular/material/table");
 var sweetalert2_1 = require("sweetalert2");
 var detalle_service_1 = require("../services/detalle.service");
+var horario_service_1 = require("../services/horario.service");
 var ItemsUsuarioComponent = /** @class */ (function () {
-    function ItemsUsuarioComponent(_usuarioService, _route, _router, _detalleService) {
+    function ItemsUsuarioComponent(_usuarioService, _route, _router, _detalleService, _horarioService) {
         this._usuarioService = _usuarioService;
         this._route = _route;
         this._router = _router;
         this._detalleService = _detalleService;
+        this._horarioService = _horarioService;
         this.terminoBusquedaUsuarios = '';
         this.columnas = ['N°', 'Nombre', 'Usuario', 'CI', 'Email', 'N° Celular', 'Rol', 'Acciones'];
         this.usuariosObtenidos = [];
         this.url = this._detalleService.Global.url;
     }
     ItemsUsuarioComponent.prototype.ngOnInit = function () {
+        this.getUsuarios();
+        this.getHorarios();
+    };
+    ItemsUsuarioComponent.prototype.getUsuarios = function () {
         var _this = this;
         this._usuarioService.getUsuarios().subscribe(function (response) {
             if (response.usuarios) {
                 _this.usuariosObtenidos = response.usuarios;
                 _this.usuariosFiltrados = new table_1.MatTableDataSource(_this.usuariosObtenidos);
                 _this.usuariosFiltrados.paginator = _this.paginator;
+            }
+        }, function (error) {
+            console.log(error);
+        });
+    };
+    ItemsUsuarioComponent.prototype.getHorarios = function () {
+        var _this = this;
+        this._horarioService.getHorarios().subscribe(function (response) {
+            if (response.horarios) {
+                _this.horarios = response.horarios;
             }
         }, function (error) {
             console.log(error);
@@ -47,15 +63,35 @@ var ItemsUsuarioComponent = /** @class */ (function () {
             confirmButtonText: 'Delete'
         }).then(function (result) {
             if (result.isConfirmed) {
-                _this._usuarioService["delete"](id).subscribe(function (response) {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1200);
-                }, function (error) {
-                    console.log(error);
-                    _this._router.navigate(['/especificacion/usuarios']);
+                var item_1 = [];
+                var ubicacion_1 = [];
+                var exist_usuario_1 = false;
+                _this.horarios.forEach(function (horario) {
+                    item_1 = horario.creado_por;
+                    if (item_1._id === id) {
+                        exist_usuario_1 = true;
+                        if (!horario.paralelo || horario.paralelo === "") {
+                            ubicacion_1 = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre;
+                        }
+                        else {
+                            ubicacion_1 = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre + ' Paralelo (' + horario.paralelo + ')';
+                        }
+                    }
                 });
-                sweetalert2_1["default"].fire('Usuario borrado', 'El usuario ha sido borrado', 'success');
+                if (!exist_usuario_1) {
+                    _this._usuarioService["delete"](id).subscribe(function (response) {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1200);
+                    }, function (error) {
+                        console.log(error);
+                        _this._router.navigate(['/especificacion/usuarios']);
+                    });
+                    sweetalert2_1["default"].fire('Usuario borrado', 'El usuario ha sido borrado', 'success');
+                }
+                else {
+                    sweetalert2_1["default"].fire('Usuario no borrada', 'Si deseas borrarlo, primero borra el horario que creo el usuario: ' + ubicacion_1, 'error');
+                }
             }
             else {
                 sweetalert2_1["default"].fire('Operación cancelada', 'El usuario no ha sido borrado', 'warning');
@@ -92,7 +128,7 @@ var ItemsUsuarioComponent = /** @class */ (function () {
             selector: 'app-items-usuario',
             templateUrl: './items-usuario.component.html',
             styleUrls: ['./items-usuario.component.css'],
-            providers: [usuario_service_1.UsuarioService, detalle_service_1.DetalleService]
+            providers: [usuario_service_1.UsuarioService, detalle_service_1.DetalleService, horario_service_1.HorarioService]
         })
     ], ItemsUsuarioComponent);
     return ItemsUsuarioComponent;

@@ -32,13 +32,16 @@ var controller = {
       horario1.estado = params.estado;
       horario1.carrera = params.carrera;
       horario1.semestre = params.semestre;
+      horario1.ciclo = params.ciclo;
       horario1.dia = params.dia;
       horario1.idTabla = params.idTabla;
       horario1.horas = params.horas;
       horario1.item = params.item;
       horario1.creado_por = params.creado_por;
       horario1.observacion = params.observacion;
-      horario1.paralelo = params.paralelo; //guardar el articulo
+      horario1.paralelo = params.paralelo;
+      horario1.horarioHoras = params.horarioHoras;
+      horario1.revisado_por = params.revisado_por; //guardar el articulo
 
       horario1.save().then(function (horarioStored) {
         if (!horarioStored) {
@@ -196,6 +199,11 @@ var controller = {
         }
       }, {
         "semestre": {
+          "$regex": searchString,
+          "$options": "i"
+        }
+      }, {
+        "ciclo": {
           "$regex": searchString,
           "$options": "i"
         }

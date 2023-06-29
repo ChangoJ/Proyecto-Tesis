@@ -51,6 +51,10 @@ const routes: Routes = [
     path: 'home/creacion/:opcion1/:opcion2/:opcion3',
     component: HomeComponent, canActivate: [AuthGuard]
   },
+  {
+    path: 'home/creacion/:opcion1/:opcion2/:opcion3/:opcion4/:opcion5',
+    component: HomeComponent, canActivate: [AuthGuard]
+  },
 
   {
     path: 'especificacion', component: EspecificacionComponent, canActivate: [AuthGuard],

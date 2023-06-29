@@ -111,13 +111,19 @@
                     <ng-container *ngFor="let asignatura of profesor.asignaturas; let last = last">
 
                         {{ asignatura.asignatura }} 
-                        <ng-container *ngIf="asignatura.horario === 'Nocturno'">
-                        {{'('+asignatura.semestre+' Ciclo' +' | '+asignatura.carrera+ ' | ' +
+                        <ng-container *ngIf="asignatura.horario === 'Nocturno' && !asignatura.carrera.includes('Ingles')">
+                        {{'('+asignatura.semestre+' Ciclo' +' - '+asignatura.carrera+ ' - ' +
                         
                         asignatura.horario+')'}}
                     </ng-container>
-                    <ng-container *ngIf="asignatura.horario === 'Diurno'">
-                        {{'('+asignatura.semestre+ ' Semestre'+' | '+asignatura.carrera+ ' | ' +
+                    <ng-container *ngIf="asignatura.horario === 'Diurno' && !asignatura.carrera.includes('Ingles') ">
+                        {{'('+asignatura.semestre+ ' Semestre'+' - '+asignatura.carrera+ ' - ' +
+                        
+                        asignatura.horario+')'}}
+                    </ng-container>
+
+                    <ng-container *ngIf="asignatura.carrera === 'Ingles'">
+                        {{'('+asignatura.semestre+ ' Nivel'+' - '+asignatura.carrera+ ' - ' +
                         
                         asignatura.horario+')'}}
                     </ng-container>
@@ -209,13 +215,19 @@
                     <ng-container *ngFor="let asignatura of profesor.asignaturas; let last = last">
 
                         {{ asignatura.asignatura }} 
-                        <ng-container *ngIf="asignatura.horario === 'Nocturno'">
-                        {{'('+asignatura.semestre+' Ciclo' +' | '+asignatura.carrera+ ' | ' +
+                        <ng-container *ngIf="asignatura.horario === 'Nocturno' && !asignatura.carrera.includes('Ingles')">
+                        {{'('+asignatura.semestre+' Semestre' +' - '+asignatura.ciclo+' Ciclo' +' - '+asignatura.carrera+ ' - ' +
                         
                         asignatura.horario+')'}}
                     </ng-container>
-                    <ng-container *ngIf="asignatura.horario === 'Diurno'">
-                        {{'('+asignatura.semestre+ ' Semestre'+' | '+asignatura.carrera+ ' | ' +
+                    <ng-container *ngIf="asignatura.horario === 'Diurno' && !asignatura.carrera.includes('Ingles') ">
+                        {{'('+asignatura.semestre+ ' Semestre'+' - '+asignatura.carrera+ ' - ' +
+                        
+                        asignatura.horario+')'}}
+                    </ng-container>
+
+                    <ng-container *ngIf="asignatura.carrera === 'Ingles'">
+                        {{'('+asignatura.semestre+ ' Nivel'+' - '+asignatura.carrera+ ' - ' +
                         
                         asignatura.horario+')'}}
                     </ng-container>
@@ -308,13 +320,19 @@
                     <ng-container *ngFor="let asignatura of profesor.asignaturas; let last = last">
 
                         {{ asignatura.asignatura }} 
-                        <ng-container *ngIf="asignatura.horario === 'Nocturno'">
-                        {{'('+asignatura.semestre+' Ciclo' +' | '+asignatura.carrera+ ' | ' +
+                        <ng-container *ngIf="asignatura.horario === 'Nocturno' && !asignatura.carrera.includes('Ingles')">
+                        {{'('+asignatura.semestre+' Semestre' +' - '+asignatura.ciclo+' Ciclo' +' - '+asignatura.carrera+ ' - ' +
                         
                         asignatura.horario+')'}}
                     </ng-container>
-                    <ng-container *ngIf="asignatura.horario === 'Diurno'">
-                        {{'('+asignatura.semestre+ ' Semestre'+' | '+asignatura.carrera+ ' | ' +
+                    <ng-container *ngIf="asignatura.horario === 'Diurno' && !asignatura.carrera.includes('Ingles') ">
+                        {{'('+asignatura.semestre+ ' Semestre'+' - '+asignatura.carrera+ ' - ' +
+                        
+                        asignatura.horario+')'}}
+                    </ng-container>
+
+                    <ng-container *ngIf="asignatura.carrera === 'Ingles'">
+                        {{'('+asignatura.semestre+ ' Nivel'+' - '+asignatura.carrera+ ' - ' +
                         
                         asignatura.horario+')'}}
                     </ng-container>
