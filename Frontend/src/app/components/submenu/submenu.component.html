@@ -14,7 +14,7 @@
                 <a id="matButton" mat-raised-button (click)="verHorarios()">Ver horarios</a>
             </div>
         </li>
-        <li class="BDButtons" *ngIf="is_admin">
+        <li *ngIf="is_admin">
             <div class="center-icon">
                 <mat-icon id="import_export" aria-hidden="false" aria-label="import_export"
                     fontIcon="import_export"></mat-icon>
@@ -22,7 +22,7 @@
                 <a id="matButton" mat-raised-button (click)="exportarBD()">Exportar BD</a>
             </div>
         </li>
-        <li class="BDButtons" *ngIf="is_admin">
+        <li *ngIf="is_admin">
             <div class="center-icon">
                 <mat-icon id="insert_drive_file" aria-hidden="insert_drive_file" aria-label="insert_drive_file"
                     fontIcon="insert_drive_file"></mat-icon>
@@ -32,13 +32,7 @@
             </div>
         </li>
     </ul>
-    <ul>
-
-    </ul>
-</nav>
-
-<nav id="submenu" *ngIf="home">
-
+   
 </nav>
 
 <nav id="submenu" *ngIf="horario">
@@ -104,8 +98,7 @@
 
 
 <div class="center">
-
     <router-outlet></router-outlet>
 </div>
-
-<div class="clearfix"></div>
+<!-- 
+<div class="clearfix"></div> -->

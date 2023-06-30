@@ -14,6 +14,51 @@ body {
     -moz-osx-font-smoothing: antialiased;
 }
 
+/* body {
+    background-image: url(../images/logoo.png);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    filter: opacity(0.5);
+    z-index: -1;
+}
+ */
+ body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin-top: 160px;
+    background-image: url(../images/logoo.png);
+    background-repeat: no-repeat;
+    background-size: 50% auto; /* Aquí puedes ajustar el porcentaje para cambiar el tamaño del ancho */
+    background-position: center; /* Esto centra la imagen en el elemento */
+    filter: opacity(0.1);
+    z-index: -1;
+  }
+  
+  .video-container {
+    position: relative;
+    width: 58%;
+    height: 0;
+    margin: 0 auto;
+    padding-bottom: 30.66%;
+}
+  
+  .video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+.multiselect-dropdown .dropdown-list {
+    position: relative  !important;
+}
+
+
 /* Login */
 
 .login-container {
@@ -221,8 +266,8 @@ li a:hover:not(.active) {
 /* SUBMENU */
 
 #submenu {
-    width: 100%;
-    float: right;
+    width: 100%;/* 
+    float: right; */
     font-size: 18px;
 
     margin-bottom: -28px;
@@ -270,13 +315,16 @@ a mat-raised-button {
 
 
 #submenuHorario {
-    top: -117px;
+    top: -84px;
     float: right;
     font-size: 18px;
     position: relative;
 
 }
 
+.parrafoHorario p{
+    padding-top: 44px;
+}
 
 
 #submenuHorario ul {
@@ -361,6 +409,8 @@ a mat-raised-button {
 }
 
 #contentHome {
+    
+    margin-top: 29px;
     text-align: center;
     width: 100%;
     float: left;
@@ -371,7 +421,7 @@ a mat-raised-button {
     text-align: center;
     width: 100%;
     float: left;
-    min-height: 802px;
+    min-height: 467px;
 }
 
 #content-sub {
@@ -843,6 +893,12 @@ table {
     width: 100%;
 }
 
+#buscadorHorarioA, .contenedor-listas, .mat-table th,
+.mat-table td {
+    border: 2px solid rgb(153 150 150);
+    border-radius: 10px; 
+}
+
 .listArrastre,
 th,
 td {
@@ -962,11 +1018,12 @@ th {
     background: #f7f7f7;
     width: 100%;
     height: 70px;
-    bottom: 0;
+    position: relative;
     line-height: 70px;
     color: #444;
+    
+    margin-top: 89px;
 }
-
 #footer p {
     margin: 0px;
     padding: 0px;
@@ -995,7 +1052,7 @@ th {
 }
 
 #articlesAsignatura {
-    padding: 50px;
+    padding: 0px;
 }
 
 .buttonBusqueda {
@@ -1099,36 +1156,36 @@ th {
 .rowDetalle {
     display: flex;
     flex-wrap: wrap;
-  }
+}
 
-  .rowDetalle#horas {
+.rowDetalle#horas {
     display: flex;
     flex-wrap: wrap;
-  }
-  
-  .colDetalle {
+}
+
+.colDetalle {
     flex: 1;
     margin-right: 10px;
     margin-bottom: 10px;
-  }
+}
 
-  .seleccionHorario{
+.seleccionHorario {
     width: 30%;
-  }
+}
 
-  .mat-grid-tile {
+.mat-grid-tile {
     overflow: visible !important;
 
     font-size: 14px !important
 }
 
-  
-  @media (max-width: 768px) {
+
+@media (max-width: 768px) {
     .col {
-      flex-basis: 100%;
-      margin-right: 0;
+        flex-basis: 100%;
+        margin-right: 0;
     }
-  }
+}
 
 /*RESPONSIVE*/
 
@@ -1181,7 +1238,7 @@ th {
         width: 50% !important;
     }
 
-   
+
 
     #buscadorHorario {
         width: 164% !important;
@@ -1280,6 +1337,7 @@ th {
         border-radius: 4px;
         display: block;
     }
+
     #content {
         min-height: 1000px;
     }
@@ -1290,23 +1348,23 @@ th {
 
     .tablaDocentesResumen {
         overflow-x: auto;
-      }
-      
+    }
+
     .contenedor-listas {
         max-height: 232px;
     }
 
     .listaAulas {
-        width: 66px  !important;
+        width: 66px !important;
         margin-left: 29px !important;
     }
 
     .listaMaterias {
-        width: 66px  !important;
+        width: 66px !important;
         display: flex !important;
     }
 
-    .h2Materias{
+    .h2Materias {
         font-size: 14px !important
     }
 
@@ -1374,6 +1432,6 @@ th {
         clear: both;
         float: none;
     }
-    
-   
+
+
 }

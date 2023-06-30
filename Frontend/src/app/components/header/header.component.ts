@@ -22,7 +22,7 @@ export class HeaderComponent {
 
     Swal.fire({
       title: '¿Estás seguro de cerrar sesión?',
-      text: 'Se perdera todo lo que no ha guardado y se cerrara sesión',
+      text: 'Se perdera todo lo que no ha guardado y se cerrara sesión.',
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#d33',

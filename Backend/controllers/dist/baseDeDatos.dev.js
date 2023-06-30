@@ -18,7 +18,7 @@ var _require = require('mongodb'),
 
 
 var url = 'mongodb://localhost:27017';
-var dbName = 'sistema_creacion_horariosV2';
+var dbName = 'sistema_creacion_horarios';
 var controller = {
   exportar: function exportar(req, res) {
     var client, db, databaseName, dbExport, collections, exportData, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, collection, collectionName, documents, fechaHoraActual, exportFileName;

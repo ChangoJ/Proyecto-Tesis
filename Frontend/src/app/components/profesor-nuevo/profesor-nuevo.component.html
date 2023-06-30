@@ -53,7 +53,7 @@
            
             <div class="form-group" *ngIf="!is_edit">
                 <label for="carrera">Carrera: </label>
-                <ng-multiselect-dropdown   [placeholder]="'Seleccione las Carreras'" [settings]="dropdownCarreras"
+                <ng-multiselect-dropdown  class="custom-dropdown"  [placeholder]="'Seleccione las Carreras'" [settings]="dropdownCarreras"
                     [data]="carreras" [(ngModel)]="selectedCarreras" [ngModelOptions]="{standalone: true}" >
                 </ng-multiselect-dropdown>
             </div>

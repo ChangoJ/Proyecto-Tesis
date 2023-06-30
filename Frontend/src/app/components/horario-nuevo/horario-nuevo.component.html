@@ -28,32 +28,33 @@
     </li>
   </ul>
 </nav>
+<div class="parrafoHorario">
+  <p *ngIf="is_Diurno && !is_Paralelo">Estas creando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
+    <strong>{{opcion3}}</strong> {{periodoTipo}}
+  </p>
 
-<p *ngIf="is_Diurno && !is_Paralelo">Estas creando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
-  <strong>{{opcion3}}</strong> {{periodoTipo}}
-</p>
+  <p *ngIf="is_Diurno  && is_Paralelo">Estas creando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
+    <strong>{{opcion3}}</strong> {{periodoTipo}} - Paralelo <strong>{{opcion4}}</strong>
+  </p>
 
-<p *ngIf="is_Diurno  && is_Paralelo">Estas creando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
-  <strong>{{opcion3}}</strong> {{periodoTipo}} - Paralelo <strong>{{opcion4}}</strong>
-</p>
+  <p *ngIf="!is_Diurno && !is_Paralelo">Estas creando el horario nocturno de la carrera de <strong>{{opcion2}}</strong>
+    del
+    semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong>
 
-<p *ngIf="!is_Diurno && !is_Paralelo">Estas creando el horario nocturno de la carrera de <strong>{{opcion2}}</strong>
-  del
-  semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong>
-
-<p *ngIf="!is_Diurno  && is_Paralelo">Estas creando el horario nocturno de la carrera de <strong>{{opcion2}}</strong>
-  del
-  semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong> - Paralelo
-  <strong>{{opcion5}}</strong></p>
-
+  <p *ngIf="!is_Diurno  && is_Paralelo">Estas creando el horario nocturno de la carrera de <strong>{{opcion2}}</strong>
+    del
+    semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong> - Paralelo
+    <strong>{{opcion5}}</strong>
+  </p>
+</div>
 <!-- Diruno -->
 <mat-form-field class="seleccionHorario" *ngIf="is_Diurno">
-  <mat-label >Cambiar horas del horario</mat-label>
+  <mat-label>Cambiar horas del horario</mat-label>
   <mat-select (selectionChange)="onOptionSelectedHorario($event.value)">
     <mat-option value="horasDiurnas">Horas Diurnas</mat-option>
     <mat-option value="horasAlternativaDiurnas">Horas Alternativa Diurnas</mat-option>
   </mat-select>
-  </mat-form-field>
+</mat-form-field>
 
 <div class="boxcontentHorario" *ngIf="is_Diurno">
   <div cdkDropListGroup class="mat-elevation-z2 ">
@@ -216,11 +217,11 @@
 
 <!-- Nocturno -->
 <mat-form-field class="seleccionHorario" *ngIf="!is_Diurno">
-<mat-label >Cambiar horas del horario</mat-label>
-<mat-select (selectionChange)="onOptionSelectedHorario($event.value)">
-  <mat-option value="horasNocturnas">Horas Nocturnas</mat-option>
-  <mat-option value="horasAlternativaNocturnas">Horas Alternativa Nocturnas</mat-option>
-</mat-select>
+  <mat-label>Cambiar horas del horario</mat-label>
+  <mat-select (selectionChange)="onOptionSelectedHorario($event.value)">
+    <mat-option value="horasNocturnas">Horas Nocturnas</mat-option>
+    <mat-option value="horasAlternativaNocturnas">Horas Alternativa Nocturnas</mat-option>
+  </mat-select>
 </mat-form-field>
 
 <div class="boxcontentHorario" *ngIf="!is_Diurno">
@@ -264,7 +265,8 @@
       <mat-grid-tile class="tablaHorario" colspan="1">
         <div class="box-table mat-elevation-z2">
           <h2><strong>Horario Nocturno - {{opcion2}} - Semestre {{opcion3}} - {{periodoTipo}} {{opcion4}} </strong>
-            <strong *ngIf="is_Paralelo">- Paralelo ({{opcion5}})</strong></h2>
+            <strong *ngIf="is_Paralelo">- Paralelo ({{opcion5}})</strong>
+          </h2>
           <table class="mat-table" id="table">
             <thead>
               <tr class="mat-header-row">

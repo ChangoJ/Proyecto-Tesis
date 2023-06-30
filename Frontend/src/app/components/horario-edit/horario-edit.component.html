@@ -1,16 +1,14 @@
-
-
 <nav id="submenuHorario">
   <ul>
     <li>
       <div class="center-icon" *ngIf="!opcionVerHorario">
         <mat-icon id="verified" aria-hidden="false" aria-label="verified" fontIcon="verified"></mat-icon>
-        <a mat-raised-button  [disabled]="!isActiveBtnV" (click)="verificarHorario()">Verificar</a>
+        <a mat-raised-button [disabled]="!isActiveBtnV" (click)="verificarHorario()">Verificar</a>
       </div>
     </li>
     <li>
       <div class="center-icon" *ngIf="!opcionVerHorario">
-        <mat-icon id="save" aria-hidden="false" aria-label="save" fontIcon="save" ></mat-icon>
+        <mat-icon id="save" aria-hidden="false" aria-label="save" fontIcon="save"></mat-icon>
         <a mat-raised-button [disabled]="!isActiveBtn" (click)="submit()">Guardar</a>
       </div>
     </li>
@@ -30,40 +28,50 @@
     </li>
   </ul>
 </nav>
-
-<p *ngIf="!opcionVerHorario && is_Diurno && !is_Paralelo">Estas editando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
-  <strong>{{opcion3}}</strong> {{periodoTipo}}
-</p>
-
-<p *ngIf="!opcionVerHorario && is_Diurno && is_Paralelo">Estas editando el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
-  <strong>{{opcion3}}</strong> {{periodoTipo}} - Paralelo <strong>{{opcion5}}</strong>
-</p>
-
-<p *ngIf="!opcionVerHorario && !is_Diurno  && !is_Paralelo">Estas editando el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
-  <strong>{{opcion3}}</strong> {{periodoTipo}} 
-</p>
-
-<p *ngIf="!opcionVerHorario && !is_Diurno  && is_Paralelo">Estas editando el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
-  semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong>  - Paralelo <strong>{{opcion5}}</strong>
-</p>
-
-<p *ngIf="opcionVerHorario && !is_Diurno && !is_Paralelo">Estas viendo el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
-  semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong> 
-</p>
-
-<p *ngIf="opcionVerHorario && !is_Diurno && is_Paralelo">Estas viendo el horario nocturno de la carrera de <strong>{{opcion2}}</strong> del
-  semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong>  - Paralelo <strong>{{opcion5}}</strong>
-</p>
-
-<p *ngIf="opcionVerHorario && is_Diurno && !is_Paralelo">Estas viendo el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
+<div class="parrafoHorario">
+  <p *ngIf="!opcionVerHorario && is_Diurno && !is_Paralelo">Estas editando el horario diurno de la carrera de
+    <strong>{{opcion2}}</strong> del
     <strong>{{opcion3}}</strong> {{periodoTipo}}
-</p>
+  </p>
 
-<p *ngIf="opcionVerHorario && is_Diurno && is_Paralelo">Estas viendo el horario diurno de la carrera de <strong>{{opcion2}}</strong> del
-  {{periodoTipo}} <strong>{{opcion3}}</strong> - Paralelo <strong>{{opcion5}}</strong>
-</p>
+  <p *ngIf="!opcionVerHorario && is_Diurno && is_Paralelo">Estas editando el horario diurno de la carrera de
+    <strong>{{opcion2}}</strong> del
+    <strong>{{opcion3}}</strong> {{periodoTipo}} - Paralelo <strong>{{opcion5}}</strong>
+  </p>
 
+  <p *ngIf="!opcionVerHorario && !is_Diurno  && !is_Paralelo">Estas editando el horario nocturno de la carrera de
+    <strong>{{opcion2}}</strong> del
+    <strong>{{opcion3}}</strong> {{periodoTipo}}
+  </p>
 
+  <p *ngIf="!opcionVerHorario && !is_Diurno  && is_Paralelo">Estas editando el horario nocturno de la carrera de
+    <strong>{{opcion2}}</strong> del
+    semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong> - Paralelo
+    <strong>{{opcion5}}</strong>
+  </p>
+
+  <p *ngIf="opcionVerHorario && !is_Diurno && !is_Paralelo">Estas viendo el horario nocturno de la carrera de
+    <strong>{{opcion2}}</strong> del
+    semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong>
+  </p>
+
+  <p *ngIf="opcionVerHorario && !is_Diurno && is_Paralelo">Estas viendo el horario nocturno de la carrera de
+    <strong>{{opcion2}}</strong> del
+    semestre <strong>{{opcion3}}</strong> {{periodoTipo}} <strong>{{opcion4}}</strong> - Paralelo
+    <strong>{{opcion5}}</strong>
+  </p>
+
+  <p *ngIf="opcionVerHorario && is_Diurno && !is_Paralelo">Estas viendo el horario diurno de la carrera de
+    <strong>{{opcion2}}</strong> del
+    <strong>{{opcion3}}</strong> {{periodoTipo}}
+  </p>
+
+  <p *ngIf="opcionVerHorario && is_Diurno && is_Paralelo">Estas viendo el horario diurno de la carrera de
+    <strong>{{opcion2}}</strong> del
+    {{periodoTipo}} <strong>{{opcion3}}</strong> - Paralelo <strong>{{opcion5}}</strong>
+  </p>
+
+</div>
 <div class="boxcontentHorario" *ngIf="is_Diurno">
   <div cdkDropListGroup class="mat-elevation-z2 ">
     <mat-grid-list cols="10" rowHeight="2:10" class="CajaHorario">
@@ -102,9 +110,11 @@
       </mat-grid-tile>
 
 
-      <mat-grid-tile [ngClass]="{ 'tablaHorario-activo': opcionVerHorario, 'tablaHorario-inactivo': !opcionVerHorario }"colspan="1">
+      <mat-grid-tile [ngClass]="{ 'tablaHorario-activo': opcionVerHorario, 'tablaHorario-inactivo': !opcionVerHorario }"
+        colspan="1">
         <div class="box-table mat-elevation-z2">
-          <h2><strong>Horario Diurno - {{opcion2}} - {{periodoTipo}} {{opcion3}} </strong> <strong *ngIf="is_Paralelo">- Paralelo ({{opcion5}})</strong></h2>
+          <h2><strong>Horario Diurno - {{opcion2}} - {{periodoTipo}} {{opcion3}} </strong> <strong *ngIf="is_Paralelo">-
+              Paralelo ({{opcion5}})</strong></h2>
           <table class="mat-table">
             <thead>
               <tr class="mat-header-row">
@@ -119,11 +129,12 @@
             <tbody>
               <tr *ngFor="let hour of hours ; let i=index" class="mat-row">
                 <td class="mat-cell">{{ hour.split('-')[0] }} - {{hour.split('-')[1]}}</td>
-                <td cdkDropList  [cdkDropListDisabled]="opcionVerHorario" [cdkDropListData]="getDayData(0, hour)" (cdkDropListDropped)="drop($event)"
-                  id="0-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list" style="overflow: hidden;">
+                <td cdkDropList [cdkDropListDisabled]="opcionVerHorario" [cdkDropListData]="getDayData(0, hour)"
+                  (cdkDropListDropped)="drop($event)" id="0-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list"
+                  style="overflow: hidden;">
                   <div
-                  [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                  matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
                     class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(0, hour); let i=index" cdkDrag>
                     <ng-container *ngIf="item.profesor">
                       <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ?
@@ -140,11 +151,11 @@
                     </ng-container>
                   </div>
                 </td>
-                <td cdkDropList  [cdkDropListDisabled]="opcionVerHorario" [cdkDropListData]="getDayData(1, hour)" (cdkDropListDropped)="drop($event)"
-                  id="1-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
+                <td cdkDropList [cdkDropListDisabled]="opcionVerHorario" [cdkDropListData]="getDayData(1, hour)"
+                  (cdkDropListDropped)="drop($event)" id="1-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div
-                  [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                  matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
                     class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(1, hour); let i=index" cdkDrag>
                     <ng-container *ngIf="item.profesor">
                       <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ?
@@ -161,11 +172,11 @@
                     </ng-container>
                   </div>
                 </td>
-                <td cdkDropList  [cdkDropListDisabled]="opcionVerHorario" [cdkDropListData]="getDayData(2, hour)" (cdkDropListDropped)="drop($event)"
-                  id="2-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
+                <td cdkDropList [cdkDropListDisabled]="opcionVerHorario" [cdkDropListData]="getDayData(2, hour)"
+                  (cdkDropListDropped)="drop($event)" id="2-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div
-                  [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                  matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
                     class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(2, hour); let i=index" cdkDrag>
                     <ng-container *ngIf="item.profesor">
                       <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ?
@@ -182,11 +193,11 @@
                     </ng-container>
                   </div>
                 </td>
-                <td cdkDropList  [cdkDropListDisabled]="opcionVerHorario" [cdkDropListData]="getDayData(3, hour)" (cdkDropListDropped)="drop($event)"
-                  id="3-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
+                <td cdkDropList [cdkDropListDisabled]="opcionVerHorario" [cdkDropListData]="getDayData(3, hour)"
+                  (cdkDropListDropped)="drop($event)" id="3-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div
-                  [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                  matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
                     class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(3, hour); let i=index" cdkDrag>
                     <ng-container *ngIf="item.profesor">
                       <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ?
@@ -203,11 +214,11 @@
                     </ng-container>
                   </div>
                 </td>
-                <td cdkDropList  [cdkDropListDisabled]="opcionVerHorario" [cdkDropListData]="getDayData(4, hour)" (cdkDropListDropped)="drop($event)"
-                  id="4-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
+                <td cdkDropList [cdkDropListDisabled]="opcionVerHorario" [cdkDropListData]="getDayData(4, hour)"
+                  (cdkDropListDropped)="drop($event)" id="4-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div
-                  [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                  matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
                     class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(4, hour); let i=index" cdkDrag>
                     <ng-container *ngIf="item.profesor">
                       <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ?
@@ -266,17 +277,19 @@
           <ng-container *ngFor="let aula of aulasFiltradas; let i=index ">
             <div style="background-color: {{aula.color}}; font-size: 13px;" id="{{'aula-' + i }}"
               class="cdk-drag-box mat-elevation-z1 listArrastre" cdkDrag>
-              <strong>Aula: </strong> {{aula?.nombre}}  <br>
+              <strong>Aula: </strong> {{aula?.nombre}} <br>
               <strong>Ub: </strong> {{ aula?.ubicacion }}
             </div>
           </ng-container>
         </div>
       </mat-grid-tile>
 
-        <mat-grid-tile [ngClass]="{ 'tablaHorario-activo': opcionVerHorario, 'tablaHorario-inactivo': !opcionVerHorario }"colspan="1">
-        
+      <mat-grid-tile [ngClass]="{ 'tablaHorario-activo': opcionVerHorario, 'tablaHorario-inactivo': !opcionVerHorario }"
+        colspan="1">
+
         <div class="box-table mat-elevation-z2">
-          <h2><strong>Horario Nocturno - {{opcion2}} - Semestre {{opcion3}} - {{periodoTipo}} {{opcion4}} </strong> <strong *ngIf="is_Paralelo">- Paralelo ({{opcion5}})</strong></h2>
+          <h2><strong>Horario Nocturno - {{opcion2}} - Semestre {{opcion3}} - {{periodoTipo}} {{opcion4}} </strong>
+            <strong *ngIf="is_Paralelo">- Paralelo ({{opcion5}})</strong></h2>
           <table class="mat-table" id="table">
             <thead>
               <tr class="mat-header-row">
@@ -295,8 +308,8 @@
                 <td cdkDropList [cdkDropListData]="getDayData(0, hour)" (cdkDropListDropped)="drop($event)"
                   id="0-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list" style="overflow: hidden;">
                   <div
-                  [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                  matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
                     class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(0, hour); let i=index" cdkDrag>
                     <ng-container *ngIf="item.profesor">
                       <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
@@ -313,8 +326,8 @@
                 <td cdkDropList [cdkDropListData]="getDayData(1, hour)" (cdkDropListDropped)="drop($event)"
                   id="1-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div
-                  [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                  matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
                     class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(1, hour); let i=index" cdkDrag>
                     <ng-container *ngIf="item.profesor">
                       <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
@@ -331,8 +344,8 @@
                 <td cdkDropList [cdkDropListData]="getDayData(2, hour)" (cdkDropListDropped)="drop($event)"
                   id="2-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div
-                  [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                  matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
                     class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(2, hour); let i=index" cdkDrag>
                     <ng-container *ngIf="item.profesor">
                       <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
@@ -349,8 +362,8 @@
                 <td cdkDropList [cdkDropListData]="getDayData(3, hour)" (cdkDropListDropped)="drop($event)"
                   id="3-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div
-                  [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                  matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
                     class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(3, hour); let i=index" cdkDrag>
                     <ng-container *ngIf="item.profesor">
                       <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
@@ -367,8 +380,8 @@
                 <td cdkDropList [cdkDropListData]="getDayData(4, hour)" (cdkDropListDropped)="drop($event)"
                   id="4-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div
-                  [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                  matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
                     class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(4, hour); let i=index" cdkDrag>
                     <ng-container *ngIf="item.profesor">
                       <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
@@ -385,8 +398,8 @@
                 <td cdkDropList [cdkDropListData]="getDayData(5, hour)" (cdkDropListDropped)="drop($event)"
                   id="5-{{ hour }}-{{ i }}" class="mat-cell cdk-drop-list">
                   <div
-                  [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion" 
-                  matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
+                    [matTooltip]="item.profesor ? 'Asignatura: ' + item.nombre + ' \nProfesor: ' + item.profesor[0].nombre : 'Aula: ' + item.nombre + ' \nUbicacion: '+ item.ubicacion"
+                    matTooltipPosition="above" style="background-color: {{item.color}}; font-size: 10px;"
                     class="cdk-drag-box mat-elevation-z1" *ngFor="let item of getDayData(5, hour); let i=index" cdkDrag>
                     <ng-container *ngIf="item.profesor">
                       <strong>Asig: </strong> {{ item.abreviatura | slice:0:3 }}{{ item.abreviatura.length > 3 ? '...' :
@@ -410,4 +423,3 @@
 </div>
 
 <div class="clearfix"></div>
-

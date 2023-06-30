@@ -127,7 +127,6 @@ var CarrerasDialogComponent = /** @class */ (function () {
             this.datoRecibido = "Horario Diurno";
             this.periodoTIpo = "Semestre";
         }
-        console.log(this.selectedParalelo);
         if (this.selectedParalelo === undefined) {
             this.selectedParalelo = "";
         }
