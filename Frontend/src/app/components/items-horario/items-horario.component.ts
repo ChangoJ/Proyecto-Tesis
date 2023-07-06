@@ -33,6 +33,12 @@ export class ItemsHorarioComponent {
   public userData!: any;
   public carrerasFiltradas: any[] = [];
   public rolesCarreras: any
+  public carreras: any
+  public horariosType: any
+  public periodos: any[] = []
+  public selectedCarrera!: any
+  public selectedHorario!: any
+  public selectedPeriodo!: any
   public columnas = ['N°', 'Carrera', 'Periodo', 'Tipo', 'Acciones', 'Estado(Aprobacion)', 'Estado(Revisado)', 'Observacion'];
 
   constructor(
@@ -47,6 +53,8 @@ export class ItemsHorarioComponent {
     this.authToken = this._detalleService.authToken
     this.userData = this._detalleService.userData
 
+    this.horariosType = this._detalleService.horariosType
+
   }
 
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
@@ -55,14 +63,13 @@ export class ItemsHorarioComponent {
     this.getHorarios()
     this.ver = "Ver";
     this.userData = JSON.parse(this.authToken!)
-    if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador" || this.userData.rol === "Superadministrador") {
-      this.is_admin = true
+    if (this.userData.rol === "Aprobador") {
       this.is_aprobador = true
-    }
-
-    if (this.userData.rol === "Administrador" || this.userData.rol === "Revisador" || this.userData.rol === "Superadministrador") {
-      this.is_admin = true
+    } else if (this.userData.rol === "Revisador") {
       this.is_revisador = true
+    } else if (this.userData.rol === "Administrador" || this.userData.rol === "Superadministrador") {
+
+      this.is_admin = true
     }
 
     this.getDataDetalles()
@@ -73,17 +80,82 @@ export class ItemsHorarioComponent {
     this._detalleService.getRolesCarrera().subscribe(roles => {
       this.rolesCarreras = roles
     });
+
+    this._detalleService.getCarreras().subscribe(carreras => {
+      this.carreras = carreras
+    });
+
+    this._detalleService.getSemestres().subscribe(semestres => {
+      this.periodos = semestres
+    });
+
+    /*   this._detalleService.getCiclos().subscribe(semestres => {
+        this.periodos = semestres
+      });
+  
+      this._detalleService.getPeriodosIngles().subscribe(semestres => {
+        this.periodos = semestres
+      }); */
+
   }
 
 
   filtrarHorarios() {
-    let terminosBusqueda = this.terminoBusquedaHorario.split(' ').join('|');
-    let regexBusqueda = new RegExp(terminosBusqueda, 'gi');
-    this.horariosFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas.filter(horario =>
-      horario.carrera.toString().toLowerCase().match(regexBusqueda) ||
-      horario.semestre.toString().toLowerCase().match(regexBusqueda) ||
-      horario.tipoHorario.toString().toLowerCase().match(regexBusqueda)
-    ));
+
+    let terminosBusqueda = this.terminoBusquedaHorario.trim().toLowerCase();
+
+    let regexBusqueda = new RegExp(`\\b${terminosBusqueda}\\b`, 'gi');
+
+    let horariosFiltrados = this.carrerasFiltradas;
+    console.log(this.selectedHorario)
+
+    if (this.selectedCarrera !== undefined) {
+      horariosFiltrados = horariosFiltrados.filter(horario => {
+        return horario.carrera.toLowerCase() === this.selectedCarrera.toLowerCase();
+      });
+    }
+
+    if (this.selectedPeriodo !== undefined) {
+      horariosFiltrados = horariosFiltrados.filter(horario => {
+        return horario.semestre.toLowerCase() === this.selectedPeriodo.toLowerCase()  || horario.ciclo === this.selectedPeriodo.toLowerCase();
+      });
+    }
+
+
+    if (this.selectedHorario !== undefined) {
+      horariosFiltrados = horariosFiltrados.filter(horario => {
+        return horario.tipoHorario.toLowerCase() === this.selectedHorario.toLowerCase();
+      });
+    }
+
+    if (this.selectedCarrera === "Todas" || this.selectedPeriodo === "Todas" || this.selectedHorario === "Todas") {
+      horariosFiltrados = this.carrerasFiltradas;
+    }
+
+
+    if (terminosBusqueda !== '') {
+
+      horariosFiltrados = horariosFiltrados.filter(horario =>
+        horario.carrera.toString().toLowerCase().match(regexBusqueda) ||
+        horario.semestre.toString().toLowerCase().match(regexBusqueda) ||
+        horario.tipoHorario.toString().toLowerCase().match(regexBusqueda) ||
+        horario.estado.toString().toLowerCase().match(regexBusqueda)
+
+      );
+
+      if (horariosFiltrados.length === 0) {
+        let terminosBusquedaSeparados = terminosBusqueda.split(' ')
+        regexBusqueda = new RegExp(`(${terminosBusquedaSeparados.join('|')})`, 'gi');
+        horariosFiltrados = horariosFiltrados.filter(horario =>
+          horario.carrera.toString().toLowerCase().match(regexBusqueda) ||
+          horario.semestre.toString().toLowerCase().match(regexBusqueda) ||
+          horario.tipoHorario.toString().toLowerCase().match(regexBusqueda) ||
+          horario.estado.toString().toLowerCase().match(regexBusqueda)
+
+        );
+      }
+    }
+    this.horariosFiltrados = new MatTableDataSource<any>(horariosFiltrados)
   }
 
   getHorarios() {
@@ -172,10 +244,9 @@ export class ItemsHorarioComponent {
   }
 
   async cambiarEstado(horario: any, estado: string) {
-    console.log(horario._id)
+
     await this.getHorario(horario._id)
     this.horario.estado = estado
-    console.log(this.horario)
     let confirm: any = ""
     let color = ""
     if (estado === "Aprobado") {
@@ -244,7 +315,7 @@ export class ItemsHorarioComponent {
   }
 
   async cambiarEstadoRevision(horario: any, estado: string, usuario: any) {
- 
+
     await this.getHorario(horario._id)
     let confirm: any = ""
     let color = ""
@@ -254,13 +325,13 @@ export class ItemsHorarioComponent {
       confirm = "success"
       color = '#008000'
     } else {
-      
+
       this.horario.revisado_por = null
       confirm = "error"
 
       color = '#d33'
-     
-      
+
+
     }
     Swal.fire({
       title: '¿Estás seguro?',
@@ -272,8 +343,8 @@ export class ItemsHorarioComponent {
       confirmButtonText: 'Aceptar',
     }).then((result: any) => {
       if (result.isConfirmed) {
-        
-            
+
+
         console.log(this.horario)
         this._horarioService.update(horario._id, this.horario).subscribe(
           response => {
@@ -307,9 +378,9 @@ export class ItemsHorarioComponent {
           }
         );
         Swal.fire('Estado de revisón del horario cambiado.', 'El estado de revisión del horario ha sido ' + estado.toLowerCase() + '.', confirm);
-       setTimeout(() => {
+        setTimeout(() => {
           location.reload();
-        }, 1400); 
+        }, 1400);
       } else {
         Swal.fire('Operación cancelada', 'Estado de revisón del horario no ha sido cambiado.', 'warning');
 

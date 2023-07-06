@@ -10,6 +10,7 @@ export class Usuario {
         public contrasena: string,
         public rol: string,
         public phoneNumber?: string,
+        public codigoVerificacion?: string,
     ){
         
     }

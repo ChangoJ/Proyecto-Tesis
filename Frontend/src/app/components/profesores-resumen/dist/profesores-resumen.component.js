@@ -114,6 +114,12 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         this._detalleService.getHorasNocturnas().subscribe(function (horasNocturnas) {
             _this.hoursnight = horasNocturnas;
         });
+        this._detalleService.getHorasAlternativaDiurnas().subscribe(function (horasAlternativasDiurnas) {
+            _this.hoursAlternativasDiurnas = horasAlternativasDiurnas;
+        });
+        this._detalleService.getHorasAlternativaNocturnas().subscribe(function (horasAlternativasNocturnas) {
+            _this.hoursAlternativasNocturnas = horasAlternativasNocturnas;
+        });
     };
     ProfesoresResumenComponent.prototype.getProfesores = function () {
         var _this = this;
@@ -595,6 +601,7 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         });
     };
     ProfesoresResumenComponent.prototype.exportarProfePdf = function (profesor) {
+        var _this = this;
         // Crear una instancia de jsPDF
         var doc = new jspdf_1["default"]('landscape', 'mm', 'a4');
         var pageWidth = doc.internal.pageSize.width;
@@ -629,8 +636,29 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         var rowData = [];
         var rowDataC1 = [];
         var rowDataC2 = [];
-        var hoursPDF = [];
-        hoursPDF = this.hours;
+        var hoursPDFDiurno = [];
+        var hoursPDFNocturno = [];
+        var hoursPDFNocturnoCombinado = [];
+        var hoursPDFDiurnoCombinado = [];
+        hoursPDFDiurno = this.hours;
+        hoursPDFNocturno = this.hoursnight;
+        var horastemporalesDirunas = hoursPDFDiurno.concat(this.hoursAlternativasDiurnas);
+        horastemporalesDirunas.filter(function (hora, index) { return horastemporalesDirunas.indexOf(hora) === index; })
+            .forEach(function (hora) {
+            hoursPDFDiurnoCombinado.push(hora);
+        });
+        hoursPDFDiurnoCombinado.sort();
+        var horastemporalesNocturnas = hoursPDFNocturno.concat(this.hoursAlternativasNocturnas);
+        horastemporalesNocturnas.filter(function (hora, index) { return horastemporalesNocturnas.indexOf(hora) === index; })
+            .forEach(function (hora) {
+            hoursPDFNocturnoCombinado.push(hora);
+        });
+        hoursPDFNocturnoCombinado.sort();
+        /*  if (this.profesorSeleccionado.carrera[0] === "Ingles" && this.profesorSeleccionado.carrera.length <= 1) {
+     
+           hoursPDFDiurno = this.hoursAlternativasDiurnas
+           hoursPDFNocturno = this.hoursAlternativasNocturnas
+         } */
         var cellSize = "";
         rowDataHead4.push([{ title: 'Asignaturas', styles: { halign: 'center', fillColor: '#00AFF0' } },
             { title: 'N° Horas', styles: { halign: 'center', fillColor: '#00AFF0' } },
@@ -645,9 +673,20 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         rowDataC2.push(['Horas', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sabado']);
         var identAsignatura = "";
         var semestreAsignatura = "";
-        console.log(this.horarioProfesor);
+        var cicloAsignatura = "";
         asignaturasProfesoresDiurno = this.horarioProfesor.map(function (item) { return item.filter(function (item) {
+            if (!item.ciclo) {
+                item.ciclo = "";
+                cicloAsignatura = item.ciclo;
+            }
             if (item.elementoType === 'asignatura' && item.item.horario === 'Diurno' && item.item.profesor) {
+                if (!item.ciclo) {
+                    item.ciclo = "";
+                    cicloAsignatura = item.ciclo;
+                }
+                else {
+                    cicloAsignatura = item.ciclo;
+                }
                 identAsignatura = item.identificador.substring(0, 2);
                 semestreAsignatura = item.semestre;
                 return true; // Mantener las asignaturas filtradas
@@ -661,13 +700,27 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         }); });
         identAsignatura = "";
         semestreAsignatura = "";
+        identAsignatura = "";
+        cicloAsignatura = "";
         asignaturasProfesoresNocturnoCicloUno = this.horarioProfesor.map(function (item) { return item.filter(function (item) {
-            if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.semestre[0] === "1" && item.item.profesor) {
+            if (!item.ciclo) {
+                item.ciclo = "";
+                cicloAsignatura = item.ciclo;
+            }
+            if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.ciclo[0] === "1" && item.item.profesor) {
+                if (!item.ciclo) {
+                    item.ciclo = "";
+                    cicloAsignatura = item.ciclo;
+                }
+                else {
+                    cicloAsignatura = item.ciclo;
+                }
                 identAsignatura = item.identificador.substring(0, 2);
                 semestreAsignatura = item.semestre;
+                cicloAsignatura = item.ciclo;
                 return true; // Mantener las asignaturas filtradas
             }
-            else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura) {
+            else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura && item.ciclo === cicloAsignatura) {
                 return true;
             }
             else {
@@ -676,13 +729,26 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         }); });
         identAsignatura = "";
         semestreAsignatura = "";
+        cicloAsignatura = "";
         asignaturasProfesoresNocturnoCicloDos = this.horarioProfesor.map(function (item) { return item.filter(function (item) {
-            if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.semestre[0] === "2" && item.item.profesor) {
+            if (!item.ciclo) {
+                item.ciclo = "";
+                cicloAsignatura = item.ciclo;
+            }
+            if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.ciclo[0] === "2" && item.item.profesor) {
+                if (!item.ciclo) {
+                    item.ciclo = "";
+                    cicloAsignatura = item.ciclo;
+                }
+                else {
+                    cicloAsignatura = item.ciclo;
+                }
                 identAsignatura = item.identificador.substring(0, 2);
                 semestreAsignatura = item.semestre;
+                cicloAsignatura = item.ciclo;
                 return true; // Mantener las asignaturas filtradas
             }
-            else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura) {
+            else if (item.elementoType === 'aula' && item.identificador.substring(0, 2) === identAsignatura && item.semestre === semestreAsignatura && item.ciclo === cicloAsignatura) {
                 return true;
             }
             else {
@@ -691,8 +757,8 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         }); });
         var row = [];
         var agrupaciones = [];
-        for (var i = 0; i < hoursPDF.length; i++) {
-            row = [hoursPDF[i]];
+        for (var i = 0; i < hoursPDFDiurnoCombinado.length; i++) {
+            row = [hoursPDFDiurnoCombinado[i]];
             for (var j = 0; j < days.length; j++) {
                 // Buscar el item correspondiente a esta celda
                 var currentItem = [];
@@ -707,10 +773,11 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                             var currentAsignaturaH = currentElement.item.horario;
                             var currentAsignaturaC = currentElement.carrera;
                             var currentAsignaturaS_2 = currentElement.semestre;
+                            var currentAsignaturaCiclo_2 = currentElement.ciclo;
                             var currentProfesores_2 = currentElement.item.profesor[0].nombre;
                             var currentAsignaturaCreditos = currentElement.item.creditos;
-                            if (!asignaturasProfesores.some(function (ap) { return ap.asigId === currentAsignaturaId_2 && (ap.asignatura === currentAsignatura_2 && ap.semestre === currentAsignaturaS_2) && ap.profesores === currentProfesores_2; })) {
-                                asignaturasProfesores.push({ asigId: currentAsignaturaId_2, carrera: currentAsignaturaC, semestre: currentAsignaturaS_2, asignatura: currentAsignatura_2, horario: currentAsignaturaH, profesores: currentProfesores_2, horas: currentAsignaturaCreditos });
+                            if (!asignaturasProfesores.some(function (ap) { return ap.asigId === currentAsignaturaId_2 && (ap.asignatura === currentAsignatura_2 && ap.semestre === currentAsignaturaS_2 && ap.ciclo === currentAsignaturaCiclo_2) && ap.profesores === currentProfesores_2; })) {
+                                asignaturasProfesores.push({ asigId: currentAsignaturaId_2, carrera: currentAsignaturaC, semestre: currentAsignaturaS_2, ciclo: currentAsignaturaCiclo_2, asignatura: currentAsignatura_2, horario: currentAsignaturaH, profesores: currentProfesores_2, horas: currentAsignaturaCreditos });
                             }
                         }
                         // Obtener la hora del elemento actual
@@ -720,7 +787,7 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                         var rowIndex = i + 1; // Sumar 1 para evitar reemplazar la primera fila (encabezado)
                         var colIndex = j + 1; // Sumar 1 para evitar reemplazar la primera columna (horario)
                         // Insertar el valor en la celda correspondiente
-                        if (i === hoursPDF.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
+                        if (i === hoursPDFDiurnoCombinado.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
                             if (typeof row[colIndex] === 'undefined') {
                                 row[colIndex] = '';
                             }
@@ -731,10 +798,16 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                             else {
                                 agrupaciones.push(currentElement);
                                 row[colIndex] += currentElement.item.nombre.trim();
-                                row[colIndex] += "\n( " + currentElement.semestre + ' semestre' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )";
+                                if (this_1.profesorSeleccionado.carrera[0] === "Ingles" && this_1.profesorSeleccionado.carrera.length <= 1) {
+                                    row[colIndex] += "\n( " + currentElement.semestre + ' nivel' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )";
+                                }
+                                else {
+                                    row[colIndex] += "\n( " + currentElement.semestre + ' semestre' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )";
+                                }
                             }
                         }
                     };
+                    var this_1 = this;
                     for (var l = 0; l < currentItem.length; l++) {
                         _loop_3(l);
                     }
@@ -742,10 +815,9 @@ var ProfesoresResumenComponent = /** @class */ (function () {
             }
             rowData.push(row);
         }
-        var rowC1 = [];
-        for (var i = 0; i < this.hoursnight.length; i++) {
-            rowC1 = [this.hoursnight[i]];
-            for (var j = 0; j < days.length; j++) {
+        for (var i = 0; i < hoursPDFNocturnoCombinado.length; i++) {
+            row = [hoursPDFNocturnoCombinado[i]];
+            for (var j = 0; j <= days.length; j++) {
                 // Buscar el item correspondiente a esta celda
                 var currentItem = [];
                 for (var k = 0; k < asignaturasProfesoresNocturnoCicloUno.length; k++) {
@@ -759,10 +831,11 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                             var currentAsignaturaH = currentElement.item.horario;
                             var currentAsignaturaC = currentElement.carrera;
                             var currentAsignaturaS_3 = currentElement.semestre;
+                            var currentAsignaturaCiclo_3 = currentElement.ciclo;
                             var currentProfesores_3 = currentElement.item.profesor[0].nombre;
                             var currentAsignaturaCreditos = currentElement.item.creditos;
-                            if (!asignaturasProfesores.some(function (ap) { return ap.asigId === currentAsignaturaId_3 && (ap.asignatura === currentAsignatura_3 && ap.semestre === currentAsignaturaS_3) && ap.profesores === currentProfesores_3; })) {
-                                asignaturasProfesores.push({ asigId: currentAsignaturaId_3, carrera: currentAsignaturaC, semestre: currentAsignaturaS_3, asignatura: currentAsignatura_3, horario: currentAsignaturaH, profesores: currentProfesores_3, horas: currentAsignaturaCreditos });
+                            if (!asignaturasProfesores.some(function (ap) { return ap.asigId === currentAsignaturaId_3 && (ap.asignatura === currentAsignatura_3 && ap.semestre === currentAsignaturaS_3 && ap.ciclo === currentAsignaturaCiclo_3) && ap.profesores === currentProfesores_3; })) {
+                                asignaturasProfesores.push({ asigId: currentAsignaturaId_3, carrera: currentAsignaturaC, semestre: currentAsignaturaS_3, ciclo: currentAsignaturaCiclo_3, asignatura: currentAsignatura_3, horario: currentAsignaturaH, profesores: currentProfesores_3, horas: currentAsignaturaCreditos });
                             }
                         }
                         // Obtener la hora del elemento actual
@@ -771,32 +844,37 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                         // Comprobar si las horas son iguales
                         var rowIndex = i + 1; // Sumar 1 para evitar reemplazar la primera fila (encabezado)
                         var colIndex = j + 1; // Sumar 1 para evitar reemplazar la primera columna (horario)
-                        if (i === hoursPDF.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
-                            if (typeof rowC1[colIndex] === 'undefined') {
-                                rowC1[colIndex] = '';
+                        if (i === hoursPDFNocturnoCombinado.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
+                            if (typeof row[colIndex] === 'undefined') {
+                                row[colIndex] = '';
                             }
                             if (currentElement.elementoType === 'aula') {
                                 agrupaciones.push(currentElement);
-                                rowC1[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
+                                row[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
                             }
                             else {
                                 agrupaciones.push(currentElement);
-                                rowC1[colIndex] += currentElement.item.nombre.trim();
-                                rowC1[colIndex] += "\n( " + currentElement.semestre + ' ciclo' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )";
+                                row[colIndex] += currentElement.item.nombre.trim();
+                                if (this_2.profesorSeleccionado.carrera[0] === "Ingles" && this_2.profesorSeleccionado.carrera.length <= 1) {
+                                    row[colIndex] += " ( " + currentElement.semestre + ' nivel' + ' - ' + currentElement.ciclo + ' Ciclo' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )";
+                                }
+                                else {
+                                    row[colIndex] += " ( " + currentElement.semestre + ' semestre' + ' - ' + currentElement.ciclo + ' Ciclo' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )";
+                                }
                             }
                         }
                     };
+                    var this_2 = this;
                     for (var l = 0; l < currentItem.length; l++) {
                         _loop_4(l);
                     }
                 }
             }
-            rowDataC1.push(rowC1);
+            rowDataC1.push(row);
         }
-        var rowC2 = [];
-        for (var i = 0; i < this.hoursnight.length; i++) {
-            rowC2 = [this.hoursnight[i]];
-            for (var j = 0; j < days.length; j++) {
+        for (var i = 0; i < hoursPDFNocturnoCombinado.length; i++) {
+            row = [hoursPDFNocturnoCombinado[i]];
+            for (var j = 0; j <= days.length; j++) {
                 // Buscar el item correspondiente a esta celda
                 var currentItem = [];
                 for (var k = 0; k < asignaturasProfesoresNocturnoCicloDos.length; k++) {
@@ -810,10 +888,11 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                             var currentAsignaturaH = currentElement.item.horario;
                             var currentAsignaturaC = currentElement.carrera;
                             var currentAsignaturaS_4 = currentElement.semestre;
+                            var currentAsignaturaCiclo_4 = currentElement.ciclo;
                             var currentProfesores_4 = currentElement.item.profesor[0].nombre;
                             var currentAsignaturaCreditos = currentElement.item.creditos;
-                            if (!asignaturasProfesores.some(function (ap) { return ap.asigId === currentAsignaturaId_4 && (ap.asignatura === currentAsignatura_4 && ap.semestre === currentAsignaturaS_4) && ap.profesores === currentProfesores_4; })) {
-                                asignaturasProfesores.push({ asigId: currentAsignaturaId_4, carrera: currentAsignaturaC, semestre: currentAsignaturaS_4, asignatura: currentAsignatura_4, horario: currentAsignaturaH, profesores: currentProfesores_4, horas: currentAsignaturaCreditos });
+                            if (!asignaturasProfesores.some(function (ap) { return ap.asigId === currentAsignaturaId_4 && (ap.asignatura === currentAsignatura_4 && ap.semestre === currentAsignaturaS_4 && ap.ciclo === currentAsignaturaCiclo_4) && ap.profesores === currentProfesores_4; })) {
+                                asignaturasProfesores.push({ asigId: currentAsignaturaId_4, carrera: currentAsignaturaC, semestre: currentAsignaturaS_4, ciclo: currentAsignaturaCiclo_4, asignatura: currentAsignatura_4, horario: currentAsignaturaH, profesores: currentProfesores_4, horas: currentAsignaturaCreditos });
                             }
                         }
                         // Obtener la hora del elemento actual
@@ -823,27 +902,33 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                         var rowIndex = i + 1; // Sumar 1 para evitar reemplazar la primera fila (encabezado)
                         var colIndex = j + 1; // Sumar 1 para evitar reemplazar la primera columna (horario)
                         // Insertar el valor en la celda correspondiente
-                        if (i === hoursPDF.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
-                            if (typeof rowC2[colIndex] === 'undefined') {
-                                rowC2[colIndex] = '';
+                        if (i === hoursPDFNocturnoCombinado.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
+                            if (typeof row[colIndex] === 'undefined') {
+                                row[colIndex] = '';
                             }
                             if (currentElement.elementoType === 'aula') {
                                 agrupaciones.push(currentElement);
-                                rowC2[colIndex] += '\n' + '(' + currentElement.item.nombre + ' - ' + currentElement.item.ubicacion.trim() + ') ';
+                                row[colIndex] += ' \n' + (currentElement.item.nombre + ' - ' + currentElement.item.ubicacion).replace(/(.+)/, '($1)').trim();
                             }
                             else {
                                 agrupaciones.push(currentElement);
-                                rowC2[colIndex] += currentElement.item.nombre.trim();
-                                rowC2[colIndex] += "\n( " + currentElement.semestre + ' ciclo' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )";
+                                row[colIndex] += currentElement.item.nombre.trim();
+                                if (this_3.profesorSeleccionado.carrera[0] === "Ingles" && this_3.profesorSeleccionado.carrera.length <= 1) {
+                                    row[colIndex] += " ( " + currentElement.semestre + ' nivel' + ' - ' + currentElement.ciclo + ' ciclo' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )";
+                                }
+                                else {
+                                    row[colIndex] += " ( " + currentElement.semestre + ' semestre' + ' - ' + currentElement.ciclo + ' ciclo' + ' - ' + currentElement.carrera + ' - ' + currentElement.item.horario + " )";
+                                }
                             }
                         }
                     };
+                    var this_3 = this;
                     for (var l = 0; l < currentItem.length; l++) {
                         _loop_5(l);
                     }
                 }
             }
-            rowDataC2.push(rowC2);
+            rowDataC2.push(row);
         }
         // Crear un objeto para almacenar los resultados agrupados
         var resultadoAgrupado = [];
@@ -862,6 +947,7 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                         identificador: item.identificador,
                         item: item.item,
                         semestre: item.semestre,
+                        ciclo: item.ciclo,
                         aulas: []
                     };
                 }
@@ -908,14 +994,24 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         });
         asignaturasProfesores.forEach(function (ap) {
             var tipoPeriodo;
+            var tipoPeriodo2;
             if (ap.horario === "Diurno") {
                 tipoPeriodo = "Semestre";
+                if (_this.profesorSeleccionado.carrera[0] === "Ingles" && _this.profesorSeleccionado.carrera.length <= 1) {
+                    tipoPeriodo = "Nivel";
+                }
+                DataAdicional.push([ap.asignatura + ' ( ' + ap.semestre + ' ' + tipoPeriodo + ' - ' + ap.carrera + ' ) ' + '( ' + ap.horario + ' )', ap.horas, ap.modalidad]);
+                totalHoras += parseInt(ap.horas);
             }
             else {
-                tipoPeriodo = "Ciclo";
+                tipoPeriodo = "Semestre";
+                tipoPeriodo2 = "Ciclo";
+                if (_this.profesorSeleccionado.carrera[0] === "Ingles" && _this.profesorSeleccionado.carrera.length <= 1) {
+                    tipoPeriodo = "Nivel";
+                }
+                DataAdicional.push([ap.asignatura + ' ( ' + ap.semestre + ' ' + tipoPeriodo + ' - ' + ap.ciclo + '  ' + tipoPeriodo2 + ' - ' + ap.carrera + ' ) ' + '( ' + ap.horario + ' )', ap.horas, ap.modalidad]);
+                totalHoras += parseInt(ap.horas);
             }
-            DataAdicional.push([ap.asignatura + ' ( ' + ap.semestre + ' ' + tipoPeriodo + ' - ' + ap.carrera + ' ) ' + '( ' + ap.horario + ' )', ap.horas, ap.modalidad]);
-            totalHoras += parseInt(ap.horas);
         });
         DataAdicional.push(['Total de horas', totalHoras]);
         // Agregar la tabla al PDF
@@ -942,7 +1038,7 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 fontSize: 7,
                 textColor: [0, 0, 0]
             },
-            margin: { top: 30 }
+            margin: { top: 10 }
         });
         doc.addPage();
         jspdf_autotable_1["default"](doc, {
@@ -955,7 +1051,7 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 fontSize: 7,
                 textColor: [0, 0, 0]
             },
-            margin: { top: 30 }
+            margin: { top: 10 }
         });
         // Agregar una nueva página al PDF
         doc.addPage();
@@ -968,7 +1064,7 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 fontSize: 8,
                 textColor: [0, 0, 0]
             },
-            margin: { top: 30 }
+            margin: { top: 10 }
         });
         var rowDataHead5 = [];
         var DataFirmas = [];
@@ -1006,13 +1102,27 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         var indiceCell = "";
         var indiceCellBorder = "";
         var indiceCellList = 0;
+        var hoursPDFNocturnoCombinado = [];
+        var hoursPDFDiurnoCombinado = [];
         days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
         daysN = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
         indiceCell = 7;
-        indiceCellBorder = 15;
-        indiceCellList = 43;
+        indiceCellBorder = 17;
+        indiceCellList = 56;
         cellSize = 19;
         cellSizeBorder = 5;
+        var horastemporalesDirunas = this.hours.concat(this.hoursAlternativasDiurnas);
+        horastemporalesDirunas.filter(function (hora, index) { return horastemporalesDirunas.indexOf(hora) === index; })
+            .forEach(function (hora) {
+            hoursPDFDiurnoCombinado.push(hora);
+        });
+        hoursPDFDiurnoCombinado.sort();
+        var horastemporalesNocturnas = this.hoursnight.concat(this.hoursAlternativasNocturnas);
+        horastemporalesNocturnas.filter(function (hora, index) { return horastemporalesNocturnas.indexOf(hora) === index; })
+            .forEach(function (hora) {
+            hoursPDFNocturnoCombinado.push(hora);
+        });
+        hoursPDFNocturnoCombinado.sort();
         worksheet.getColumn('A').width = cellSize;
         worksheet.getColumn('B').width = cellSize;
         worksheet.getColumn('C').width = cellSize;
@@ -1038,7 +1148,18 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         var asignaturasProfesoresNocturnoCicloDos = [];
         var asignaturasProfesoresDiurno = [];
         asignaturasProfesoresDiurno = this.horarioProfesor.map(function (item) { return item.filter(function (item) {
+            if (!item.ciclo) {
+                item.ciclo = "";
+                cicloAsignatura = item.ciclo;
+            }
             if (item.elementoType === 'asignatura' && item.item.horario === 'Diurno' && item.item.profesor) {
+                if (!item.ciclo) {
+                    item.ciclo = "";
+                    cicloAsignatura = item.ciclo;
+                }
+                else {
+                    cicloAsignatura = item.ciclo;
+                }
                 identAsignatura = item.identificador.substring(0, 2);
                 semestreAsignatura = item.semestre;
                 return true; // Mantener las asignaturas filtradas
@@ -1055,7 +1176,18 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         identAsignatura = "";
         cicloAsignatura = "";
         asignaturasProfesoresNocturnoCicloUno = this.horarioProfesor.map(function (item) { return item.filter(function (item) {
+            if (!item.ciclo) {
+                item.ciclo = "";
+                cicloAsignatura = item.ciclo;
+            }
             if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.ciclo[0] === "1" && item.item.profesor) {
+                if (!item.ciclo) {
+                    item.ciclo = "";
+                    cicloAsignatura = item.ciclo;
+                }
+                else {
+                    cicloAsignatura = item.ciclo;
+                }
                 identAsignatura = item.identificador.substring(0, 2);
                 semestreAsignatura = item.semestre;
                 cicloAsignatura = item.ciclo;
@@ -1072,7 +1204,18 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         semestreAsignatura = "";
         cicloAsignatura = "";
         asignaturasProfesoresNocturnoCicloDos = this.horarioProfesor.map(function (item) { return item.filter(function (item) {
+            if (!item.ciclo) {
+                item.ciclo = "";
+                cicloAsignatura = item.ciclo;
+            }
             if (item.elementoType === 'asignatura' && item.item.horario === 'Nocturno' && item.item.ciclo[0] === "2" && item.item.profesor) {
+                if (!item.ciclo) {
+                    item.ciclo = "";
+                    cicloAsignatura = item.ciclo;
+                }
+                else {
+                    cicloAsignatura = item.ciclo;
+                }
                 identAsignatura = item.identificador.substring(0, 2);
                 semestreAsignatura = item.semestre;
                 cicloAsignatura = item.ciclo;
@@ -1085,7 +1228,6 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 return false;
             }
         }); });
-        console.log(asignaturasProfesoresNocturnoCicloUno);
         worksheet.mergeCells('B1:E1'); // Fusionar 4 celdas en la primera fila
         var texto1 = worksheet.getCell(1, 2); // Seleccionar la celda B1
         texto1.value = 'Universidad Iberoamericana del Ecuador'; // Establecer el valor de la celda
@@ -1122,8 +1264,8 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         });
         var row = [];
         var agrupaciones = [];
-        for (var i = 0; i < this.hours.length; i++) {
-            row = [this.hours[i]];
+        for (var i = 0; i < hoursPDFDiurnoCombinado.length; i++) {
+            row = [hoursPDFDiurnoCombinado[i]];
             // Iterar sobre los arreglos correspondientes a cada día de la semana
             for (var j = 0; j <= days.length; j++) {
                 // Buscar el item correspondiente a esta celda
@@ -1138,10 +1280,11 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                             var currentAsignaturaH = currentElement.item.horario;
                             var currentAsignaturaC = currentElement.carrera;
                             var currentAsignaturaS_5 = currentElement.semestre;
+                            var currentAsignaturaCiclo_5 = currentElement.ciclo;
                             var currentProfesores_5 = currentElement.item.profesor[0].nombre;
                             var currentAsignaturaCreditos = currentElement.item.creditos;
-                            if (!asignaturasProfesores.some(function (ap) { return ap.asigId === currentAsignaturaId_5 && (ap.asignatura === currentAsignatura_5 && ap.semestre === currentAsignaturaS_5) && ap.profesores === currentProfesores_5; })) {
-                                asignaturasProfesores.push({ asigId: currentAsignaturaId_5, carrera: currentAsignaturaC, semestre: currentAsignaturaS_5, asignatura: currentAsignatura_5, horario: currentAsignaturaH, profesores: currentProfesores_5, horas: currentAsignaturaCreditos });
+                            if (!asignaturasProfesores.some(function (ap) { return ap.asigId === currentAsignaturaId_5 && (ap.asignatura === currentAsignatura_5 && ap.semestre === currentAsignaturaS_5 && ap.ciclo === currentAsignaturaCiclo_5) && ap.profesores === currentProfesores_5; })) {
+                                asignaturasProfesores.push({ asigId: currentAsignaturaId_5, carrera: currentAsignaturaC, semestre: currentAsignaturaS_5, ciclo: currentAsignaturaCiclo_5, asignatura: currentAsignatura_5, horario: currentAsignaturaH, profesores: currentProfesores_5, horas: currentAsignaturaCreditos });
                             }
                         }
                         // Obtener la hora del elemento actual
@@ -1151,7 +1294,7 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                         var rowIndex = i + 1; // Sumar 1 para evitar reemplazar la primera fila (encabezado)
                         var colIndex = j + 1; // Sumar 1 para evitar reemplazar la primera columna (horario)
                         // Insertar el valor en la celda correspondiente
-                        if (i === this_1.hours.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
+                        if (i === hoursPDFDiurnoCombinado.indexOf(elementHourStart + '-' + elementHourEnd) && j === (days.indexOf(currentElement.dayName))) {
                             if (typeof row[colIndex] === 'undefined') {
                                 row[colIndex] = '';
                             }
@@ -1166,7 +1309,6 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                             }
                         }
                     };
-                    var this_1 = this;
                     for (var l = 0; l < currentItem.length; l++) {
                         _loop_6(l);
                     }
@@ -1193,14 +1335,14 @@ var ProfesoresResumenComponent = /** @class */ (function () {
             }
         }
         var indiceColumn;
-        indiceCell = 18;
+        indiceCell = 20;
         indiceColumn = 7;
-        indiceCellBorder = 28;
-        worksheet.getCell('A17').value = 'Horario Nocturno Ciclo 1';
-        worksheet.getCell('A17').font = { size: 14, bold: true };
-        worksheet.getCell('A17').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00AFF0' } };
-        worksheet.getCell('A17').alignment = { horizontal: 'center' };
-        worksheet.mergeCells('A17:G17');
+        indiceCellBorder = 35;
+        worksheet.getCell('A19').value = 'Horario Nocturno Ciclo 1';
+        worksheet.getCell('A19').font = { size: 14, bold: true };
+        worksheet.getCell('A19').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00AFF0' } };
+        worksheet.getCell('A19').alignment = { horizontal: 'center' };
+        worksheet.mergeCells('A19:G19');
         // Pintar encabezado y agregar encabezado de horario
         worksheet.spliceRows(indiceCell, 0, __spreadArrays(['Horas'], daysN));
         worksheet.getRow(indiceCell).eachCell({ includeEmpty: true }, function (cell, colNumber) {
@@ -1213,8 +1355,8 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 fgColor: { argb: '00aae4 ' } // aquí se define el color celeste
             };
         });
-        for (var i = 0; i < this.hoursnight.length; i++) {
-            row = [this.hoursnight[i]];
+        for (var i = 0; i < hoursPDFNocturnoCombinado.length; i++) {
+            row = [hoursPDFNocturnoCombinado[i]];
             // Iterar sobre los arreglos correspondientes a cada día de la semana
             for (var j = 0; j <= days.length; j++) {
                 // Buscar el item correspondiente a esta celda
@@ -1229,11 +1371,11 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                             var currentAsignaturaH = currentElement.item.horario;
                             var currentAsignaturaC = currentElement.carrera;
                             var currentAsignaturaS_6 = currentElement.semestre;
-                            var currentAsignaturaCiclo_2 = currentElement.ciclo;
+                            var currentAsignaturaCiclo_6 = currentElement.ciclo;
                             var currentProfesores_6 = currentElement.item.profesor[0].nombre;
                             var currentAsignaturaCreditos = currentElement.item.creditos;
-                            if (!asignaturasProfesores.some(function (ap) { return ap.asigId === currentAsignaturaId_6 && (ap.asignatura === currentAsignatura_6 && ap.semestre === currentAsignaturaS_6 && ap.ciclo === currentAsignaturaCiclo_2) && ap.profesores === currentProfesores_6; })) {
-                                asignaturasProfesores.push({ asigId: currentAsignaturaId_6, carrera: currentAsignaturaC, semestre: currentAsignaturaS_6, ciclo: currentAsignaturaCiclo_2, asignatura: currentAsignatura_6, horario: currentAsignaturaH, profesores: currentProfesores_6, horas: currentAsignaturaCreditos });
+                            if (!asignaturasProfesores.some(function (ap) { return ap.asigId === currentAsignaturaId_6 && (ap.asignatura === currentAsignatura_6 && ap.semestre === currentAsignaturaS_6 && ap.ciclo === currentAsignaturaCiclo_6) && ap.profesores === currentProfesores_6; })) {
+                                asignaturasProfesores.push({ asigId: currentAsignaturaId_6, carrera: currentAsignaturaC, semestre: currentAsignaturaS_6, ciclo: currentAsignaturaCiclo_6, asignatura: currentAsignatura_6, horario: currentAsignaturaH, profesores: currentProfesores_6, horas: currentAsignaturaCreditos });
                             }
                         }
                         // Obtener la hora del elemento actual
@@ -1243,7 +1385,7 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                         var rowIndex = i + 1; // Sumar 1 para evitar reemplazar la primera fila (encabezado)
                         var colIndex = j + 1; // Sumar 1 para evitar reemplazar la primera columna (horario)
                         // Insertar el valor en la celda correspondiente
-                        if (i === this_2.hoursnight.indexOf(elementHourStart + '-' + elementHourEnd) && j === (daysN.indexOf(currentElement.dayName))) {
+                        if (i === hoursPDFNocturnoCombinado.indexOf(elementHourStart + '-' + elementHourEnd) && j === (daysN.indexOf(currentElement.dayName))) {
                             if (typeof row[colIndex] === 'undefined') {
                                 row[colIndex] = '';
                             }
@@ -1258,7 +1400,6 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                             }
                         }
                     };
-                    var this_2 = this;
                     for (var l = 0; l < currentItem.length; l++) {
                         _loop_7(l);
                     }
@@ -1268,12 +1409,12 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 cell.font = { size: 6 };
             });
         }
-        for (var i = 18; i <= indiceCellBorder; i++) {
+        for (var i = 20; i <= indiceCellBorder; i++) {
             var rowTablaHorarioItem = worksheet.getRow(i);
             rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Opcional: alinear el contenido
             rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Activar el ajuste de texto
         }
-        for (var row_3 = 17; row_3 <= indiceCellBorder; row_3++) {
+        for (var row_3 = 19; row_3 <= indiceCellBorder; row_3++) {
             for (var col = 1; col <= indiceColumn; col++) {
                 var cell = worksheet.getCell("" + String.fromCharCode(64 + col) + row_3);
                 cell.border = {
@@ -1286,14 +1427,14 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         }
         /* NOCTURNO CICLO 2 */
         indiceCell = "";
-        indiceCell = 31;
+        indiceCell = 38;
         indiceColumn = 7;
-        indiceCellBorder = 41;
-        worksheet.getCell('A30').value = 'Horario Nocturno Ciclo 2';
-        worksheet.getCell('A30').font = { size: 14, bold: true };
-        worksheet.getCell('A30').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00AFF0' } };
-        worksheet.getCell('A30').alignment = { horizontal: 'center' };
-        worksheet.mergeCells('A30:G30');
+        indiceCellBorder = 53;
+        worksheet.getCell('A37').value = 'Horario Nocturno Ciclo 2';
+        worksheet.getCell('A37').font = { size: 14, bold: true };
+        worksheet.getCell('A37').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00AFF0' } };
+        worksheet.getCell('A37').alignment = { horizontal: 'center' };
+        worksheet.mergeCells('A37:G37');
         // Pintar encabezado y agregar encabezado de horario
         worksheet.spliceRows(indiceCell, 0, __spreadArrays(['Horas'], daysN));
         worksheet.getRow(indiceCell).eachCell({ includeEmpty: true }, function (cell, colNumber) {
@@ -1306,8 +1447,8 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 fgColor: { argb: '00aae4 ' } // aquí se define el color celeste
             };
         });
-        for (var i = 0; i < this.hoursnight.length; i++) {
-            var row_4 = [this.hoursnight[i]];
+        for (var i = 0; i < hoursPDFNocturnoCombinado.length; i++) {
+            var row_4 = [hoursPDFNocturnoCombinado[i]];
             // Iterar sobre los arreglos correspondientes a cada día de la semana
             for (var j = 0; j <= days.length; j++) {
                 // Buscar el item correspondiente a esta celda
@@ -1322,11 +1463,11 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                             var currentAsignaturaH = currentElement.item.horario;
                             var currentAsignaturaC = currentElement.carrera;
                             var currentAsignaturaS_7 = currentElement.semestre;
-                            var currentAsignaturaCiclo_3 = currentElement.ciclo;
+                            var currentAsignaturaCiclo_7 = currentElement.ciclo;
                             var currentProfesores_7 = currentElement.item.profesor[0].nombre;
                             var currentAsignaturaCreditos = currentElement.item.creditos;
-                            if (!asignaturasProfesores.some(function (ap) { return ap.asigId === currentAsignaturaId_7 && (ap.asignatura === currentAsignatura_7 && ap.semestre === currentAsignaturaS_7 && ap.ciclo === currentAsignaturaCiclo_3) && ap.profesores === currentProfesores_7; })) {
-                                asignaturasProfesores.push({ asigId: currentAsignaturaId_7, carrera: currentAsignaturaC, semestre: currentAsignaturaS_7, ciclo: currentAsignaturaCiclo_3, asignatura: currentAsignatura_7, horario: currentAsignaturaH, profesores: currentProfesores_7, horas: currentAsignaturaCreditos });
+                            if (!asignaturasProfesores.some(function (ap) { return ap.asigId === currentAsignaturaId_7 && (ap.asignatura === currentAsignatura_7 && ap.semestre === currentAsignaturaS_7 && ap.ciclo === currentAsignaturaCiclo_7) && ap.profesores === currentProfesores_7; })) {
+                                asignaturasProfesores.push({ asigId: currentAsignaturaId_7, carrera: currentAsignaturaC, semestre: currentAsignaturaS_7, ciclo: currentAsignaturaCiclo_7, asignatura: currentAsignatura_7, horario: currentAsignaturaH, profesores: currentProfesores_7, horas: currentAsignaturaCreditos });
                             }
                         }
                         // Obtener la hora del elemento actual
@@ -1336,7 +1477,7 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                         var rowIndex = i + 1; // Sumar 1 para evitar reemplazar la primera fila (encabezado)
                         var colIndex = j + 1; // Sumar 1 para evitar reemplazar la primera columna (horario)
                         // Insertar el valor en la celda correspondiente
-                        if (i === this_3.hoursnight.indexOf(elementHourStart + '-' + elementHourEnd) && j === (daysN.indexOf(currentElement.dayName))) {
+                        if (i === hoursPDFNocturnoCombinado.indexOf(elementHourStart + '-' + elementHourEnd) && j === (daysN.indexOf(currentElement.dayName))) {
                             if (typeof row_4[colIndex] === 'undefined') {
                                 row_4[colIndex] = '';
                             }
@@ -1351,7 +1492,6 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                             }
                         }
                     };
-                    var this_3 = this;
                     for (var l = 0; l < currentItem.length; l++) {
                         _loop_8(l);
                     }
@@ -1361,12 +1501,12 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 cell.font = { size: 6 };
             });
         }
-        for (var i = 18; i <= indiceCellBorder; i++) {
+        for (var i = 37; i <= indiceCellBorder; i++) {
             var rowTablaHorarioItem = worksheet.getRow(i);
             rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Opcional: alinear el contenido
             rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Activar el ajuste de texto
         }
-        for (var row_5 = 30; row_5 <= indiceCellBorder; row_5++) {
+        for (var row_5 = 37; row_5 <= indiceCellBorder; row_5++) {
             for (var col = 1; col <= indiceColumn; col++) {
                 var cell = worksheet.getCell("" + String.fromCharCode(64 + col) + row_5);
                 cell.border = {
@@ -1474,7 +1614,7 @@ var ProfesoresResumenComponent = /** @class */ (function () {
             else {
                 tipoPeriodo = "Semestre";
                 tipoPeriodo2 = "Ciclo";
-                worksheet.addRow([ap.asignatura + ' ( ' + ap.semestre + '  ' + tipoPeriodo + '-' + ap.ciclo + '  ' + tipoPeriodo2 + ' - ' + ap.carrera + ' ) ' + '( ' + ap.horario + ' )', ap.horas, ap.modalidad]).eachCell({ includeEmpty: true }, function (cell) {
+                worksheet.addRow([ap.asignatura + ' ( ' + ap.semestre + '  ' + tipoPeriodo + ' - ' + ap.ciclo + '  ' + tipoPeriodo2 + ' - ' + ap.carrera + ' ) ' + '( ' + ap.horario + ' )', ap.horas, ap.modalidad]).eachCell({ includeEmpty: true }, function (cell) {
                     cell.font = { size: 8 };
                     cell.border = {
                         top: { style: 'thin', color: { argb: '000000' } },
@@ -1501,34 +1641,35 @@ var ProfesoresResumenComponent = /** @class */ (function () {
             rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Opcional: alinear el contenido
             rowTablaHorarioItem.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Activar el ajuste de texto
         }
+        console.log(indiceCellList);
         // Agregar texto al final de la página
-        var elaboradoPor = worksheet.getCell(52, 2);
+        var elaboradoPor = worksheet.getCell(indiceCellList + 5, 2);
         elaboradoPor.value = 'Elaborado por: ';
         elaboradoPor.font = { size: 8 };
-        var nombreDirector = worksheet.getCell(55, 2);
+        var nombreDirector = worksheet.getCell(indiceCellList + 8, 2);
         nombreDirector.value = this.userData.nombre;
         nombreDirector.font = { size: 8 };
-        var directorCarrera = worksheet.getCell(56, 2);
+        var directorCarrera = worksheet.getCell(indiceCellList + 9, 2);
         directorCarrera.value = 'Director de carrera';
         directorCarrera.font = { size: 8 };
         // Agregar texto al final de la página
-        var revisadoPor = worksheet.getCell(52, 4);
+        var revisadoPor = worksheet.getCell(indiceCellList + 5, 4);
         revisadoPor.value = 'Revisado por: ';
         revisadoPor.font = { size: 8 };
-        var nombreRevisador = worksheet.getCell(55, 4);
+        var nombreRevisador = worksheet.getCell(indiceCellList + 8, 4);
         nombreRevisador.value = "";
         nombreRevisador.font = { size: 8 };
-        var cargoRevisador = worksheet.getCell(56, 4);
+        var cargoRevisador = worksheet.getCell(indiceCellList + 9, 4);
         cargoRevisador.value = 'Decano de Facultad';
         cargoRevisador.font = { size: 8 };
         // Agregar texto al final de la página
-        var aprobadorPor = worksheet.getCell(52, 6);
+        var aprobadorPor = worksheet.getCell(indiceCellList + 5, 6);
         aprobadorPor.value = 'Aprobado por: ';
         aprobadorPor.font = { size: 8 };
-        var nombreAprobador = worksheet.getCell(55, 6);
+        var nombreAprobador = worksheet.getCell(indiceCellList + 8, 6);
         nombreAprobador.value = this.aprobador.nombre;
         nombreAprobador.font = { size: 8 };
-        var cargoAprobador = worksheet.getCell(56, 6);
+        var cargoAprobador = worksheet.getCell(indiceCellList + 9, 6);
         cargoAprobador.value = 'Directora Académica';
         cargoAprobador.font = { size: 8 };
         var nombreArchivo = 'Horario ' + profesor + '.xlsx';
@@ -1581,20 +1722,29 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 sumaHoras += parseInt(asig.horas);
             }
             var periodoType = void 0;
+            var periodoType2 = void 0;
             for (var _d = 0, _e = profesorTCompleto.asignaturas; _d < _e.length; _d++) {
                 var asignatura = _e[_d];
                 if (asignatura.horario === "Nocturno") {
-                    periodoType = "Ciclo";
+                    periodoType = "Semestre";
+                    periodoType2 = "Ciclo";
+                    if (isFirstRow) {
+                        rowData.push([profesorTCompleto.profesornombre, asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.ciclo + ' ' + periodoType2 + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras, profesorTCompleto.profesorObservacion]);
+                        isFirstRow = false;
+                    }
+                    else {
+                        rowData.push(['', asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.ciclo + ' ' + periodoType2 + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, '']);
+                    }
                 }
                 else {
                     periodoType = "Semestre";
-                }
-                if (isFirstRow) {
-                    rowData.push([profesorTCompleto.profesornombre, asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras, profesorTCompleto.profesorObservacion]);
-                    isFirstRow = false;
-                }
-                else {
-                    rowData.push(['', asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, '']);
+                    if (isFirstRow) {
+                        rowData.push([profesorTCompleto.profesornombre, asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras, profesorTCompleto.profesorObservacion]);
+                        isFirstRow = false;
+                    }
+                    else {
+                        rowData.push(['', asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, '']);
+                    }
                 }
             }
         }
@@ -1607,20 +1757,29 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 sumaHoras += parseInt(asig.horas);
             }
             var periodoType = void 0;
+            var periodoType2 = void 0;
             for (var _k = 0, _l = profesorMTiempo.asignaturas; _k < _l.length; _k++) {
                 var asignatura = _l[_k];
                 if (asignatura.horario === "Nocturno") {
-                    periodoType = "Ciclo";
+                    periodoType = "Semestre";
+                    periodoType2 = "Ciclo";
+                    if (isFirstRow) {
+                        rowData2.push([profesorMTiempo.profesornombre, asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.ciclo + ' ' + periodoType2 + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras, profesorMTiempo.profesorObservacion]);
+                        isFirstRow = false;
+                    }
+                    else {
+                        rowData2.push(['', asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.ciclo + ' ' + periodoType2 + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, '']);
+                    }
                 }
                 else {
                     periodoType = "Semestre";
-                }
-                if (isFirstRow) {
-                    rowData2.push([profesorMTiempo.profesornombre, asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras, profesorMTiempo.profesorObservacion]);
-                    isFirstRow = false;
-                }
-                else {
-                    rowData2.push(['', asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, '']);
+                    if (isFirstRow) {
+                        rowData2.push([profesorMTiempo.profesornombre, asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras, profesorMTiempo.profesorObservacion]);
+                        isFirstRow = false;
+                    }
+                    else {
+                        rowData2.push(['', asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, '']);
+                    }
                 }
             }
         }
@@ -1633,20 +1792,29 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 sumaHoras += parseInt(asig.horas);
             }
             var periodoType = void 0;
+            var periodoType2 = void 0;
             for (var _r = 0, _s = profesorTParcial.asignaturas; _r < _s.length; _r++) {
                 var asignatura = _s[_r];
                 if (asignatura.horario === "Nocturno") {
-                    periodoType = "Ciclo";
+                    periodoType = "Semestre";
+                    periodoType2 = "Ciclo";
+                    if (isFirstRow) {
+                        rowData3.push([profesorTParcial.profesornombre, asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.ciclo + ' ' + profesorTParcial + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras, profesorTParcial.profesorObservacion]);
+                        isFirstRow = false;
+                    }
+                    else {
+                        rowData3.push(['', asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.ciclo + ' ' + profesorTParcial + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, '']);
+                    }
                 }
                 else {
                     periodoType = "Semestre";
-                }
-                if (isFirstRow) {
-                    rowData3.push([profesorTParcial.profesornombre, asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras, profesorTParcial.profesorObservacion]);
-                    isFirstRow = false;
-                }
-                else {
-                    rowData3.push(['', asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, '']);
+                    if (isFirstRow) {
+                        rowData3.push([profesorTParcial.profesornombre, asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, sumaHoras, profesorTParcial.profesorObservacion]);
+                        isFirstRow = false;
+                    }
+                    else {
+                        rowData3.push(['', asignatura.asignatura + ' ( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + ' ( ' + asignatura.horario + ' )', asignatura.horas, '']);
+                    }
                 }
             }
         }
@@ -1740,6 +1908,7 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         sheet.getRow(6).alignment = { horizontal: 'center' };
         var rowIndex = 7;
         var periodoType;
+        var periodoType2;
         for (var _i = 0, _a = this.asignaturasPorProfesorTiempoCompleto.data; _i < _a.length; _i++) {
             var profesorTCompleto = _a[_i];
             var sumaHoras = 0;
@@ -1759,13 +1928,16 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 }
                 var asignatura = profesorTCompleto.asignaturas[i];
                 if (asignatura.horario === "Nocturno") {
-                    periodoType = "Ciclo";
+                    periodoType = "Semestre";
+                    periodoType2 = "Ciclo";
+                    sheet.getCell("B" + rowIndexStart).value = asignatura.asignatura + '\n( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.ciclo + ' ' + periodoType2 + ' - ' + asignatura.carrera + ' )' + '\n( ' + asignatura.horario + ' )';
+                    sheet.getCell("C" + rowIndexStart).value = asignatura.horas;
                 }
                 else {
                     periodoType = "Semestre";
+                    sheet.getCell("B" + rowIndexStart).value = asignatura.asignatura + '\n( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + '\n( ' + asignatura.horario + ' )';
+                    sheet.getCell("C" + rowIndexStart).value = asignatura.horas;
                 }
-                sheet.getCell("B" + rowIndexStart).value = asignatura.asignatura + '\n( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + '\n( ' + asignatura.horario + ' )';
-                sheet.getCell("C" + rowIndexStart).value = asignatura.horas;
             }
             if (asignaturasCount > 1) {
                 var rowIndexEnd = rowIndex + asignaturasCount - 1;
@@ -1837,13 +2009,16 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 }
                 var asignatura = profesorMTiempo.asignaturas[i];
                 if (asignatura.horario === "Nocturno") {
-                    periodoType = "Ciclo";
+                    periodoType = "Semestre";
+                    periodoType2 = "Ciclo";
+                    sheet.getCell("B" + rowIndexStart).value = asignatura.asignatura + '\n( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.ciclo + ' ' + periodoType2 + ' - ' + asignatura.carrera + ' )' + '\n( ' + asignatura.horario + ' )';
+                    sheet.getCell("C" + rowIndexStart).value = asignatura.horas;
                 }
                 else {
                     periodoType = "Semestre";
+                    sheet.getCell("B" + rowIndexStart).value = asignatura.asignatura + '\n( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + '\n( ' + asignatura.horario + ' )';
+                    sheet.getCell("C" + rowIndexStart).value = asignatura.horas;
                 }
-                sheet.getCell("B" + rowIndexStart).value = asignatura.asignatura + '\n( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + '\n( ' + asignatura.horario + ' )';
-                sheet.getCell("C" + rowIndexStart).value = asignatura.horas;
             }
             if (asignaturasCount > 1) {
                 var rowIndexEnd = (segundaTablaInicio + 2) + asignaturasCount - 1;
@@ -1906,13 +2081,16 @@ var ProfesoresResumenComponent = /** @class */ (function () {
                 }
                 var asignatura = profesorTParcial.asignaturas[i];
                 if (asignatura.horario === "Nocturno") {
-                    periodoType = "Ciclo";
+                    periodoType = "Semestre";
+                    periodoType2 = "Ciclo";
+                    sheet.getCell("B" + rowIndexStart).value = asignatura.asignatura + '\n( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.ciclo + ' ' + periodoType2 + ' - ' + asignatura.carrera + ' )' + '\n( ' + asignatura.horario + ' )';
+                    sheet.getCell("C" + rowIndexStart).value = asignatura.horas;
                 }
                 else {
                     periodoType = "Semestre";
+                    sheet.getCell("B" + rowIndexStart).value = asignatura.asignatura + '\n( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + '\n( ' + asignatura.horario + ' )';
+                    sheet.getCell("C" + rowIndexStart).value = asignatura.horas;
                 }
-                sheet.getCell("B" + rowIndexStart).value = asignatura.asignatura + '\n( ' + asignatura.semestre + ' ' + periodoType + ' - ' + asignatura.carrera + ' )' + '\n( ' + asignatura.horario + ' )';
-                sheet.getCell("C" + rowIndexStart).value = asignatura.horas;
             }
             if (asignaturasCount > 1) {
                 var rowIndexEnd = (terceraTablaInicio + 2) + asignaturasCount - 1;

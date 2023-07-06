@@ -25,6 +25,7 @@ var ItemsAulaComponent = /** @class */ (function () {
         this.aulasObtenidos = [];
         this.columnas = ['N°', 'Nombre', 'Ubicacion', 'Abreviatura', 'Compartida', 'Color', 'Acciones'];
         this.url = this._detalleService.Global.url;
+        this.ubicaciones = this._detalleService.ubicaciones;
     }
     ItemsAulaComponent.prototype.ngOnInit = function () {
         this.getaulas();
@@ -49,7 +50,6 @@ var ItemsAulaComponent = /** @class */ (function () {
                     item_1 = horario.item;
                     item_1.forEach(function (item) {
                         if (item.aula._id === id) {
-                            console.log(id);
                             exist_aula_1 = true;
                             if (!horario.paralelo || horario.paralelo === "") {
                                 ubicacion_1 = horario.tipoHorario + ": " + horario.carrera + ' - ' + horario.semestre;
@@ -97,33 +97,50 @@ var ItemsAulaComponent = /** @class */ (function () {
         this._horarioService.getHorarios().subscribe(function (response) {
             if (response.horarios) {
                 _this.horarios = response.horarios;
-                console.log(_this.horarios);
             }
         }, function (error) {
             console.log(error);
         });
     };
     ItemsAulaComponent.prototype.filtrarAulas = function () {
+        var _this = this;
         var terminosBusqueda = this.terminoBusquedaAula.trim().toLowerCase();
         var regexBusqueda = new RegExp("\\b" + terminosBusqueda + "\\b", 'gi');
-        this.aulasFiltrados = new table_1.MatTableDataSource(this.aulasObtenidos.filter(function (aula) {
-            return aula.nombre.toString().toLowerCase().match(regexBusqueda) ||
-                aula.ubicacion.toString().toLowerCase().match(regexBusqueda) ||
-                aula.compartida.toString().toLowerCase().match(regexBusqueda) ||
-                aula.abreviatura.toString().toLowerCase().match(regexBusqueda) ||
-                aula.color.toString().toLowerCase().match(regexBusqueda);
-        }));
-        if (this.aulasFiltrados.data.length === 0) {
-            var terminosBusquedaSeparados = terminosBusqueda.split(' ');
-            regexBusqueda = new RegExp("(" + terminosBusquedaSeparados.join('|') + ")", 'gi');
-            this.aulasFiltrados = new table_1.MatTableDataSource(this.aulasObtenidos.filter(function (aula) {
+        var aulasFiltrados = this.aulasObtenidos;
+        if (this.selectedCampus !== undefined) {
+            aulasFiltrados = aulasFiltrados.filter(function (aula) {
+                return aula.ubicacion.toLowerCase() === _this.selectedCampus.toLowerCase();
+            });
+        }
+        if (this.selectedcompartida !== undefined) {
+            aulasFiltrados = aulasFiltrados.filter(function (aula) {
+                return aula.compartida.toLowerCase() === _this.selectedcompartida.toLowerCase();
+            });
+        }
+        if (this.selectedcompartida === "Todas" || this.selectedCampus === "Todas") {
+            aulasFiltrados = this.aulasObtenidos;
+        }
+        if (terminosBusqueda !== '') {
+            aulasFiltrados = aulasFiltrados.filter(function (aula) {
                 return aula.nombre.toString().toLowerCase().match(regexBusqueda) ||
                     aula.ubicacion.toString().toLowerCase().match(regexBusqueda) ||
                     aula.compartida.toString().toLowerCase().match(regexBusqueda) ||
                     aula.abreviatura.toString().toLowerCase().match(regexBusqueda) ||
                     aula.color.toString().toLowerCase().match(regexBusqueda);
-            }));
+            });
+            if (this.aulasFiltrados.data.length === 0) {
+                var terminosBusquedaSeparados = terminosBusqueda.split(' ');
+                regexBusqueda = new RegExp("(" + terminosBusquedaSeparados.join('|') + ")", 'gi');
+                aulasFiltrados = aulasFiltrados.filter(function (aula) {
+                    return aula.nombre.toString().toLowerCase().match(regexBusqueda) ||
+                        aula.ubicacion.toString().toLowerCase().match(regexBusqueda) ||
+                        aula.compartida.toString().toLowerCase().match(regexBusqueda) ||
+                        aula.abreviatura.toString().toLowerCase().match(regexBusqueda) ||
+                        aula.color.toString().toLowerCase().match(regexBusqueda);
+                });
+            }
         }
+        this.aulasFiltrados = new table_1.MatTableDataSource(aulasFiltrados);
     };
     ItemsAulaComponent.prototype.allAulas = function () {
         this._router.navigate(['/especificacion/aulas']);

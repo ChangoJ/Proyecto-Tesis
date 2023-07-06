@@ -16,6 +16,30 @@
                 <input id="buscadorHorario" [(ngModel)]="terminoBusquedaHorario" type="text"
                     placeholder="Buscar por carrera, semestre, o tipo" (input)="filtrarHorarios()">
             </div>
+            <div id="matselectBusquedaAsignatura">
+                <mat-form-field id="matselectCarrera">
+                    <mat-label >Seleccionar carrera</mat-label>
+                    <mat-select [(ngModel)]="selectedCarrera" (selectionChange)="filtrarHorarios()" >
+                        <mat-option [value]="'Todas'">Todas</mat-option>
+                        <mat-option *ngFor="let carrera of carreras" [value]="carrera">{{ carrera }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+        
+                <mat-form-field id="matselectSemestre" >
+                    <mat-label>Seleccionar periodo</mat-label>
+                    <mat-select [(ngModel)]="selectedPeriodo" (selectionChange)="filtrarHorarios()">
+                        <mat-option [value]="'Todas'">Todas</mat-option>
+                        <mat-option *ngFor="let periodo of periodos" [value]="periodo">{{ periodo }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field id="matselectCarrera">
+                    <mat-label >Seleccionar horario</mat-label>
+                    <mat-select [(ngModel)]="selectedHorario" (selectionChange)="filtrarHorarios()" >
+                        <mat-option [value]="'Todas'">Todas</mat-option>
+                        <mat-option *ngFor="let horario of horariosType" [value]="'Horario '+horario.textField">{{ horario.textField }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div> 
             <div class="mat-elevation-z8 tablaDocentesResumen">
                 <table mat-table [dataSource]="horariosFiltrados">
                     <ng-container matColumnDef="N°">
@@ -48,9 +72,9 @@
                     <ng-container *ngIf="item.tipoHorario === 'Horario Nocturno' && !item.carrera.includes('Ingles')">
                         {{item.semestre.length > 1 ?
                             item.semestre.slice(0,1)+ '...(' + (item.semestre.length)+ ')' : item.semestre }} semestre
-                    </ng-container><br>
+                    </ng-container>
                     <ng-container *ngIf="item.tipoHorario === 'Horario Nocturno' && !item.carrera.includes('Ingles')">
-                        {{item.ciclo.length > 1 ?
+                        <br>{{item.ciclo.length > 1 ?
                             item.ciclo.slice(0,1)+ '...(' + (item.ciclo.length)+ ')' : item.ciclo }} Ciclo
                     </ng-container>
                     <ng-container *ngIf="item.tipoHorario === 'Horario Diurno' && !item.carrera.includes('Ingles')">
@@ -92,11 +116,11 @@
                         <td mat-cell *matCellDef="let item">
                             <span>{{ item.estado }}</span>
                             <ng-container *ngIf="is_admin || is_aprobador"><br>
-                                <button mat-icon-button color="primary" style="vertical-align: middle;"
+                                <button *ngIf="item.estado === 'Rechazado' || item.estado.includes('Pendiente') " mat-icon-button color="primary" style="vertical-align: middle;"
                                     (click)="cambiarEstado(item, 'Aprobado')">
                                     <mat-icon style="color: green;">check_circle</mat-icon>
                                 </button>
-                                <button mat-icon-button color="warn" style="vertical-align: middle;"
+                                <button *ngIf="item.estado === 'Aprobado' || item.estado.includes('Pendiente') " mat-icon-button color="warn" style="vertical-align: middle;"
                                     (click)="cambiarEstado(item, 'Rechazado')">
                                     <mat-icon>cancel</mat-icon>
                                 </button>
@@ -109,12 +133,13 @@
                         <td mat-cell *matCellDef="let item">
                             <span *ngIf="item.revisado_por">Revisado por:<br> {{ item.revisado_por.nombre }}</span>
                             <span *ngIf="!item.revisado_por">Sin revisar</span>
-                            <ng-container *ngIf="is_admin || is_revisador"><br>
-                                <button mat-icon-button color="primary" style="vertical-align: middle;"
+                            <ng-container *ngIf="(is_admin || is_revisador)" ><br>
+                                <button *ngIf="!item.revisado_por" mat-icon-button color="primary" style="vertical-align: middle;"
                                     (click)="cambiarEstadoRevision(item, 'Aprobado',userData)">
-                                    <mat-icon style="color: green;">check_circle</mat-icon>
+                                    <mat-icon style="color: green;" >check_circle</mat-icon>
+                                 
                                 </button>
-                                <button mat-icon-button color="warn" style="vertical-align: middle;"
+                                <button *ngIf="item.revisado_por" mat-icon-button color="warn" style="vertical-align: middle;"
                                 (click)="cambiarEstadoRevision(item, 'Cancelado', userData)">
                                     <mat-icon>cancel</mat-icon>
                                 </button>
@@ -131,10 +156,10 @@
                                     {{ item.observacion.split(' ').slice(0, 3).join(' ') }}{{ item.observacion.split('
                                     ').length > 4 ? '...' : '' }}
                                 </ng-container>
-                                <ng-container *ngIf="!item.observacion || item.observacion !== ''">
+                                <ng-container *ngIf="!item.observacion">
                                     Sin observación
                                 </ng-container>
-                                <ng-container *ngIf="is_admin || is_aprobador"><br>
+                                <ng-container *ngIf="is_admin || is_aprobador || is_revisador"><br>
                                     <button mat-icon-button color="primary" (click)="startEditing(item)">
                                         <mat-icon>edit</mat-icon>
                                     </button>
@@ -147,7 +172,7 @@
                                 </ng-container>
                             </ng-container>
                             <ng-template #editMode>
-                                <ng-container *ngIf="is_admin || is_aprobador">
+                                <ng-container *ngIf="is_admin || is_aprobador || is_revisador">
                                     <textarea [(ngModel)]="item.observacion"></textarea>
                                     <button mat-icon-button color="primary" (click)="saveObservation(item)">
                                         <mat-icon>check</mat-icon>

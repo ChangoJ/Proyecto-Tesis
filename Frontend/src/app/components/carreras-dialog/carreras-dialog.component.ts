@@ -211,9 +211,9 @@ export class CarrerasDialogComponent {
       ruta = rutaEnviar
       ruta = ruta.replace(/\s+/g, "_");
       this._router.navigate([ruta], { relativeTo: this._route })
-      /* setTimeout(() => {
+     setTimeout(() => {
         location.reload();
-      }, 350); */
+      }, 350); 
     } else {
       Swal.fire(
         'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + this.periodoTIpo + ' ya fue creado.',

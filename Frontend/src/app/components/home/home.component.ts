@@ -25,7 +25,7 @@ export class HomeComponent {
 
   constructor(private _usuarioService: UsuarioService,
     private _route: ActivatedRoute,
-    private _asignaturaService: AsignaturaService,
+    private _asignaturaService: AsignaturaService
   ) {
     this.is_horario = false
     this.authToken = localStorage.getItem('authToken');
@@ -36,6 +36,8 @@ export class HomeComponent {
   ngOnInit() {
     this.getAsignaturas()
     this.getUsuario()
+
+   
   }
 
   getUsuario(): void {

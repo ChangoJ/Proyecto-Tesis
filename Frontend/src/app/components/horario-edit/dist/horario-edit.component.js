@@ -1008,7 +1008,6 @@ var HorarioEditComponent = /** @class */ (function () {
             _this._horarioService.getHorario(id).subscribe(function (response) {
                 if (response.horario) {
                     _this.horario = response.horario;
-                    console.log(_this.horario);
                     _this.getDaysHorario();
                     _this.getAsignaturas();
                     _this.getDataDetalles();
@@ -1108,7 +1107,7 @@ var HorarioEditComponent = /** @class */ (function () {
                         _c.sent();
                         this.aulaHorario = [];
                         this.asignaturaHorario = [];
-                        this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario, '', '');
+                        this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
                         arreglosHorario = [
                             this.monday,
                             this.tuesday,
@@ -1311,8 +1310,10 @@ var HorarioEditComponent = /** @class */ (function () {
         var carreraInfoX = (pageWidth - carreraInfoWidth) / 2;
         doc.text(carreraText, carreraInfoX, 20);
         var periodoTipo = "";
+        var periodoTipo2 = "";
         if (this.opcion1 === "Horario Nocturno") {
-            periodoTipo = "Ciclo";
+            periodoTipo = "Semestre";
+            periodoTipo2 = "Ciclo";
         }
         else {
             periodoTipo = "Semestre";
@@ -1323,6 +1324,11 @@ var HorarioEditComponent = /** @class */ (function () {
         var semestreText = periodoTipo + ": " + this.opcion3;
         var semestreInfoWidth = doc.getTextWidth(semestreText);
         var semestreInfoX = (pageWidth - semestreInfoWidth) / 2;
+        if (this.opcion1 === "Horario Nocturno") {
+            semestreText = periodoTipo + ": " + this.opcion3 + '  ' + periodoTipo2 + ": " + this.opcion4;
+            semestreInfoWidth = doc.getTextWidth(semestreText);
+            semestreInfoX = (pageWidth - semestreInfoWidth) / 2;
+        }
         doc.text(semestreText, semestreInfoX, 25);
         var days;
         var DataAdicional = [];
@@ -1569,8 +1575,8 @@ var HorarioEditComponent = /** @class */ (function () {
         if (this.opcion1 === "Horario Nocturno") {
             days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
             indiceCell = 7;
-            indiceCellBorder = 16;
-            indiceCellList = 18;
+            indiceCellBorder = 17;
+            indiceCellList = 19;
             cellSize = 19;
             cellSizeBorder = 6;
         }
@@ -1617,19 +1623,31 @@ var HorarioEditComponent = /** @class */ (function () {
         carreraText.font = { size: 10, bold: true }; // Establecer el formato de la fuente
         carreraText.alignment = { horizontal: 'center' };
         var periodoTipo = "";
+        var periodoTipo2 = "";
         if (this.opcion1 === "Horario Nocturno") {
-            periodoTipo = "Ciclo";
+            periodoTipo2 = "Ciclo";
+            periodoTipo = "Semestre";
         }
         else {
             periodoTipo = "Semestre";
         }
-        if (this.opcion2.toLowerCase() === "ingles") {
+        if (this.opcion2.toLowerCase() === "ingles" && this.opcion1 === "Horario Diurno") {
             periodoTipo = "Nivel";
+            indiceCellBorder = 16;
+            indiceCellList = 19;
+        }
+        else if (this.opcion2.toLowerCase() === "ingles" && this.opcion1 === "Horario Nocturno") {
+            periodoTipo = "Nivel";
+            indiceCellBorder = 15;
+            indiceCellList = 19;
         }
         // Agregar el título al Excel
         worksheet.mergeCells('A4:F4'); // Fusionar 5 celdas en la primera fila
         var semestreText = worksheet.getCell(4, 1);
         semestreText.value = periodoTipo + ": " + this.opcion3;
+        if (this.opcion1 === "Horario Nocturno") {
+            semestreText.value = periodoTipo + ": " + this.opcion3 + '  ' + periodoTipo2 + ": " + this.opcion4;
+        }
         semestreText.font = { size: 10, bold: true }; // Establecer el formato de la fuente
         semestreText.alignment = { horizontal: 'center' };
         var asignaturasProfesores = [];
@@ -1817,44 +1835,46 @@ var HorarioEditComponent = /** @class */ (function () {
                     right: { style: 'thin', color: { argb: '000000' } }
                 };
             });
+            indiceCellList++;
         });
         var identificador = uuid_1.v4();
         var nombreArchivo = this.opcion1 + '-' + this.opcion2 + '-' + this.opcion3 + ("-(" + identificador + ").xlsx");
+        console.log(indiceCellList);
         // Agregar texto al final de la página
-        var elaboradoPor = worksheet.getCell(26, 2);
+        var elaboradoPor = worksheet.getCell(indiceCellList + 4, 2);
         elaboradoPor.value = 'Elaborado por: ';
         elaboradoPor.font = { size: 8 };
-        var nombreDirector = worksheet.getCell(29, 2);
+        var nombreDirector = worksheet.getCell(indiceCellList + 7, 2);
         nombreDirector.value = this.horario.creado_por.nombre;
         nombreDirector.font = { size: 8 };
-        var directorCarrera = worksheet.getCell(30, 2);
+        var directorCarrera = worksheet.getCell(indiceCellList + 8, 2);
         directorCarrera.value = 'Director de carrera';
         directorCarrera.font = { size: 8 };
         // Agregar texto al final de la página
-        var revisadoPor = worksheet.getCell(26, 4);
+        var revisadoPor = worksheet.getCell(indiceCellList + 4, 4);
         revisadoPor.value = 'Revisado por: ';
         revisadoPor.font = { size: 8 };
         if (this.horario.revisado_por) {
-            var nombreRevisador = worksheet.getCell(29, 4);
+            var nombreRevisador = worksheet.getCell(indiceCellList + 7, 4);
             nombreRevisador.value = this.horario.revisado_por.nombre;
             nombreRevisador.font = { size: 8 };
         }
         else {
-            var nombreRevisador = worksheet.getCell(29, 4);
+            var nombreRevisador = worksheet.getCell(indiceCellList + 7, 4);
             nombreRevisador.value = "";
             nombreRevisador.font = { size: 8 };
         }
-        var cargoRevisador = worksheet.getCell(30, 4);
+        var cargoRevisador = worksheet.getCell(indiceCellList + 8, 4);
         cargoRevisador.value = 'Decano de Facultad';
         cargoRevisador.font = { size: 8 };
         // Agregar texto al final de la página
-        var aprobadorPor = worksheet.getCell(26, 6);
+        var aprobadorPor = worksheet.getCell(indiceCellList + 4, 6);
         aprobadorPor.value = 'Aprobado por: ';
         aprobadorPor.font = { size: 8 };
-        var nombreAprobador = worksheet.getCell(29, 6);
+        var nombreAprobador = worksheet.getCell(indiceCellList + 7, 6);
         nombreAprobador.value = this.aprobador.nombre;
         nombreAprobador.font = { size: 8 };
-        var cargoAprobador = worksheet.getCell(30, 6);
+        var cargoAprobador = worksheet.getCell(indiceCellList + 8, 6);
         cargoAprobador.value = 'Directora Académica';
         cargoAprobador.font = { size: 8 };
         workbook.xlsx.writeBuffer().then(function (buffer) {

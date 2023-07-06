@@ -912,19 +912,25 @@ var HorarioNuevoComponent = /** @class */ (function () {
         var carreraInfoX = (pageWidth - carreraInfoWidth) / 2;
         doc.text(carreraText, carreraInfoX, 20);
         var periodoTipo = "";
+        var periodoTipo2 = "";
         if (this.opcion1 === "Horario Diurno") {
             periodoTipo = "Semestre";
         }
         else {
-            periodoTipo = "Ciclo";
+            periodoTipo2 = "Ciclo";
+            periodoTipo = "Semestre";
         }
         if (this.opcion2.toLowerCase() === "Ingles") {
             periodoTipo = "Nivel";
         }
-        console.log(periodoTipo);
         var semestreText = periodoTipo + ": " + this.opcion3;
         var semestreInfoWidth = doc.getTextWidth(semestreText);
         var semestreInfoX = (pageWidth - semestreInfoWidth) / 2;
+        if (this.opcion1 === "Horario Nocturno") {
+            semestreText = periodoTipo + ": " + this.opcion3 + '  ' + periodoTipo2 + ": " + this.opcion4;
+            semestreInfoWidth = doc.getTextWidth(semestreText);
+            semestreInfoX = (pageWidth - semestreInfoWidth) / 2;
+        }
         doc.text(semestreText, semestreInfoX, 25);
         var days;
         var DataAdicional = [];
@@ -1127,10 +1133,18 @@ var HorarioNuevoComponent = /** @class */ (function () {
         var rowDataHead3 = [];
         var DataFirmas = [];
         doc.addPage();
-        rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:']);
-        DataFirmas.push(["", "", ""]);
-        DataFirmas.push([this.horario.creado_por.nombre, this.horario.revisado_por.nombre, this.aprobador.nombre]);
-        DataFirmas.push(["Director de Carrera", "Decano de Facultad", "Directora Académica "]);
+        if (this.horario.revisado_por) {
+            rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:']);
+            DataFirmas.push(["", "", ""]);
+            DataFirmas.push([this.horario.creado_por.nombre, this.horario.revisado_por.nombre, this.aprobador.nombre]);
+            DataFirmas.push(["Director de Carrera", "Decano de Facultad", "Directora Académica "]);
+        }
+        else {
+            rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:']);
+            DataFirmas.push(["", "", ""]);
+            DataFirmas.push([this.horario.creado_por.nombre, "", this.aprobador.nombre]);
+            DataFirmas.push(["Director de Carrera", "Decano de Facultad", "Directora Académica "]);
+        }
         jspdf_autotable_1["default"](doc, {
             head: rowDataHead3,
             body: DataFirmas,
@@ -1429,9 +1443,16 @@ var HorarioNuevoComponent = /** @class */ (function () {
         var revisadoPor = worksheet.getCell(26, 4);
         revisadoPor.value = 'Revisado por: ';
         revisadoPor.font = { size: 8 };
-        var nombreRevisador = worksheet.getCell(29, 4);
-        nombreRevisador.value = this.horario.revisado_por.nombre;
-        nombreRevisador.font = { size: 8 };
+        if (this.horario.revisado_por) {
+            var nombreRevisador = worksheet.getCell(29, 4);
+            nombreRevisador.value = this.horario.revisado_por.nombre;
+            nombreRevisador.font = { size: 8 };
+        }
+        else {
+            var nombreRevisador = worksheet.getCell(29, 4);
+            nombreRevisador.value = "";
+            nombreRevisador.font = { size: 8 };
+        }
         var cargoRevisador = worksheet.getCell(30, 4);
         cargoRevisador.value = 'Decano de Facultad';
         cargoRevisador.font = { size: 8 };
@@ -1929,6 +1950,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
                         }
                         this.horario.carrera = this.opcion2;
                         this.horario.semestre = this.opcion3;
+                        this.horario.ciclo = this.opcion4;
                         elementoComprobarTipo = [];
                         elementoComprobarId = [];
                         asig = 0;

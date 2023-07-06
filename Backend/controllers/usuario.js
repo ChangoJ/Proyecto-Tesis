@@ -60,6 +60,7 @@ var controller = {
                 usuario1.phoneNumber = params.phoneNumber;
                 usuario1.contrasena = await bcrypt.hash(params.contrasena, saltRounds);
                 usuario1.rol = params.rol;
+                usuario1.codigoVerificacion = params.codigoVerificacion;
 
 
                 //guardar el articulo

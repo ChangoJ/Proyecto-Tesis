@@ -23,6 +23,7 @@ export class ItemsAsignaturaComponent {
   public terminoBusquedaAsignatura: string = '';
   public selectedCarrera!: any
   public selectedSemestre!: any
+  public selectedHorario!: any
   public asignaturasObtenidos: any[] = [];
   public authToken: any;
   public userData: any;
@@ -35,6 +36,7 @@ export class ItemsAsignaturaComponent {
   public horarios!: Horario[];
   @Input() asignaturas!: Asignatura[]
   public columnas = ['N°', 'Nombre', 'Carrera', 'Periodo', 'Profesor', 'Horario', 'Creditos', 'Color', 'Acciones'];
+  
 
   constructor(private _asignaturaService: AsignaturaService,
     private _route: ActivatedRoute,
@@ -54,7 +56,7 @@ export class ItemsAsignaturaComponent {
 
 
   ngOnInit() {
-    if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador") {
+    if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador" || this.userData.rol === "Superadministrador" ) {
       this.is_admin = true
       this.is_aprobador = true
     }
@@ -103,6 +105,7 @@ export class ItemsAsignaturaComponent {
 
           this.asignaturasFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas);
           this.asignaturasFiltrados.paginator = this.paginator;
+          
         }
       },
       error => {
@@ -203,11 +206,18 @@ export class ItemsAsignaturaComponent {
 
     if (this.selectedSemestre !== undefined) {
       asignaturasFiltrados = asignaturasFiltrados.filter(asignatura => {
-        return asignatura.semestre.some((semestre: any) => semestre.toLowerCase() === this.selectedSemestre.toLowerCase());
+        return asignatura.semestre.some((semestre: any) => semestre.toLowerCase() === this.selectedSemestre.toLowerCase()) || asignatura.ciclo.some((ciclo: any) => ciclo.toLowerCase() === this.selectedSemestre.toLowerCase());
       });
     }
 
-    if (this.selectedCarrera === "Todas" || this.selectedSemestre === "Todas") {
+    
+    if (this.selectedHorario !== undefined) {
+      asignaturasFiltrados = asignaturasFiltrados.filter(asignatura => {
+        return asignatura.horario.toLowerCase() === this.selectedHorario.toLowerCase();
+      });
+    }
+
+    if (this.selectedCarrera === "Todas" || this.selectedSemestre === "Todas" || this.selectedHorario === "Todas") {
       asignaturasFiltrados = this.carrerasFiltradas;
     }
 
@@ -218,18 +228,20 @@ export class ItemsAsignaturaComponent {
         asignaturas.profesor[0].nombre.toString().toLowerCase().match(regexBusqueda) ||
         asignaturas.creditos.toString().toLowerCase().match(regexBusqueda) ||
         asignaturas.abreviatura.toString().toLowerCase().match(regexBusqueda) ||
-        asignaturas.color.toString().toLowerCase().match(regexBusqueda)
+        asignaturas.color.toString().toLowerCase().match(regexBusqueda)||
+        asignaturas.horario.toString().toLowerCase().match(regexBusqueda)
       );
 
       if (asignaturasFiltrados.length === 0) {
         let terminosBusquedaSeparados = terminosBusqueda.split(' ');
         regexBusqueda = new RegExp(`(${terminosBusquedaSeparados.join('|')})`, 'gi');
-        asignaturasFiltrados = this.carrerasFiltradas.filter(asignaturas =>
+        asignaturasFiltrados = asignaturasFiltrados.filter(asignaturas =>
           asignaturas.nombre.toString().toLowerCase().match(regexBusqueda) ||
           asignaturas.profesor[0].nombre.toString().toLowerCase().match(regexBusqueda) ||
           asignaturas.creditos.toString().toLowerCase().match(regexBusqueda) ||
           asignaturas.abreviatura.toString().toLowerCase().match(regexBusqueda) ||
-          asignaturas.color.toString().toLowerCase().match(regexBusqueda)
+          asignaturas.color.toString().toLowerCase().match(regexBusqueda)||
+          asignaturas.horario.toString().toLowerCase().match(regexBusqueda)
         );
       }
     }

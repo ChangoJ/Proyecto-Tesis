@@ -60,12 +60,12 @@ var controller = {
             existingUser = _context.sent;
 
             if (existingUser) {
-              _context.next = 34;
+              _context.next = 35;
               break;
             }
 
             if (!(validate_nombre && validate_ci && validate_usuario && validate_email && validate_contrasena && validate_rol)) {
-              _context.next = 31;
+              _context.next = 32;
               break;
             }
 
@@ -82,7 +82,8 @@ var controller = {
 
           case 26:
             usuario1.contrasena = _context.sent;
-            usuario1.rol = params.rol; //guardar el articulo
+            usuario1.rol = params.rol;
+            usuario1.codigoVerificacion = params.codigoVerificacion; //guardar el articulo
 
             usuario1.save().then(function (usuarioStored) {
               if (!usuarioStored) {
@@ -98,25 +99,25 @@ var controller = {
                 usuario: usuarioStored
               });
             });
-            _context.next = 32;
+            _context.next = 33;
             break;
 
-          case 31:
+          case 32:
             return _context.abrupt("return", res.status(200).send({
               status: 'error',
               message: 'Los datos no son validos'
             }));
 
-          case 32:
-            _context.next = 35;
+          case 33:
+            _context.next = 36;
             break;
 
-          case 34:
+          case 35:
             return _context.abrupt("return", res.status(200).json({
               message: 'El Nombre de usuario, CI, N° Celular o Email ya existen'
             }));
 
-          case 35:
+          case 36:
           case "end":
             return _context.stop();
         }

@@ -29,6 +29,7 @@ var ItemsProfesorComponent = /** @class */ (function () {
         this.is_aprobador = false;
         this.authToken = this._detalleService.authToken;
         this.userData = this._detalleService.userData;
+        this.contratos = this._detalleService.contratos;
     }
     ItemsProfesorComponent.prototype.ngOnInit = function () {
         this.getProfesores();
@@ -39,6 +40,9 @@ var ItemsProfesorComponent = /** @class */ (function () {
         var _this = this;
         this._detalleService.getRolesCarrera().subscribe(function (roles) {
             _this.rolesCarreras = roles;
+        });
+        this._detalleService.getCarreras().subscribe(function (carreras) {
+            _this.carreras = carreras;
         });
     };
     ItemsProfesorComponent.prototype.getProfesores = function () {
@@ -121,14 +125,40 @@ var ItemsProfesorComponent = /** @class */ (function () {
         });
     };
     ItemsProfesorComponent.prototype.filtrarProfesores = function () {
-        var terminosBusqueda = this.terminoBusquedaProfesor.split(' ').join(' | ');
-        console.log(terminosBusqueda);
-        var regexBusqueda = new RegExp(terminosBusqueda, 'gi');
-        this.profesoresFiltrados = new table_1.MatTableDataSource(this.carrerasFiltradas.filter(function (profesor) {
-            return profesor.nombre.toString().toLowerCase().match(regexBusqueda) ||
-                profesor.carrera.toString().toLowerCase().match(regexBusqueda) ||
-                profesor.contrato.toString().toLowerCase().match(regexBusqueda);
-        }));
+        var _this = this;
+        var terminosBusqueda = this.terminoBusquedaProfesor.trim().toLowerCase();
+        var regexBusqueda = new RegExp("\\b" + terminosBusqueda + "\\b", 'gi');
+        var profesoresFiltrados = this.carrerasFiltradas;
+        if (this.selectedContrato !== undefined) {
+            profesoresFiltrados = profesoresFiltrados.filter(function (profesor) {
+                return profesor.contrato.toLowerCase() === _this.selectedContrato.toLowerCase();
+            });
+        }
+        if (this.selectedCarrera !== undefined) {
+            profesoresFiltrados = profesoresFiltrados.filter(function (profesor) {
+                return profesor.carrera.some(function (carrera) { return carrera.toLowerCase() === _this.selectedCarrera.toLowerCase(); });
+            });
+        }
+        if (this.selectedCarrera === "Todas" || this.selectedContrato === "Todas") {
+            profesoresFiltrados = this.carrerasFiltradas;
+        }
+        if (terminosBusqueda !== '') {
+            profesoresFiltrados = profesoresFiltrados.filter(function (profesor) {
+                return profesor.nombre.toString().toLowerCase().match(regexBusqueda) ||
+                    profesor.carrera.toString().toLowerCase().match(regexBusqueda) ||
+                    profesor.contrato.toString().toLowerCase().match(regexBusqueda);
+            });
+            if (this.profesoresFiltrados.data.length === 0) {
+                var terminosBusquedaSeparado = this.terminoBusquedaProfesor.split(' ');
+                regexBusqueda = new RegExp("(" + terminosBusquedaSeparado.join('|') + ")", 'gi');
+                profesoresFiltrados = profesoresFiltrados.filter(function (profesor) {
+                    return profesor.nombre.toString().toLowerCase().match(regexBusqueda) ||
+                        profesor.carrera.toString().toLowerCase().match(regexBusqueda) ||
+                        profesor.contrato.toString().toLowerCase().match(regexBusqueda);
+                });
+            }
+        }
+        this.profesoresFiltrados = new table_1.MatTableDataSource(profesoresFiltrados);
     };
     ItemsProfesorComponent.prototype.allProfesores = function () {
         this._router.navigate(['/especificacion/profesores']);

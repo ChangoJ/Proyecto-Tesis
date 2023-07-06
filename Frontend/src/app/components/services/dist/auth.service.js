@@ -10,16 +10,23 @@ exports.AuthService = void 0;
 var core_1 = require("@angular/core");
 var rxjs_1 = require("rxjs");
 var AuthService = /** @class */ (function () {
-    function AuthService(_http, _detalleService) {
+    function AuthService(_http, _detalleService, _router) {
         this._http = _http;
         this._detalleService = _detalleService;
+        this._router = _router;
         this.url = this._detalleService.Global.url;
         this.authToken = localStorage.getItem('authToken') || '';
     }
-    AuthService.prototype.login = function (username, password) {
-        var _this = this;
+    AuthService.prototype.sendCode = function (username, password) {
         var body = { username: username, password: password };
-        return this._http.post(this.url + 'login', body).pipe(rxjs_1.map(function (response) {
+        return this._http.post(this.url + 'sendCode', body).pipe(rxjs_1.map(function (response) {
+            return response;
+        }));
+    };
+    AuthService.prototype.verifyCode = function (code) {
+        var _this = this;
+        var body = { code: code };
+        return this._http.post(this.url + 'verifyCode', body).pipe(rxjs_1.map(function (response) {
             if (response && response.token) {
                 _this.setAuthToken(response.token);
             }

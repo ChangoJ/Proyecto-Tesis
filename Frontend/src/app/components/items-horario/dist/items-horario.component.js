@@ -60,24 +60,27 @@ var ItemsHorarioComponent = /** @class */ (function () {
         this.terminoBusquedaHorario = '';
         this.editingHorario = null;
         this.carrerasFiltradas = [];
+        this.periodos = [];
         this.columnas = ['N°', 'Carrera', 'Periodo', 'Tipo', 'Acciones', 'Estado(Aprobacion)', 'Estado(Revisado)', 'Observacion'];
         this.is_horario = false;
         this.is_admin = false;
         this.is_aprobador = false;
         this.authToken = this._detalleService.authToken;
         this.userData = this._detalleService.userData;
+        this.horariosType = this._detalleService.horariosType;
     }
     ItemsHorarioComponent.prototype.ngOnInit = function () {
         this.getHorarios();
         this.ver = "Ver";
         this.userData = JSON.parse(this.authToken);
-        if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador" || this.userData.rol === "Superadministrador") {
-            this.is_admin = true;
+        if (this.userData.rol === "Aprobador") {
             this.is_aprobador = true;
         }
-        if (this.userData.rol === "Administrador" || this.userData.rol === "Revisador" || this.userData.rol === "Superadministrador") {
-            this.is_admin = true;
+        else if (this.userData.rol === "Revisador") {
             this.is_revisador = true;
+        }
+        else if (this.userData.rol === "Administrador" || this.userData.rol === "Superadministrador") {
+            this.is_admin = true;
         }
         this.getDataDetalles();
     };
@@ -86,15 +89,63 @@ var ItemsHorarioComponent = /** @class */ (function () {
         this._detalleService.getRolesCarrera().subscribe(function (roles) {
             _this.rolesCarreras = roles;
         });
+        this._detalleService.getCarreras().subscribe(function (carreras) {
+            _this.carreras = carreras;
+        });
+        this._detalleService.getSemestres().subscribe(function (semestres) {
+            _this.periodos = semestres;
+        });
+        /*   this._detalleService.getCiclos().subscribe(semestres => {
+            this.periodos = semestres
+          });
+      
+          this._detalleService.getPeriodosIngles().subscribe(semestres => {
+            this.periodos = semestres
+          }); */
     };
     ItemsHorarioComponent.prototype.filtrarHorarios = function () {
-        var terminosBusqueda = this.terminoBusquedaHorario.split(' ').join('|');
-        var regexBusqueda = new RegExp(terminosBusqueda, 'gi');
-        this.horariosFiltrados = new table_1.MatTableDataSource(this.carrerasFiltradas.filter(function (horario) {
-            return horario.carrera.toString().toLowerCase().match(regexBusqueda) ||
-                horario.semestre.toString().toLowerCase().match(regexBusqueda) ||
-                horario.tipoHorario.toString().toLowerCase().match(regexBusqueda);
-        }));
+        var _this = this;
+        var terminosBusqueda = this.terminoBusquedaHorario.trim().toLowerCase();
+        var regexBusqueda = new RegExp("\\b" + terminosBusqueda + "\\b", 'gi');
+        var horariosFiltrados = this.carrerasFiltradas;
+        console.log(this.selectedHorario);
+        if (this.selectedCarrera !== undefined) {
+            horariosFiltrados = horariosFiltrados.filter(function (horario) {
+                return horario.carrera.toLowerCase() === _this.selectedCarrera.toLowerCase();
+            });
+        }
+        if (this.selectedPeriodo !== undefined) {
+            horariosFiltrados = horariosFiltrados.filter(function (horario) {
+                return horario.semestre.toLowerCase() === _this.selectedPeriodo.toLowerCase() || horario.ciclo === _this.selectedPeriodo.toLowerCase();
+            });
+        }
+        if (this.selectedHorario !== undefined) {
+            horariosFiltrados = horariosFiltrados.filter(function (horario) {
+                return horario.tipoHorario.toLowerCase() === _this.selectedHorario.toLowerCase();
+            });
+        }
+        if (this.selectedCarrera === "Todas" || this.selectedPeriodo === "Todas" || this.selectedHorario === "Todas") {
+            horariosFiltrados = this.carrerasFiltradas;
+        }
+        if (terminosBusqueda !== '') {
+            horariosFiltrados = horariosFiltrados.filter(function (horario) {
+                return horario.carrera.toString().toLowerCase().match(regexBusqueda) ||
+                    horario.semestre.toString().toLowerCase().match(regexBusqueda) ||
+                    horario.tipoHorario.toString().toLowerCase().match(regexBusqueda) ||
+                    horario.estado.toString().toLowerCase().match(regexBusqueda);
+            });
+            if (horariosFiltrados.length === 0) {
+                var terminosBusquedaSeparados = terminosBusqueda.split(' ');
+                regexBusqueda = new RegExp("(" + terminosBusquedaSeparados.join('|') + ")", 'gi');
+                horariosFiltrados = horariosFiltrados.filter(function (horario) {
+                    return horario.carrera.toString().toLowerCase().match(regexBusqueda) ||
+                        horario.semestre.toString().toLowerCase().match(regexBusqueda) ||
+                        horario.tipoHorario.toString().toLowerCase().match(regexBusqueda) ||
+                        horario.estado.toString().toLowerCase().match(regexBusqueda);
+                });
+            }
+        }
+        this.horariosFiltrados = new table_1.MatTableDataSource(horariosFiltrados);
     };
     ItemsHorarioComponent.prototype.getHorarios = function () {
         var _this = this;
@@ -164,13 +215,10 @@ var ItemsHorarioComponent = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        console.log(horario._id);
-                        return [4 /*yield*/, this.getHorario(horario._id)];
+                    case 0: return [4 /*yield*/, this.getHorario(horario._id)];
                     case 1:
                         _a.sent();
                         this.horario.estado = estado;
-                        console.log(this.horario);
                         confirm = "";
                         color = "";
                         if (estado === "Aprobado") {

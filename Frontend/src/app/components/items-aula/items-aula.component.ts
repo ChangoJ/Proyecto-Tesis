@@ -22,6 +22,10 @@ export class ItemsAulaComponent {
   public terminoBusquedaAula: string = '';
   public aulasObtenidos: any[] = [];
   public horarios!: Horario[];
+  public selectedCampus!: any
+  public selectedcompartida!: any
+  
+  public ubicaciones: any;
 
   @Input() aulas!: Aula[]
 
@@ -33,6 +37,8 @@ export class ItemsAulaComponent {
     private _detalleService: DetalleService,
     private _horarioService: HorarioService) {
     this.url = this._detalleService.Global.url
+    
+    this.ubicaciones = this._detalleService.ubicaciones
   }
 
   @ViewChild('paginatorA', { static: false }) paginator!: MatPaginator;
@@ -110,7 +116,6 @@ export class ItemsAulaComponent {
         if (response.aulas) {
           this.aulasObtenidos = response.aulas
           this.aulasFiltrados = new MatTableDataSource<any>(this.aulasObtenidos);
-
           this.aulasFiltrados.paginator = this.paginator;
         }
       },
@@ -137,25 +142,50 @@ export class ItemsAulaComponent {
 
   filtrarAulas() {
     let terminosBusqueda = this.terminoBusquedaAula.trim().toLowerCase();
+
     let regexBusqueda = new RegExp(`\\b${terminosBusqueda}\\b`, 'gi');
-    this.aulasFiltrados = new MatTableDataSource<any>(this.aulasObtenidos.filter(aula =>
+    
+    let aulasFiltrados = this.aulasObtenidos
+    
+    if (this.selectedCampus !== undefined) {
+      aulasFiltrados =aulasFiltrados.filter(aula => {
+        return aula.ubicacion.toLowerCase() === this.selectedCampus.toLowerCase();
+      });
+    }
+
+    if (this.selectedcompartida !== undefined) {
+      aulasFiltrados = aulasFiltrados.filter(aula => {
+        return aula.compartida.toLowerCase() === this.selectedcompartida.toLowerCase();
+       });
+    }
+
+    if (this.selectedcompartida === "Todas" || this.selectedCampus === "Todas") {
+      aulasFiltrados = this.aulasObtenidos
+    }
+    if (terminosBusqueda !== '') {
+      aulasFiltrados = aulasFiltrados.filter(aula =>
       aula.nombre.toString().toLowerCase().match(regexBusqueda) ||
       aula.ubicacion.toString().toLowerCase().match(regexBusqueda) ||
       aula.compartida.toString().toLowerCase().match(regexBusqueda) ||
       aula.abreviatura.toString().toLowerCase().match(regexBusqueda) ||
       aula.color.toString().toLowerCase().match(regexBusqueda)
-    ));
+    );
+
+
     if (this.aulasFiltrados.data.length === 0) {
       let terminosBusquedaSeparados = terminosBusqueda.split(' ');
       regexBusqueda = new RegExp(`(${terminosBusquedaSeparados.join('|')})`, 'gi');
-      this.aulasFiltrados = new MatTableDataSource<any>(this.aulasObtenidos.filter(aula =>
+      aulasFiltrados = aulasFiltrados.filter(aula =>
         aula.nombre.toString().toLowerCase().match(regexBusqueda) ||
         aula.ubicacion.toString().toLowerCase().match(regexBusqueda) ||
         aula.compartida.toString().toLowerCase().match(regexBusqueda) ||
         aula.abreviatura.toString().toLowerCase().match(regexBusqueda) ||
         aula.color.toString().toLowerCase().match(regexBusqueda)
-      ));
+      );
     }
+  }
+  this.aulasFiltrados = new MatTableDataSource<any>(aulasFiltrados);
+  
   }
 
   allAulas() {

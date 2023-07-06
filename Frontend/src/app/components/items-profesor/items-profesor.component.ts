@@ -30,8 +30,12 @@ export class ItemsProfesorComponent {
   public horarios!: Horario[];
   public columnas = ['N°', 'Nombre', 'Contrato', 'Carreras', 'Acciones'];
   public profesoresObtenidos: any[] = [];
+  public selectedCarrera!: any
+  public selectedContrato!: any
+  public carreras!: any
+  public contratos!: any
   @Input() profesores!: Profesor[]
-
+  
 
 
   constructor(private _profesorService: ProfesorService,
@@ -43,6 +47,7 @@ export class ItemsProfesorComponent {
     this.is_aprobador = false
     this.authToken = this._detalleService.authToken
     this.userData = this._detalleService.userData
+    this.contratos = this._detalleService.contratos
 
   }
 
@@ -60,6 +65,11 @@ export class ItemsProfesorComponent {
     this._detalleService.getRolesCarrera().subscribe(roles => {
       this.rolesCarreras = roles
     });
+
+    this._detalleService.getCarreras().subscribe(carreras => {
+      this.carreras = carreras
+    });
+
   }
 
   getProfesores() {
@@ -164,14 +174,45 @@ export class ItemsProfesorComponent {
 
 
   filtrarProfesores() {
-    let terminosBusqueda = this.terminoBusquedaProfesor.split(' ').join(' | ');
-    console.log(terminosBusqueda)
-    let regexBusqueda = new RegExp(terminosBusqueda, 'gi');
-    this.profesoresFiltrados = new MatTableDataSource<any>(this.carrerasFiltradas.filter(profesor =>
-      profesor.nombre.toString().toLowerCase().match(regexBusqueda) ||
-      profesor.carrera.toString().toLowerCase().match(regexBusqueda) ||
-      profesor.contrato.toString().toLowerCase().match(regexBusqueda)
-    ));
+    let terminosBusqueda = this.terminoBusquedaProfesor.trim().toLowerCase();
+    let regexBusqueda = new RegExp(`\\b${terminosBusqueda}\\b`, 'gi');
+
+    let profesoresFiltrados = this.carrerasFiltradas
+
+    if (this.selectedContrato !== undefined) {
+      profesoresFiltrados = profesoresFiltrados.filter(profesor => {
+        return profesor.contrato.toLowerCase() === this.selectedContrato.toLowerCase();
+      });
+    }
+
+    if (this.selectedCarrera !== undefined) {
+      profesoresFiltrados = profesoresFiltrados.filter(profesor => {
+        return profesor.carrera.some((carrera: any) => carrera.toLowerCase() === this.selectedCarrera.toLowerCase());
+       });
+    }
+
+    if (this.selectedCarrera === "Todas" || this.selectedContrato === "Todas") {
+      profesoresFiltrados = this.carrerasFiltradas
+    }
+
+    if (terminosBusqueda !== '') {
+      profesoresFiltrados = profesoresFiltrados.filter(profesor =>
+        profesor.nombre.toString().toLowerCase().match(regexBusqueda) ||
+        profesor.carrera.toString().toLowerCase().match(regexBusqueda) ||
+        profesor.contrato.toString().toLowerCase().match(regexBusqueda)
+      );
+
+      if (this.profesoresFiltrados.data.length === 0) {
+        let terminosBusquedaSeparado = this.terminoBusquedaProfesor.split(' ');
+        regexBusqueda = new RegExp(`(${terminosBusquedaSeparado.join('|')})`, 'gi');
+        profesoresFiltrados = profesoresFiltrados.filter(profesor =>
+          profesor.nombre.toString().toLowerCase().match(regexBusqueda) ||
+          profesor.carrera.toString().toLowerCase().match(regexBusqueda) ||
+          profesor.contrato.toString().toLowerCase().match(regexBusqueda)
+        );
+      }
+    }
+    this.profesoresFiltrados = new  MatTableDataSource<any>(profesoresFiltrados);
   }
 
   allProfesores() {

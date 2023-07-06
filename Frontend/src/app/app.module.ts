@@ -61,6 +61,7 @@ import { DetalleEditComponent } from './components/detalle-edit/detalle-edit.com
 import { DetalleNuevoComponent } from './components/detalle-nuevo/detalle-nuevo.component';
 import { ItemsDetalleComponent } from './components/items-detalle/items-detalle.component';
 import { DetalleService } from './components/services/detalle.service';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @NgModule({
   
@@ -125,7 +126,8 @@ import { DetalleService } from './components/services/detalle.service';
     MatDividerModule,
     MatPaginatorModule,
     MatCardModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatProgressSpinnerModule
   ],
   providers: [AuthService, DetalleService],
   bootstrap: [AppComponent]

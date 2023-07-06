@@ -30,6 +30,23 @@
         <input id="buscadorHorario" [(ngModel)]="terminoBusquedaProfesor" type="text"
             placeholder="Buscar por nombre, contrato, cargo, o area" (input)="filtrarProfesores()">
     </div>
+    <div id="matselectBusquedaAsignatura">
+        <mat-form-field id="matselectCarrera">
+            <mat-label >Seleccionar contrato</mat-label>
+            <mat-select [(ngModel)]="selectedContrato" (selectionChange)="filtrarProfesores()" >
+                <mat-option [value]="'Todas'">Todas</mat-option>
+                <mat-option *ngFor="let contrato of contratos" [value]="contrato.textField">{{ contrato.textField }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field id="matselectSemestre" >
+            <mat-label>Seleccionar Carrera</mat-label>
+            <mat-select [(ngModel)]="selectedCarrera" (selectionChange)="filtrarProfesores()">
+                <mat-option [value]="'Todas'">Todas</mat-option>
+                <mat-option *ngFor="let carrera of carreras" [value]="carrera">{{ carrera }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div> 
     <div class="mat-elevation-z8 tablaDocentesResumen">
         <table mat-table [dataSource]="profesoresFiltrados">
 

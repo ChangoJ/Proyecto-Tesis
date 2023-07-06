@@ -157,9 +157,9 @@ var CarrerasDialogComponent = /** @class */ (function () {
             ruta = rutaEnviar;
             ruta = ruta.replace(/\s+/g, "_");
             this._router.navigate([ruta], { relativeTo: this._route });
-            /* setTimeout(() => {
-              location.reload();
-            }, 350); */
+            setTimeout(function () {
+                location.reload();
+            }, 350);
         }
         else {
             sweetalert2_1["default"].fire('EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + this.periodoTIpo + ' ya fue creado.', 'Por favor, si desea modificar vaya a la sección de horarios', 'error');

@@ -64,6 +64,11 @@ export class DetalleService {
         { id: 3, textField: 'ZOOM' }
     ];
 
+    public contratos: any[] = [
+    { id: 1, textField: 'Tiempo Completo' },
+    { id: 2, textField: 'Medio Tiempo' },
+    { id: 3, textField: 'Tiempo Parcial' }
+  ];
 
 
     constructor(

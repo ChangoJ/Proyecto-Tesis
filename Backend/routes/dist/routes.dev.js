@@ -25,7 +25,8 @@ var router = express.Router(); //rutas
 
 /* Login */
 
-router.post('/login', AuthController.login);
+router.post('/verifyCode', AuthController.verifyCode);
+router.post('/sendCode', AuthController.sendCode);
 /* Asignaturas */
 
 router.post('/save', AsignaturaController.save);

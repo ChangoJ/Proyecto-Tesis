@@ -11,6 +11,7 @@ var UsuarioScheme = Schema({
     phoneNumber: { type: String, unique: true, required: false },
     contrasena: String,
     rol: String,
+    codigoVerificacion: { type: String, required: false },
 });
 
 module.exports = mongoose.model('Usuario', UsuarioScheme);

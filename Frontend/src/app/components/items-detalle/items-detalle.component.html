@@ -22,7 +22,7 @@
     <div id="busquedaHorario">
         <h2 sty>Buscador</h2>
         <input id="buscadorHorario" [(ngModel)]="terminoBusquedaUsuarios" type="text"
-            placeholder="Buscar por nombre, usuario, email, o rol" (input)="filtrarDetalles()">
+            placeholder="Buscar por carrera, semestre, ciclo, o horas" (input)="filtrarDetalles()">
     </div>
     <div class="mat-elevation-z8 tablaDocentesResumen" *ngIf="detalles">
         <table mat-table [dataSource]="detallesFiltrados">

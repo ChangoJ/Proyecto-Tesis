@@ -54,14 +54,17 @@ var LoginComponent = /** @class */ (function () {
         this._router = _router;
         this.usernameValue = "";
         this.passwordValue = "";
+        this.code = "";
+        this.contador = 0;
+        this.showVerificationCodeForm = false;
     }
-    LoginComponent.prototype.login = function () {
+    LoginComponent.prototype.verifyCode = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
-                this._authService.login(this.usernameValue, this.passwordValue)
-                    .subscribe(function (response) { return __awaiter(_this, void 0, void 0, function () {
+                this._authService.verifyCode(this.code).subscribe(function (response) { return __awaiter(_this, void 0, void 0, function () {
                     var tokenData, userId, userData, mensaje;
+                    var _this = this;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
@@ -73,20 +76,58 @@ var LoginComponent = /** @class */ (function () {
                             case 1:
                                 userData = _a.sent();
                                 this.userData = userData.usuario;
-                                console.log(this.userData);
                                 this._usuarioService.setUserData(this.userData);
                                 this._router.navigate(['home']);
                                 return [3 /*break*/, 3];
                             case 2:
                                 mensaje = response.message;
-                                sweetalert2_1["default"].fire(mensaje, 'Por favor, revise las credenciales', 'error');
+                                sweetalert2_1["default"].fire(mensaje, 'Por favor, asegurese de ingresar bien el codigo de verificación.', 'error');
+                                this.contador++;
                                 _a.label = 3;
-                            case 3: return [2 /*return*/];
+                            case 3:
+                                if (this.contador === 3) {
+                                    sweetalert2_1["default"].fire("Muchos Intentos Fallidos", 'Por favor, asegurese de ingresar bien el codigo de verificación.', 'error');
+                                    setTimeout(function () {
+                                        _this.showVerificationCodeForm = false;
+                                    }, 400);
+                                    setTimeout(function () {
+                                        location.reload();
+                                    }, 1200);
+                                }
+                                return [2 /*return*/];
                         }
+                    });
+                }); });
+                return [2 /*return*/];
+            });
+        });
+    };
+    LoginComponent.prototype.sendCode = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                sweetalert2_1["default"].fire({
+                    title: "Cargando...",
+                    html: "\n    <div style=\"display: flex; justify-content: center; align-items: center; overflow: hidden;\">\n      <div class=\"spinner\"></div>\n    </div>\n  ",
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                });
+                this._authService.sendCode(this.usernameValue, this.passwordValue)
+                    .subscribe(function (response) { return __awaiter(_this, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        console.log(response);
+                        if (response.status === "success") {
+                            sweetalert2_1["default"].fire(response.message, 'Por favor, revise su correo en la bandeja principal o SPAM.', 'success');
+                            this.showVerificationCodeForm = true;
+                        }
+                        else {
+                            sweetalert2_1["default"].fire(response.message, 'Por favor, ingrese correctamente los datos.', 'error');
+                        }
+                        return [2 /*return*/];
                     });
                 }); }, function (error) {
                     console.error(error);
-                    // Mostrar un mensaje de error en el inicio de sesión
                 });
                 return [2 /*return*/];
             });

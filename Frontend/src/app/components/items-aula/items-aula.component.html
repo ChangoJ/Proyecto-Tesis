@@ -23,6 +23,24 @@
         <input id="buscadorHorario" [(ngModel)]="terminoBusquedaAula" type="text"
             placeholder="Buscar por nombre, ubicación, abreviatura..." (input)="filtrarAulas()">
     </div>
+     <div id="matselectBusquedaAsignatura">
+        <mat-form-field id="matselectCarrera">
+            <mat-label>Seleccionar Ubicacion</mat-label>
+            <mat-select [(ngModel)]="selectedCampus" (selectionChange)="filtrarAulas()">
+                <mat-option [value]="'Todas'">Todas</mat-option>
+                <mat-option *ngFor="let ubicacion of ubicaciones" [value]="ubicacion.textField">{{ ubicacion.textField }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field id="matselectSemestre">
+            <mat-label>¿Aula Compartida?</mat-label>
+            <mat-select [(ngModel)]="selectedcompartida" (selectionChange)="filtrarAulas()">
+                <mat-option [value]="'Todas'">Todas</mat-option>
+                <mat-option [value]="'Si'">Si</mat-option>
+                <mat-option [value]="'No'">No</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div> 
     <div class="mat-elevation-z8 tablaDocentesResumen">
         <table mat-table [dataSource]="aulasFiltrados">
 

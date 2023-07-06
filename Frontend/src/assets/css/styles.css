@@ -109,6 +109,36 @@ body {
     color: #0778e2
 }
 
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .spinner-modal-content {
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .spinner-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .spinner {
+    border: 4px solid #f3f3f3; /* color del borde del spinner */
+    border-top: 4px solid #3498db; /* color de la parte superior del spinner */
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+  }
 #header {
     height: 120px;
     width: 100%;
@@ -595,12 +625,13 @@ input[type='submit'] {
 /* ARTICLEIMTE */
 
 #matselectBusquedaAsignatura {
-    display: inline;
+    display: flex;
 }
 
 mat-form-field#matselectSemestre {
     margin-left: 10px;
-    width: 54%;
+    margin-right: 10px;
+    width: 20%;
 
 }
 
@@ -1191,7 +1222,7 @@ th {
 
 
 
-@media (max-width: 1296px) {
+@media (max-width: 1350px) {
     /* se ejecutaran estos estilos*/
 
 
@@ -1246,10 +1277,18 @@ th {
         margin-bottom: 17px;
     }
 
+  
+
+ 
+
+}
+
+
+@media (max-width: 890px) {
+    /* se ejecutaran estos estilos*/
     #matselectBusquedaAsignatura {
         display: block;
     }
-
 
     mat-form-field#matselectSemestre {
         margin-left: 0px;
@@ -1260,12 +1299,6 @@ th {
         margin-left: 0px;
         width: 100%;
     }
-
-}
-
-
-@media (max-width: 890px) {
-    /* se ejecutaran estos estilos*/
 
     #header {
         height: 190px;

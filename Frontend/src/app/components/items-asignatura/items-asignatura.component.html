@@ -23,8 +23,10 @@
     <div id="busquedaAsignatura">
         <h2 sty>Buscador</h2>
         <input id="buscadorAsignatura" [(ngModel)]="terminoBusquedaAsignatura" type="text"
-            placeholder="Buscar por nombre, profesor o creditos" (input)="filtrarAsignaturas()">
-        <div id="matselectBusquedaAsignatura" *ngIf="is_admin || is_aprobador">
+            placeholder="Buscar por nombre, profesor, carrera, periodo, horario o creditos" (input)="filtrarAsignaturas()">
+            
+    </div>
+        <div id="matselectBusquedaAsignatura" >
             <mat-form-field id="matselectCarrera">
                 <mat-label >Seleccionar Carrera</mat-label>
                 <mat-select [(ngModel)]="selectedCarrera" (selectionChange)="filtrarAsignaturas()" >
@@ -34,14 +36,23 @@
             </mat-form-field>
 
             <mat-form-field id="matselectSemestre" >
-                <mat-label>Seleccionar Semestre</mat-label>
+                <mat-label>Seleccionar periodo</mat-label>
                 <mat-select [(ngModel)]="selectedSemestre" (selectionChange)="filtrarAsignaturas()">
                     <mat-option [value]="'Todas'">Todas</mat-option>
                     <mat-option *ngFor="let semestre of semestres" [value]="semestre">{{ semestre }}</mat-option>
                 </mat-select>
             </mat-form-field>
+            <mat-form-field id="matselectCarrera">
+                <mat-label >Seleccionar horario</mat-label>
+                <mat-select [(ngModel)]="selectedHorario" (selectionChange)="filtrarAsignaturas()" >
+                    <mat-option [value]="'Todas'">Todas</mat-option>
+                    <mat-option  [value]="'Nocturno'">Nocturno</mat-option>
+                    <mat-option  [value]="'Diurno'">Diurno</mat-option>
+                </mat-select>
+            </mat-form-field>
         </div>
-    </div>
+
+        
     <div class="mat-elevation-z8 tablaDocentesResumen">
         <table mat-table [dataSource]="asignaturasFiltrados">
 
@@ -63,13 +74,13 @@
 
             <ng-container matColumnDef="Periodo">
                 <th mat-header-cell *matHeaderCellDef>Periodo</th>
-                <td [matTooltip]="item.horario === 'Nocturno' ? 'Semestre: ' + item.semestre + ' Ciclo: ' + item.ciclo : (item.carrera[0] = 'Ingles' ? 'Nivel: ' + item.semestre : 'Semestre: ' + item.semestre)"    mat-cell *matCellDef="let item">
+                <td [matTooltip]="item.horario === 'Nocturno' ? 'Semestre: ' + item.semestre + ' Ciclo: ' + item.ciclo : (item.carrera[0] === 'Ingles' ? 'Nivel: ' + item.semestre : 'Semestre: ' + item.semestre)"    mat-cell *matCellDef="let item">
                    
                     <ng-container *ngIf="item.horario === 'Nocturno' && !item.carrera.includes('Ingles')">
                         {{item.semestre.length > 1 ?
                             item.semestre.slice(0,1)+ '...(' + (item.semestre.length)+ ')' : item.semestre }} semestre
-                    </ng-container><br>
-                    <ng-container *ngIf="item.horario === 'Nocturno' && !item.carrera.includes('Ingles')">
+                    </ng-container>
+                    <ng-container *ngIf="item.horario === 'Nocturno' && !item.carrera.includes('Ingles')"><br>
                         {{item.ciclo.length > 1 ?
                             item.ciclo.slice(0,1)+ '...(' + (item.ciclo.length)+ ')' : item.ciclo }} Ciclo
                     </ng-container>

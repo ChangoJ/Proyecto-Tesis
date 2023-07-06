@@ -33,7 +33,7 @@ var ItemsAsignaturaComponent = /** @class */ (function () {
         this.userData = this._detalleService.userData;
     }
     ItemsAsignaturaComponent.prototype.ngOnInit = function () {
-        if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador") {
+        if (this.userData.rol === "Administrador" || this.userData.rol === "Aprobador" || this.userData.rol === "Superadministrador") {
             this.is_admin = true;
             this.is_aprobador = true;
         }
@@ -147,7 +147,12 @@ var ItemsAsignaturaComponent = /** @class */ (function () {
                 return asignatura.semestre.some(function (semestre) { return semestre.toLowerCase() === _this.selectedSemestre.toLowerCase(); });
             });
         }
-        if (this.selectedCarrera === "Todas" || this.selectedSemestre === "Todas") {
+        if (this.selectedHorario !== undefined) {
+            asignaturasFiltrados = asignaturasFiltrados.filter(function (asignatura) {
+                return asignatura.horario.toLowerCase() === _this.selectedHorario.toLowerCase();
+            });
+        }
+        if (this.selectedCarrera === "Todas" || this.selectedSemestre === "Todas" || this.selectedHorario === "Todas") {
             asignaturasFiltrados = this.carrerasFiltradas;
         }
         if (terminosBusqueda !== '') {
@@ -157,7 +162,8 @@ var ItemsAsignaturaComponent = /** @class */ (function () {
                     asignaturas.profesor[0].nombre.toString().toLowerCase().match(regexBusqueda_1) ||
                     asignaturas.creditos.toString().toLowerCase().match(regexBusqueda_1) ||
                     asignaturas.abreviatura.toString().toLowerCase().match(regexBusqueda_1) ||
-                    asignaturas.color.toString().toLowerCase().match(regexBusqueda_1);
+                    asignaturas.color.toString().toLowerCase().match(regexBusqueda_1) ||
+                    asignaturas.horario.toString().toLowerCase().match(regexBusqueda_1);
             });
             if (asignaturasFiltrados.length === 0) {
                 var terminosBusquedaSeparados = terminosBusqueda.split(' ');
@@ -167,7 +173,8 @@ var ItemsAsignaturaComponent = /** @class */ (function () {
                         asignaturas.profesor[0].nombre.toString().toLowerCase().match(regexBusqueda_1) ||
                         asignaturas.creditos.toString().toLowerCase().match(regexBusqueda_1) ||
                         asignaturas.abreviatura.toString().toLowerCase().match(regexBusqueda_1) ||
-                        asignaturas.color.toString().toLowerCase().match(regexBusqueda_1);
+                        asignaturas.color.toString().toLowerCase().match(regexBusqueda_1) ||
+                        asignaturas.horario.toString().toLowerCase().match(regexBusqueda_1);
                 });
             }
         }
@@ -184,7 +191,7 @@ var ItemsAsignaturaComponent = /** @class */ (function () {
         core_1.Input()
     ], ItemsAsignaturaComponent.prototype, "asignaturas");
     __decorate([
-        core_1.ViewChild('paginatorAs', { static: false })
+        core_1.ViewChild('paginatorAs', { static: true })
     ], ItemsAsignaturaComponent.prototype, "paginator");
     ItemsAsignaturaComponent = __decorate([
         core_1.Component({

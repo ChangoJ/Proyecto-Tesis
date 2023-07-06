@@ -3,13 +3,13 @@
         <img src="../../../assets/images/logoo.png" alt="Logo">
     </div>
     <h1>Sistema web de creación de horarios</h1>
-    <form #AuthForm="ngForm" (ngSubmit)="login()">
+    <form #AuthForm="ngForm" (ngSubmit)="sendCode()" *ngIf="!showVerificationCodeForm">
         <div class="form-row">
             <mat-form-field class="form-field">
                 <mat-label>Usuario</mat-label>
                 <input matInput type="text" id="username" name="username" #username="ngModel" [(ngModel)]="usernameValue" required>
                 <small *ngIf="!username.valid && username.touched">
-                    El username no es valido
+                    El username no es válido
                 </small>
             </mat-form-field>
         </div>
@@ -18,16 +18,29 @@
                 <mat-label>Contraseña</mat-label>
                 <input matInput type="password" id="password" name="password" #password="ngModel" [(ngModel)]="passwordValue" required>
                 <small *ngIf="!password.valid && password.touched">
-                    La contraseña no es valida
+                    La contraseña no es válida
                 </small>
             </mat-form-field>
         </div>
-       <!--  <div class="form-row">
-            <a href="ruta-olvidar-contraseña">¿Olvidaste tu contraseña?</a>
-        </div> -->
         <div class="form-row">
-            <button mat-raised-button color="primary" type="submit" [disabled]="AuthForm.invalid">Ingresar</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="AuthForm.invalid">Iniciar sesión</button>
         </div>
-        
     </form>
+    
+    <div class="verification-code-container" *ngIf="showVerificationCodeForm">
+        <form #VerificationCodeForm="ngForm" (ngSubmit)="verifyCode()">
+            <div class="form-row">
+                <mat-form-field class="form-field">
+                    <mat-label>Código de verificación</mat-label>
+                    <input matInput type="text" id="verificationCode" name="verificationCode" #verificationCode="ngModel" [(ngModel)]="code" required>
+                    <small *ngIf="!verificationCode.valid && verificationCode.touched">
+                        El código de verificación no es válido
+                    </small>
+                </mat-form-field>
+            </div>
+            <div class="form-row">
+                <button mat-raised-button color="primary" type="submit" [disabled]="VerificationCodeForm.invalid">Verificar código</button>
+            </div>
+        </form>
+    </div>
 </mat-card>

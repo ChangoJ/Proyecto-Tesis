@@ -1052,7 +1052,6 @@ export class HorarioEditComponent {
         response => {
           if (response.horario) {
             this.horario = response.horario
-            console.log(this.horario)
             this.getDaysHorario()
 
             this.getAsignaturas()
@@ -1159,7 +1158,7 @@ export class HorarioEditComponent {
     await this.getHorarios()
     this.aulaHorario = []
     this.asignaturaHorario = []
-    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario, '', '')
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
     const arreglosHorario = [
       this.monday,
       this.tuesday,
@@ -1391,8 +1390,11 @@ export class HorarioEditComponent {
 
     doc.text(carreraText, carreraInfoX, 20);
     let periodoTipo: any = ""
+    let periodoTipo2: any = ""
     if (this.opcion1 === "Horario Nocturno") {
-      periodoTipo = "Ciclo"
+      periodoTipo = "Semestre"
+
+      periodoTipo2 = "Ciclo"
     } else {
       periodoTipo = "Semestre"
     }
@@ -1406,9 +1408,17 @@ export class HorarioEditComponent {
 
     let semestreInfoX = (pageWidth - semestreInfoWidth) / 2;
 
+    if (this.opcion1 === "Horario Nocturno") {
+      semestreText = periodoTipo + ": " + this.opcion3 + '  ' + periodoTipo2 + ": " + this.opcion4;
+      semestreInfoWidth = doc.getTextWidth(semestreText);
+
+      semestreInfoX = (pageWidth - semestreInfoWidth) / 2;
+
+    }
+
+
+
     doc.text(semestreText, semestreInfoX, 25);
-
-
 
 
     let days
@@ -1711,12 +1721,12 @@ export class HorarioEditComponent {
     let days
     let indiceCell
     let indiceCellBorder
-    let indiceCellList
+    let indiceCellList: number
     if (this.opcion1 === "Horario Nocturno") {
       days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
       indiceCell = 7
-      indiceCellBorder = 16
-      indiceCellList = 18
+      indiceCellBorder = 17
+      indiceCellList = 19
       cellSize = 19
       cellSizeBorder = 6
     } else {
@@ -1775,19 +1785,34 @@ export class HorarioEditComponent {
     carreraText.font = { size: 10, bold: true }; // Establecer el formato de la fuente
     carreraText.alignment = { horizontal: 'center' };
     let periodoTipo: any = ""
+
+    let periodoTipo2: any = ""
     if (this.opcion1 === "Horario Nocturno") {
-      periodoTipo = "Ciclo"
+
+      periodoTipo2 = "Ciclo"
+      periodoTipo = "Semestre"
     } else {
       periodoTipo = "Semestre"
     }
-    if (this.opcion2.toLowerCase() === "ingles") {
+    if (this.opcion2.toLowerCase() === "ingles" && this.opcion1 === "Horario Diurno") {
 
       periodoTipo = "Nivel"
+
+      indiceCellBorder = 16
+      indiceCellList = 19
+    } else if (this.opcion2.toLowerCase() === "ingles" && this.opcion1 === "Horario Nocturno") {
+      periodoTipo = "Nivel"
+      indiceCellBorder = 15
+      indiceCellList = 19
     }
     // Agregar el título al Excel
     worksheet.mergeCells('A4:F4'); // Fusionar 5 celdas en la primera fila
     let semestreText = worksheet.getCell(4, 1);
     semestreText.value = periodoTipo + ": " + this.opcion3;
+    if (this.opcion1 === "Horario Nocturno") {
+
+      semestreText.value = periodoTipo + ": " + this.opcion3 + '  ' + periodoTipo2 + ": " + this.opcion4;
+    }
     semestreText.font = { size: 10, bold: true }; // Establecer el formato de la fuente
     semestreText.alignment = { horizontal: 'center' };
 
@@ -2012,60 +2037,62 @@ export class HorarioEditComponent {
           right: { style: 'thin', color: { argb: '000000' } }
         };
       })
+
+      indiceCellList++
     });
 
     const identificador = uuidv4();
     const nombreArchivo = this.opcion1 + '-' + this.opcion2 + '-' + this.opcion3 + `-(${identificador}).xlsx`;
 
 
-
+    console.log(indiceCellList)
     // Agregar texto al final de la página
-    let elaboradoPor = worksheet.getCell(26, 2);
+    let elaboradoPor = worksheet.getCell(indiceCellList + 4, 2);
     elaboradoPor.value = 'Elaborado por: ';
     elaboradoPor.font = { size: 8 };
 
-    let nombreDirector = worksheet.getCell(29, 2);
+    let nombreDirector = worksheet.getCell(indiceCellList + 7, 2);
     nombreDirector.value = this.horario.creado_por.nombre;
     nombreDirector.font = { size: 8 };
 
-    let directorCarrera = worksheet.getCell(30, 2);
+    let directorCarrera = worksheet.getCell(indiceCellList + 8, 2);
     directorCarrera.value = 'Director de carrera';
     directorCarrera.font = { size: 8 };
 
 
     // Agregar texto al final de la página
-    let revisadoPor = worksheet.getCell(26, 4);
+    let revisadoPor = worksheet.getCell(indiceCellList + 4, 4);
     revisadoPor.value = 'Revisado por: ';
     revisadoPor.font = { size: 8 };
 
     if (this.horario.revisado_por) {
 
-      let nombreRevisador = worksheet.getCell(29, 4);
+      let nombreRevisador = worksheet.getCell(indiceCellList + 7, 4);
       nombreRevisador.value = this.horario.revisado_por!.nombre!
       nombreRevisador.font = { size: 8 };
     } else {
-      
-      let nombreRevisador = worksheet.getCell(29, 4);
+
+      let nombreRevisador = worksheet.getCell(indiceCellList + 7, 4);
       nombreRevisador.value = ""
       nombreRevisador.font = { size: 8 };
     }
 
-    let cargoRevisador = worksheet.getCell(30, 4);
+    let cargoRevisador = worksheet.getCell(indiceCellList + 8, 4);
     cargoRevisador.value = 'Decano de Facultad';
     cargoRevisador.font = { size: 8 };
 
 
 
     // Agregar texto al final de la página
-    let aprobadorPor = worksheet.getCell(26, 6);
+    let aprobadorPor = worksheet.getCell(indiceCellList + 4, 6);
     aprobadorPor.value = 'Aprobado por: ';
     aprobadorPor.font = { size: 8 };
 
-    let nombreAprobador = worksheet.getCell(29, 6);
+    let nombreAprobador = worksheet.getCell(indiceCellList + 7, 6);
     nombreAprobador.value = this.aprobador.nombre;
     nombreAprobador.font = { size: 8 };
 
-    let cargoAprobador = worksheet.getCell(30, 6);
+    let cargoAprobador = worksheet.getCell(indiceCellList + 8, 6);
     cargoAprobador.value = 'Directora Académica';
     cargoAprobador.font = { size: 8 };
 
