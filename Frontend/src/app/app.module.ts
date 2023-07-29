@@ -29,7 +29,6 @@ import { ItemsAulaComponent } from './components/items-aula/items-aula.component
 import { ItemsProfesorComponent } from './components/items-profesor/items-profesor.component';
 import { ItemsAsignaturaComponent } from './components/items-asignatura/items-asignatura.component';
 import { HttpClientModule } from '@angular/common/http';
-import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HorarioDialogComponent } from './components/horario-dialog/horario-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -112,7 +111,6 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     BrowserAnimationsModule,
     HttpClientModule,
     MatIconModule,
-    NgMultiSelectDropDownModule,
     DragDropModule,
     MatButtonModule,
     MatFormFieldModule,
