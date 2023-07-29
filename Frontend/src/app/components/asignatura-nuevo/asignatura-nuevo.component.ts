@@ -269,7 +269,6 @@ export class AsignaturaNuevoComponent {
     if (this.selectedHorarios.length !== 0) {
       this.asignatura.horario = this.selectedHorarios[0].textField
     }
-
     if (this.asignatura.nombre === ""
       || this.asignatura.abreviatura === ""
       || this.asignatura.color === ""
@@ -282,7 +281,7 @@ export class AsignaturaNuevoComponent {
     ) {
       Swal.fire(
         'Asignatura no creada',
-        'Por favor, rellene los datos correctamente.',
+        'Por favor, rellene los datos correctamente',
         'error'
       )
 
@@ -290,6 +289,7 @@ export class AsignaturaNuevoComponent {
 
       this._asignaturaService.create(this.asignatura).subscribe(
         response => {
+          console.log(response)
           if (response.status == 'success') {
             this.status = 'success'
             this.asignatura = response.asignatura

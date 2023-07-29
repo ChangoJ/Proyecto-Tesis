@@ -11,7 +11,7 @@ oAuth2Client = new google.auth.OAuth2(
 );
 
 oAuth2Client.setCredentials({
-  refresh_token: "1//04QzHMqXcpCV2CgYIARAAGAQSNwF-L9IrD7mUFwtNJitW7Ir5y_RJql5PGmbzxpwIs7HK2E0yTV4d7gZCEbD-7dYV9TAg5BrILJU"
+  refresh_token: "1//04aNxZcl1kfu-CgYIARAAGAQSNwF-L9Ir7a87xNHFLPYl0V3kXX-2uU318_HvvoI3IfBzWk8-2WUXuvjwItPr_ZD4zNtFbttPats",
 });
 
 
@@ -58,7 +58,7 @@ var controller = {
           user: 'sistemaunibehorarios@gmail.com',
           clientId: '106822865384-1v7tmg8aeqssetsttaip63ecrki9epq1.apps.googleusercontent.com',
           clientSecret: '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',
-          refreshToken: "1//04QzHMqXcpCV2CgYIARAAGAQSNwF-L9IrD7mUFwtNJitW7Ir5y_RJql5PGmbzxpwIs7HK2E0yTV4d7gZCEbD-7dYV9TAg5BrILJU",
+          refreshToken: "1//04aNxZcl1kfu-CgYIARAAGAQSNwF-L9Ir7a87xNHFLPYl0V3kXX-2uU318_HvvoI3IfBzWk8-2WUXuvjwItPr_ZD4zNtFbttPats",
           accessToken: myAccessToken 
         }
       });
@@ -80,6 +80,7 @@ var controller = {
       });
 
     } catch (error) {
+      console.log(error)
       res.status(200).json({ message: 'Error en el servidor', status: "error" });
     }
   },

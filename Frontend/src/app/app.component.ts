@@ -16,7 +16,7 @@ export class AppComponent {
   private timeoutId: any;
   private timeoutId2: any;
   private readonly inactivityTimeout = 5 * 60 * 60 * 1000;; 
-  private readonly secondWarningTimeout = 12 * 60 * 60 * 1000; 
+  private readonly secondWarningTimeout = 6 * 60 * 60 * 1000; 
 
   private firstWarningShown = false;
 

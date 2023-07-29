@@ -11,7 +11,7 @@ var _require = require("googleapis"),
 
 oAuth2Client = new google.auth.OAuth2('106822865384-1v7tmg8aeqssetsttaip63ecrki9epq1.apps.googleusercontent.com', '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', 'https://developers.google.com/oauthplayground');
 oAuth2Client.setCredentials({
-  refresh_token: "1//04QzHMqXcpCV2CgYIARAAGAQSNwF-L9IrD7mUFwtNJitW7Ir5y_RJql5PGmbzxpwIs7HK2E0yTV4d7gZCEbD-7dYV9TAg5BrILJU"
+  refresh_token: "1//04aNxZcl1kfu-CgYIARAAGAQSNwF-L9Ir7a87xNHFLPYl0V3kXX-2uU318_HvvoI3IfBzWk8-2WUXuvjwItPr_ZD4zNtFbttPats"
 });
 secretKey = 'MRCHANGO&CRISMASTERSON';
 codigoVerificacion = "";
@@ -92,7 +92,7 @@ var controller = {
                 user: 'sistemaunibehorarios@gmail.com',
                 clientId: '106822865384-1v7tmg8aeqssetsttaip63ecrki9epq1.apps.googleusercontent.com',
                 clientSecret: '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',
-                refreshToken: "1//04QzHMqXcpCV2CgYIARAAGAQSNwF-L9IrD7mUFwtNJitW7Ir5y_RJql5PGmbzxpwIs7HK2E0yTV4d7gZCEbD-7dYV9TAg5BrILJU",
+                refreshToken: "1//04aNxZcl1kfu-CgYIARAAGAQSNwF-L9Ir7a87xNHFLPYl0V3kXX-2uU318_HvvoI3IfBzWk8-2WUXuvjwItPr_ZD4zNtFbttPats",
                 accessToken: myAccessToken
               }
             }); // Configurar el correo electrónico a enviar
@@ -117,18 +117,19 @@ var controller = {
                 });
               }
             });
-            _context.next = 27;
+            _context.next = 28;
             break;
 
           case 24:
             _context.prev = 24;
             _context.t0 = _context["catch"](1);
+            console.log(_context.t0);
             res.status(200).json({
               message: 'Error en el servidor',
               status: "error"
             });
 
-          case 27:
+          case 28:
           case "end":
             return _context.stop();
         }

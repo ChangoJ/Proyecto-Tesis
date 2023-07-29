@@ -154,9 +154,9 @@ export class AsignaturaEditComponent {
   }
 
   ngOnInit() {
-    this.getAsignatura();
-    this.getProfesores();
     this.getDataDetalles();
+    this.getProfesores();
+    this.getAsignatura();
   }
 
 
@@ -226,7 +226,6 @@ export class AsignaturaEditComponent {
     if (this.itemHorarioEdit.length !== 0) {
       this.asignatura.horario = this.itemHorarioEdit[0].textField
     }
-    console.log(this.asignatura)
     if (this.asignatura.nombre === ""
       || this.asignatura.abreviatura === ""
       || this.asignatura.color === ""
@@ -284,9 +283,7 @@ export class AsignaturaEditComponent {
 
 
   formatearTexto(texto: string): string {
-    console.log(texto)
     const palabras = texto.split(' ');
-    console.log(palabras)
     const resultado = palabras.map(palabra => {
       if (palabra.length > 1) {
         return palabra.substring(0, 2).toUpperCase();
@@ -339,7 +336,7 @@ export class AsignaturaEditComponent {
             this.selectedSemestres = this.semestres.filter((semestre: { textField: String; }) => this.asignatura.semestre.includes(semestre.textField));
             this.selectedCiclos = this.ciclos.filter((ciclo: { textField: String; }) => this.asignatura.ciclo!.includes(ciclo.textField));
             
-            if(this.selectedCarreras[0].textField === "Ingles" && this.selectedCarreras.length === 1){
+            if(this.selectedCarreras[0].textField.toLowerCase().includes("inglés") && this.selectedCarreras.length === 1){
               this.selectedSemestres = this.periodosIngles.filter((semestre: { textField: String; }) => this.asignatura.semestre.includes(semestre.textField));
             }
 

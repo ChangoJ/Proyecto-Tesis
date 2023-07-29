@@ -199,12 +199,12 @@ var controller = {
         }
       }, {
         "semestre": {
-          "$regex": searchString,
+          "$regex": "^" + searchString + "$",
           "$options": "i"
         }
       }, {
         "ciclo": {
-          "$regex": searchString,
+          "$regex": "^" + searchString + "$",
           "$options": "i"
         }
       }, {

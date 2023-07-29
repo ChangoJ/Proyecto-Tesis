@@ -178,32 +178,44 @@ export class CarrerasDialogComponent {
     if (this.selectedParalelo === undefined) {
       this.selectedParalelo = ""
     }
+    if (this.selectedCiclo === undefined) {
+      this.selectedCiclo = ""
+    }
     for (const horario of this.horarios) {
       if (horario.paralelo === undefined) {
         horario.paralelo = ""
       }
-      if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre && horario.tipoHorario === this.datoRecibido && horario.paralelo === this.selectedParalelo) {
+
+      if (horario.ciclo === undefined) {
+        horario.ciclo = ""
+      }
+      if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre && horario.tipoHorario === this.datoRecibido && horario.ciclo === this.selectedCiclo && horario.paralelo === this.selectedParalelo) {
         existHorarioCarrera = true
       }
     }
     let ruta: any = ""
 
     let rutaEnviar: any = ""
+    let title: any = ""
     if (this.datoRecibido === "Horario Diurno" && this.selectedOpcionPregunta === "si") {
 
 
       rutaEnviar = rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedParalelo
-
+      
+      title = 'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + this.periodoTIpo +' - '+ 'paralelo '  + this.selectedParalelo +' '+' ya fue creado.' 
     } else if (this.datoRecibido === "Horario Diurno") {
       rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre
+      title = 'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + this.periodoTIpo + ' ya fue creado.'
     }
 
     if (this.datoRecibido === "Horario Nocturno" && this.selectedOpcionPregunta === "si") {
       rutaEnviar = rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedCiclo + '/' + this.selectedParalelo
-
+      title = 'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + 'semestre'  +this.selectedCiclo + ' ' + this.periodoTIpo + ' - '+ 'paralelo '  + this.selectedParalelo +' '+' ya fue creado.' 
+    
     } else if (this.datoRecibido === "Horario Nocturno") {
       rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedCiclo
 
+      title = 'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + 'semestre'  +this.selectedCiclo + ' ' + this.periodoTIpo + ' ya fue creado.'
     }
 
 
@@ -216,7 +228,7 @@ export class CarrerasDialogComponent {
       }, 350); 
     } else {
       Swal.fire(
-        'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + this.periodoTIpo + ' ya fue creado.',
+        title,
         'Por favor, si desea modificar vaya a la sección de horarios',
         'error'
       )

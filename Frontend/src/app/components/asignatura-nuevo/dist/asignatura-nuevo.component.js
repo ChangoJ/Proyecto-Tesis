@@ -276,10 +276,11 @@ var AsignaturaNuevoComponent = /** @class */ (function () {
                             || this.asignatura.profesor.length === 0
                             || this.asignatura.semestre.length === 0
                             || controles.includes("INVALID")) {
-                            sweetalert2_1["default"].fire('Asignatura no creada', 'Por favor, rellene los datos correctamente.', 'error');
+                            sweetalert2_1["default"].fire('Asignatura no creada', 'Por favor, rellene los datos correctamente', 'error');
                         }
                         else {
                             this._asignaturaService.create(this.asignatura).subscribe(function (response) {
+                                console.log(response);
                                 if (response.status == 'success') {
                                     _this.status = 'success';
                                     _this.asignatura = response.asignatura;

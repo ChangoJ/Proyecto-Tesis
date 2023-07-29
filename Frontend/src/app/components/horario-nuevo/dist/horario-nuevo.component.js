@@ -99,7 +99,9 @@ var HorarioNuevoComponent = /** @class */ (function () {
         this.isActiveBtnG = false;
         this.isActiveBtnV = true;
         this.verificarDiaPresencialVirtualBolean = false;
+        this.verificarAsignaturasBolean = false;
         this.verificarAulaUbicacionBolean = false;
+        this.verificarProfesorBolean = false;
         this.monday = [];
         this.tuesday = [];
         this.wednesday = [];
@@ -137,9 +139,8 @@ var HorarioNuevoComponent = /** @class */ (function () {
         this._route.params.subscribe(function (params) {
             _this.opcion2 = params['opcion2'];
             _this.opcion1 = params['opcion1'];
-            console.log(_this.opcion1);
         });
-        if (this.opcion2 !== "Ingles") {
+        if (this.opcion2 !== "Inglés") {
             if (this.opcion1 === "Horario_Diurno") {
                 this.horarioHoras = "1D";
             }
@@ -552,6 +553,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
             }
             this.verificarDiaPresencialVirtual();
             this.verificarAulaUbicacion();
+            this.verificarrProfesor();
             if (this.terminoBusquedaAsignatura !== "" && newItem.dayName !== undefined && !newItem.item.compartida) {
                 this.asignaturasFiltradasDrop.push(newItem.item);
                 this.terminoBusquedaAsignaturaStatic = this.terminoBusquedaAsignatura;
@@ -597,6 +599,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this._asignaturaService.getAsignatura(id).subscribe(function (response) {
                             if (response.asignatura) {
+                                console.log(response.asignatura);
                                 _this.asignaturaHorario.push(response.asignatura);
                             }
                             resolve(); // Resuelve la promesa una vez que se completa la llamada a la API
@@ -640,24 +643,30 @@ var HorarioNuevoComponent = /** @class */ (function () {
                                 }
                             }
                         }
+                        var title = "";
                         if (_this.opcion1 === "Horario Nocturno") {
                             _this.periodoTipo = "ciclo";
+                            title = 'EL Horario de ' + _this.opcion2 + ' del ' + _this.opcion3 + ' ' + 'semestre' + ' - ' + _this.opcion4 + ' ' + _this.periodoTipo + ' ya existe.';
                         }
                         else {
                             _this.periodoTipo = "semestre";
+                            title = 'EL Horario de ' + _this.opcion2 + ' del ' + _this.opcion3 + ' ' + _this.periodoTipo + ' ya existe.';
                         }
-                        if (_this.opcion2 === "Ingles") {
+                        if (_this.opcion2 === "Inglés") {
                             _this.periodoTipo = "Nivel";
+                            title = 'EL Horario de ' + _this.opcion2 + ' del ' + _this.opcion3 + ' ' + _this.periodoTipo + ' ya existe.';
                         }
                         if (_this.periodoTipo === "ciclo") {
                             _this.horarios = _this.horarios.filter(function (horario) { return horario.tipoHorario === _this.opcion1 && horario.ciclo === _this.opcion4; });
+                            console.log(_this.horarios);
                         }
                         else {
                             _this.horarios = _this.horarios.filter(function (horario) { return horario.tipoHorario === _this.opcion1; });
                         }
+                        console.log(_this.horarios);
                         if (_this.existHorarioCarrera) {
                             sweetalert2_1["default"].fire({
-                                title: 'EL Horario de ' + _this.opcion2 + ' del ' + _this.opcion3 + ' ' + _this.periodoTipo + ' ya existe.',
+                                title: title,
                                 text: 'Por favor, si desea modificar vaya a la sección de horarios',
                                 icon: 'error',
                                 showCancelButton: true,
@@ -920,7 +929,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
             periodoTipo2 = "Ciclo";
             periodoTipo = "Semestre";
         }
-        if (this.opcion2.toLowerCase() === "Ingles") {
+        if (this.opcion2.toLowerCase() === "inglés") {
             periodoTipo = "Nivel";
         }
         var semestreText = periodoTipo + ": " + this.opcion3;
@@ -1119,6 +1128,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
             },
             margin: { top: 30 }
         });
+        doc.addPage();
         jspdf_autotable_1["default"](doc, {
             head: rowDataHead2,
             body: DataAdicional,
@@ -1128,11 +1138,10 @@ var HorarioNuevoComponent = /** @class */ (function () {
                 fontSize: 8,
                 textColor: [0, 0, 0]
             },
-            margin: { top: 50, left: 30 }
+            margin: { top: 20, left: 30 }
         });
         var rowDataHead3 = [];
         var DataFirmas = [];
-        doc.addPage();
         if (this.horario.revisado_por) {
             rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:']);
             DataFirmas.push(["", "", ""]);
@@ -1178,8 +1187,8 @@ var HorarioNuevoComponent = /** @class */ (function () {
         if (this.opcion1 === "Horario Nocturno") {
             days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
             indiceCell = 7;
-            indiceCellBorder = 16;
-            indiceCellList = 18;
+            indiceCellBorder = 17;
+            indiceCellList = 19;
             cellSize = 19;
             cellSizeBorder = 6;
         }
@@ -1232,8 +1241,15 @@ var HorarioNuevoComponent = /** @class */ (function () {
         else {
             periodoTipo = "Semestre";
         }
-        if (this.opcion2.toLowerCase() === "Ingles") {
+        if (this.opcion2.toLowerCase() === "inglés" && this.opcion1 === "Horario Diurno") {
             periodoTipo = "Nivel";
+            indiceCellBorder = 16;
+            indiceCellList = 19;
+        }
+        else if (this.opcion2.toLowerCase() === "inglés" && this.opcion1 === "Horario Nocturno") {
+            periodoTipo = "Nivel";
+            indiceCellBorder = 15;
+            indiceCellList = 19;
         }
         // Agregar el título al Excel
         worksheet.mergeCells('A4:F4'); // Fusionar 5 celdas en la primera fila
@@ -1426,44 +1442,45 @@ var HorarioNuevoComponent = /** @class */ (function () {
                     right: { style: 'thin', color: { argb: '000000' } }
                 };
             });
+            indiceCellList++;
         });
         var identificador = uuid_1.v4();
         var nombreArchivo = this.opcion1 + '-' + this.opcion2 + '-' + this.opcion3 + ("-(" + identificador + ").xlsx");
         // Agregar texto al final de la página
-        var elaboradoPor = worksheet.getCell(26, 2);
+        var elaboradoPor = worksheet.getCell(indiceCellList + 4, 2);
         elaboradoPor.value = 'Elaborado por: ';
         elaboradoPor.font = { size: 8 };
-        var nombreDirector = worksheet.getCell(29, 2);
+        var nombreDirector = worksheet.getCell(indiceCellList + 7, 2);
         nombreDirector.value = this.horario.creado_por.nombre;
         nombreDirector.font = { size: 8 };
-        var directorCarrera = worksheet.getCell(30, 2);
+        var directorCarrera = worksheet.getCell(indiceCellList + 8, 2);
         directorCarrera.value = 'Director de Carrera';
         directorCarrera.font = { size: 8 };
         // Agregar texto al final de la página
-        var revisadoPor = worksheet.getCell(26, 4);
+        var revisadoPor = worksheet.getCell(indiceCellList + 4, 4);
         revisadoPor.value = 'Revisado por: ';
         revisadoPor.font = { size: 8 };
         if (this.horario.revisado_por) {
-            var nombreRevisador = worksheet.getCell(29, 4);
+            var nombreRevisador = worksheet.getCell(indiceCellList + 7, 4);
             nombreRevisador.value = this.horario.revisado_por.nombre;
             nombreRevisador.font = { size: 8 };
         }
         else {
-            var nombreRevisador = worksheet.getCell(29, 4);
+            var nombreRevisador = worksheet.getCell(indiceCellList + 7, 4);
             nombreRevisador.value = "";
             nombreRevisador.font = { size: 8 };
         }
-        var cargoRevisador = worksheet.getCell(30, 4);
+        var cargoRevisador = worksheet.getCell(indiceCellList + 8, 4);
         cargoRevisador.value = 'Decano de Facultad';
         cargoRevisador.font = { size: 8 };
         // Agregar texto al final de la página
-        var aprobadorPor = worksheet.getCell(26, 6);
+        var aprobadorPor = worksheet.getCell(indiceCellList + 4, 6);
         aprobadorPor.value = 'Aprobado por: ';
         aprobadorPor.font = { size: 8 };
-        var nombreAprobador = worksheet.getCell(29, 6);
+        var nombreAprobador = worksheet.getCell(indiceCellList + 7, 6);
         nombreAprobador.value = this.aprobador.nombre;
         nombreAprobador.font = { size: 8 };
-        var cargoAprobador = worksheet.getCell(30, 6);
+        var cargoAprobador = worksheet.getCell(indiceCellList + 8, 6);
         cargoAprobador.value = 'Directora Académica';
         cargoAprobador.font = { size: 8 };
         workbook.xlsx.writeBuffer().then(function (buffer) {
@@ -1473,7 +1490,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
     };
     HorarioNuevoComponent.prototype.verificarHorario = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var itemsHorarioArray, arreglosHorario, identificadoresAulas, identificadoresAsignaturas, datosIguales, itemHorariosList, elementoComprobarTipo, elementoComprobarId, asig, aula, _i, arreglosHorario_2, dias, _a, dias_3, objetoElementoType, _b, dias_4, objeto, _c, elementoComprobarTipo_2, element, parejas, i, primeraTresLetras, j, index, i, asignatura, aula_2, itemsIdent, index2, i, IdAsignatura, IdAula;
+            var itemsHorarioArray, arreglosHorario, identificadoresAulas, identificadoresAsignaturas, datosIguales, itemHorariosList, elementoComprobarTipo, elementoComprobarId, asig, aula, _i, arreglosHorario_2, dias, _a, dias_3, objetoElementoType, _b, dias_4, objeto, _c, elementoComprobarTipo_2, element, parejas, i, primeraTresLetras, j, index, i, asignatura, aula_2, itemsIdent, index2, i, IdAsignatura, IdAula, realizarVerificacionHorario, swalPromise;
             var _this = this;
             return __generator(this, function (_d) {
                 switch (_d.label) {
@@ -1626,7 +1643,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
                             }
                             index2 = (index2 + 1) % itemsIdent[0].length;
                         }
-                        if (this.asignaturasFiltradas.length === 0 && this.terminoBusquedaAsignatura === "") {
+                        realizarVerificacionHorario = function () {
                             sweetalert2_1["default"].fire({
                                 title: '¿Estás seguro?',
                                 text: 'Se empezará a verificar el horario',
@@ -1644,8 +1661,10 @@ var HorarioNuevoComponent = /** @class */ (function () {
                                         itemsBDHorario = _this.horarios.map(function (verify) { return ({
                                             carrera: verify.carrera,
                                             semestre: verify.semestre,
+                                            ciclo: verify.ciclo,
                                             dia: verify.dia,
                                             paralelo: verify.paralelo,
+                                            tipoHorario: verify.tipoHorario,
                                             idAsignaturaTableVerify: verify.idTabla.map(function (idTabla) { return idTabla.idAsignatura; }),
                                             idAulaTableVerify: verify.idTabla.map(function (idTabla) { return idTabla.idAula; }),
                                             itemverifyAsignatura: verify.item.map(function (item) { return item.asignatura._id; }),
@@ -1656,10 +1675,13 @@ var HorarioNuevoComponent = /** @class */ (function () {
                                             itemHorasInico: verify.horas.map(function (item) { return item.horaInicio; }),
                                             itemHorasFin: verify.horas.map(function (item) { return item.horaFin; }),
                                             itemverifyprofesor: verify.item.map(function (item) { return item.asignatura.profesor[0]._id; }),
+                                            itemverifyprofesorCarrera: verify.item.map(function (item) { return item.asignatura.profesor[0].carrera; }),
                                             itemverifyprofesorNombre: verify.item.map(function (item) { return item.asignatura.profesor[0].nombre; })
                                         }); });
+                                        itemsBDHorario = itemsBDHorario.filter(function (item) { return !(item.carrera === _this.opcion2 && item.semestre === _this.opcion3 && item.tipoHorario === _this.opcion1 && item.ciclo === _this.opcion4 && item.paralelo === _this.opcion5); });
                                         itemsHorario = {
                                             dia: _this.horario.dia,
+                                            carrera: _this.horario.carrera,
                                             idAsignaturaTableVerify: _this.horario.idTabla.map(function (idTabla) { return idTabla.idAsignatura; }),
                                             idAulaTableVerify: _this.horario.idTabla.map(function (idTabla) { return idTabla.idAula; }),
                                             itemverifyAsignatura: _this.horario.item.map(function (item) { return item.asignatura._id; }),
@@ -1667,6 +1689,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
                                             itemverifyAulaNombre: _this.horario.item.map(function (item) { return item.aula.nombre; }),
                                             itemverifyAulaCompartida: _this.horario.item.map(function (item) { return item.aula.compartida; }),
                                             itemverifyprofesor: _this.horario.item.map(function (item) { return item.asignatura.profesor[0]._id; }),
+                                            itemverifyprofesorCarrera: _this.horario.item.map(function (item) { return item.asignatura.profesor[0].carrera; }),
                                             itemverifyprofesorNombre: _this.horario.item.map(function (item) { return item.asignatura.profesor[0].nombre; })
                                         };
                                         for (var i = 0; i < itemsHorario.dia.length; i++) {
@@ -1678,17 +1701,26 @@ var HorarioNuevoComponent = /** @class */ (function () {
                                                         if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
                                                             itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
                                                             itemsBDHorario[j].itemverifyAsignatura[k] === itemsHorario.itemverifyAsignatura[i] &&
-                                                            itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]) {
-                                                            mensaje_1 += "\n                      \n                    <strong>\u00A1Choque de aula y asignatura (Misma hora)</strong>!<br>\n                    Motivo: La misma asignatura y aula ya se asign\u00F3 en esa hora<br>\n                    <strong>Horario: " + itemsBDHorario[j].carrera + "  - " + itemsBDHorario[j].semestre + " - " + itemsBDHorario[j].paralelo + "</strong><br>\n                    Dia: " + diaActual + "<br>\n                    Hora: " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                    Asignatura: " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                    Aula: " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n                ";
+                                                            itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]
+                                                            && itemsBDHorario[j].itemverifyAulaCompartida[k] !== "Si"
+                                                            && !_this.verificarProfesorBolean) {
+                                                            mensaje_1 += "\n                      \n                    <strong>\u00A1Choque de aula y asignatura (Misma hora)</strong>!<br>\n                    Motivo: La misma asignatura y aula ya han sido asignadas en esa hora<br>\n                    <strong>Horario: " + itemsBDHorario[j].carrera + "  - " + itemsBDHorario[j].semestre + " - " + itemsBDHorario[j].paralelo + "</strong><br>\n                    Dia: " + diaActual + "<br>\n                    Hora: " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                    Asignatura: " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                    Aula: " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n                ";
                                                         }
                                                         else if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
-                                                            itemsBDHorario[j].itemverifyprofesor[k] === itemsHorario.itemverifyprofesor[i]) {
-                                                            mensaje_1 += "\n                    <strong>\u00A1Choque de profesor (Misma hora)</strong>!<br>\n                    Motivo: El profesor ya se asign\u00F3 a al misma hora para dar otra clase<br>\n                    <strong>Horario: " + itemsBDHorario[j].carrera + "  - " + itemsBDHorario[j].semestre + " - " + itemsBDHorario[j].paralelo + "</strong><br>\n                    Dia: " + diaActual + "<br>\n                    Hora: " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                    Asignatura: " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                    Aula: " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n                    Profesor: " + itemsBDHorario[j].itemverifyprofesorNombre[k] + "<br>\n                ";
+                                                            itemsBDHorario[j].itemverifyprofesor[k] === itemsHorario.itemverifyprofesor[i]
+                                                            && !_this.verificarProfesorBolean) {
+                                                            mensaje_1 += "\n                        <strong>\u00A1Choque de aula y asignatura (Misma hora)</strong>!<br>\n                        Motivo: El profesor ya ha sido asignado a la misma hora para impartir otra clase<br>\n                        <strong>Carrera:</strong> " + itemsBDHorario[j].carrera + " <br>\n                        <strong>Horario:</strong> " + itemsBDHorario[j].tipoHorario + "<br>\n                        <strong>Paralelo:</strong> " + itemsBDHorario[j].paralelo + "<br>\n                        <strong>Semestre:</strong> " + itemsBDHorario[j].semestre + " <br>\n                        <strong>Ciclo:</strong> " + itemsBDHorario[j].ciclo + "<br>Dia: " + diaActual + "<br>\n                        <strong>Hora:</strong> " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                        <strong>Asignatura:</strong> " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                        <strong>Aula:</strong> " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n                          ";
+                                                        }
+                                                        else if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
+                                                            itemsBDHorario[j].itemverifyprofesor[k] === itemsHorario.itemverifyprofesor[i]
+                                                            && !_this.verificarProfesorBolean) {
+                                                            mensaje_1 += "\n                        <strong>\u00A1Choque de profesor (Misma hora)</strong>!<br> \n                        <strong>Motivo:  </strong> El profesor ya ha sido asignado a la misma hora para impartir otra clase.<br>\n                        <strong>Surgerencia:  </strong> Asegurese si el profesor imparte a otras carreras si es asi, puede omitir la advertencia.<br>\n                        <strong>Carrera:</strong> " + itemsBDHorario[j].carrera + " <br>\n                        <strong>Horario:</strong> " + itemsBDHorario[j].tipoHorario + "<br>\n                        <strong>Paralelo:</strong> " + itemsBDHorario[j].paralelo + "<br>\n                        <strong>Semestre:</strong> " + itemsBDHorario[j].semestre + " <br>\n                        <strong>Ciclo:</strong> " + itemsBDHorario[j].ciclo + "<br> Dia: " + diaActual + "<br>\n                        <strong>Hora:</strong> " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                        <strong>Asignatura:</strong> " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                        <strong>Aula:</strong> " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n                        <strong>Profesor:</strong> " + itemsBDHorario[j].itemverifyprofesorNombre[k] + "<br>\n                    ";
                                                         }
                                                         else if (itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
                                                             itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]
-                                                            && itemsBDHorario[j].itemverifyAulaCompartida[k] !== "Si")
-                                                            mensaje_1 += "\n                  <strong>\u00A1Choque de aula (Misma hora)</strong>!<br>\n                  Motivo: El aula ya se asign\u00F3 para otra asignatura<br>\n                  <strong>Horario: " + itemsBDHorario[j].carrera + "  - " + itemsBDHorario[j].semestre + " - " + itemsBDHorario[j].paralelo + "</strong><br>\n                  Dia: " + diaActual + "<br>\n                  Hora: " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                  Asignatura: " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                  Aula: " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n                  Profesor: " + itemsBDHorario[j].itemverifyprofesorNombre[k] + "<br>\n              ";
+                                                            && itemsBDHorario[j].itemverifyAulaCompartida[k] !== "Si") {
+                                                            mensaje_1 += "\n                        <strong>\u00A1Choque de aula (Misma hora)</strong>!<br>\n                        Motivo: El aula ya ha sido asignada para otra asignatura<br>\n                        <strong>Carrera:</strong> " + itemsBDHorario[j].carrera + " <br>\n                        <strong>Horario:</strong> " + itemsBDHorario[j].tipoHorario + "<br>\n                        <strong>Paralelo:</strong> " + itemsBDHorario[j].paralelo + "<br>\n                        <strong>Semestre:</strong> " + itemsBDHorario[j].semestre + " <br>\n                        <strong>Ciclo:</strong> " + itemsBDHorario[j].ciclo + "<br> Dia: " + diaActual + "<br>\n                        <strong>Hora:</strong> " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                        <strong>Asignatura:</strong> " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                        <strong>Aula:</strong> " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n                        <strong>Profesor:</strong> " + itemsBDHorario[j].itemverifyprofesorNombre[k] + "<br>\n                    ";
+                                                        }
                                                     }
                                                 }
                                             }
@@ -1728,6 +1760,7 @@ var HorarioNuevoComponent = /** @class */ (function () {
                                             _this.isActiveBtn = false;
                                             _this.isActiveBtnG = false;
                                         }
+                                        _this.verificarrProfesor();
                                         if (datosIguales && !_this.existHorarioCarrera && parejas.length !== 0 && mensaje_1 === "") {
                                             _this.status = 'success';
                                             sweetalert2_1["default"].fire('Horario Verificado', 'El horario esta correctamente', 'success');
@@ -1735,15 +1768,15 @@ var HorarioNuevoComponent = /** @class */ (function () {
                                         }
                                     }
                                     else if (parejas.length === 0) {
-                                        sweetalert2_1["default"].fire('Horario Rechazado', 'Por favor, rellene las asignaturas y aulas correctamente', 'error');
+                                        sweetalert2_1["default"].fire('Horario Rechazado', 'Por favor, complete correctamente las asignaturas y las aulas. Debe haber al menos una asignatura y un aula en la casilla correspondiente.', 'error');
                                         _this.isActiveBtn = false;
                                     }
                                     else if (!datosIguales) {
-                                        sweetalert2_1["default"].fire('Horario no verificado', 'Por favor, debe contener en cada celda una asignatura y una aula', 'error');
+                                        sweetalert2_1["default"].fire('Horario no verificado', 'Por favor, asegúrese de ingresar una asignatura y un aula en la celda correspondiente.', 'error');
                                         _this.isActiveBtn = false;
                                     }
                                     else if (_this.existHorarioCarrera) {
-                                        sweetalert2_1["default"].fire('EL ' + _this.opcion1 + ' de ' + _this.opcion2 + ' del ' + _this.opcion3 + ' semestre ya existe', 'Por favor, si desea modificar vaya a la sección de horarios', 'error');
+                                        sweetalert2_1["default"].fire('EL ' + _this.opcion1 + ' de ' + _this.opcion2 + ' del ' + _this.opcion3 + ' semestre ya existe', 'Por favor, si desea modificarlo, vaya a la sección de horarios', 'error');
                                         _this.isActiveBtn = false;
                                     }
                                 }
@@ -1751,9 +1784,32 @@ var HorarioNuevoComponent = /** @class */ (function () {
                                     sweetalert2_1["default"].fire('Operación cancelada', 'El horario no ha sido verificado', 'warning');
                                 }
                             });
+                        };
+                        if (!this.verificarAsignaturasBolean && this.asignaturasFiltradas.length !== 0) {
+                            swalPromise = new Promise(function (resolve, reject) {
+                                sweetalert2_1["default"].fire({
+                                    title: 'Advertencia',
+                                    text: 'Faltan asignaturas por colocar',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Aceptar',
+                                    cancelButtonText: 'Omitir'
+                                }).then(function (result) {
+                                    if (result.isConfirmed) {
+                                        resolve(false);
+                                    }
+                                    else if (result.dismiss === sweetalert2_1["default"].DismissReason.cancel) {
+                                        resolve(true);
+                                        realizarVerificacionHorario();
+                                    }
+                                });
+                            });
+                            swalPromise.then(function (value) {
+                                _this.verificarAsignaturasBolean = value;
+                            });
                         }
                         else {
-                            sweetalert2_1["default"].fire('Horario no verificado', 'Por favor, debe colocar todas las asignaturas.', 'error');
+                            realizarVerificacionHorario();
                         }
                         return [2 /*return*/];
                 }
@@ -1762,145 +1818,126 @@ var HorarioNuevoComponent = /** @class */ (function () {
     };
     HorarioNuevoComponent.prototype.verificarDiaPresencialVirtual = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var arreglosHorario, identificadoresAulas, identificadoresAsignaturas, elementoComprobarTipo, elementoComprobarId, asig, aula, grupoAsigPoId, _i, arreglosHorario_3, dias, _a, dias_5, objetoElementoType, _b, dias_6, objetoElementoType, elemento, primerDigito, _c, dias_7, objeto;
+            var arreglosHorario, identificadoresAulas, identificadoresAsignaturas, elementoComprobarTipo, elementoComprobarId, asig, aula, grupoAsigPoId, _i, arreglosHorario_3, dias, _a, dias_5, objetoElementoType, _b, dias_6, objetoElementoType, elemento, primerDigito;
             var _this = this;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
-                    case 0:
-                        this.aulaHorario = [];
-                        this.asignaturaHorario = [];
-                        this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
-                        arreglosHorario = [];
-                        arreglosHorario = [
-                            this.monday,
-                            this.tuesday,
-                            this.wednesday,
-                            this.thursday,
-                            this.friday,
-                            this.saturday
-                        ];
-                        identificadoresAulas = [];
-                        identificadoresAsignaturas = [];
-                        if (this.opcion1 == "Horario Diurno") {
-                            this.horario.tipoHorario = "Horario Diurno";
+            return __generator(this, function (_c) {
+                this.aulaHorario = [];
+                this.asignaturaHorario = [];
+                this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
+                arreglosHorario = [];
+                arreglosHorario = [
+                    this.monday,
+                    this.tuesday,
+                    this.wednesday,
+                    this.thursday,
+                    this.friday,
+                    this.saturday
+                ];
+                identificadoresAulas = [];
+                identificadoresAsignaturas = [];
+                if (this.opcion1 == "Horario Diurno") {
+                    this.horario.tipoHorario = "Horario Diurno";
+                }
+                else {
+                    this.horario.tipoHorario = "Horario Nocturno";
+                }
+                this.horario.carrera = this.opcion2;
+                this.horario.semestre = this.opcion3;
+                elementoComprobarTipo = [];
+                elementoComprobarId = [];
+                asig = 0;
+                aula = 0;
+                grupoAsigPoId = [];
+                for (_i = 0, arreglosHorario_3 = arreglosHorario; _i < arreglosHorario_3.length; _i++) {
+                    dias = arreglosHorario_3[_i];
+                    dias.sort(function (a, b) {
+                        // Convierte las horas de inicio y fin a objetos Date para poder compararlas
+                        var dateAStart = new Date('1970/01/01 ' + a.hourStart.trim());
+                        var dateBStart = new Date('1970/01/01 ' + b.hourStart.trim());
+                        var dateAEnd = new Date('1970/01/01 ' + a.hourEnd.trim());
+                        var dateBEnd = new Date('1970/01/01 ' + b.hourEnd.trim());
+                        // Compara las horas de inicio y fin y devuelve el resultado de la comparación
+                        if (dateAStart < dateBStart) {
+                            return -1;
+                        }
+                        else if (dateAStart > dateBStart) {
+                            return 1;
+                        }
+                        else if (dateAEnd < dateBEnd) {
+                            return -1;
+                        }
+                        else if (dateAEnd > dateBEnd) {
+                            return 1;
                         }
                         else {
-                            this.horario.tipoHorario = "Horario Nocturno";
+                            return 0;
                         }
-                        this.horario.carrera = this.opcion2;
-                        this.horario.semestre = this.opcion3;
-                        elementoComprobarTipo = [];
-                        elementoComprobarId = [];
-                        asig = 0;
-                        aula = 0;
-                        grupoAsigPoId = [];
-                        _i = 0, arreglosHorario_3 = arreglosHorario;
-                        _d.label = 1;
-                    case 1:
-                        if (!(_i < arreglosHorario_3.length)) return [3 /*break*/, 8];
-                        dias = arreglosHorario_3[_i];
-                        dias.sort(function (a, b) {
-                            // Convierte las horas de inicio y fin a objetos Date para poder compararlas
-                            var dateAStart = new Date('1970/01/01 ' + a.hourStart.trim());
-                            var dateBStart = new Date('1970/01/01 ' + b.hourStart.trim());
-                            var dateAEnd = new Date('1970/01/01 ' + a.hourEnd.trim());
-                            var dateBEnd = new Date('1970/01/01 ' + b.hourEnd.trim());
-                            // Compara las horas de inicio y fin y devuelve el resultado de la comparación
-                            if (dateAStart < dateBStart) {
-                                return -1;
-                            }
-                            else if (dateAStart > dateBStart) {
-                                return 1;
-                            }
-                            else if (dateAEnd < dateBEnd) {
-                                return -1;
-                            }
-                            else if (dateAEnd > dateBEnd) {
-                                return 1;
+                    });
+                    for (_a = 0, dias_5 = dias; _a < dias_5.length; _a++) {
+                        objetoElementoType = dias_5[_a];
+                        elementoComprobarTipo.push(objetoElementoType.elementoType);
+                        elementoComprobarId.push(objetoElementoType.identificador);
+                    }
+                    for (_b = 0, dias_6 = dias; _b < dias_6.length; _b++) {
+                        objetoElementoType = dias_6[_b];
+                        elemento = objetoElementoType;
+                        primerDigito = elemento.identificador.toString()[0];
+                        if (objetoElementoType.identificador.includes("aula")) {
+                            if (grupoAsigPoId[primerDigito]) {
+                                grupoAsigPoId[primerDigito].push(elemento);
                             }
                             else {
-                                return 0;
-                            }
-                        });
-                        for (_a = 0, dias_5 = dias; _a < dias_5.length; _a++) {
-                            objetoElementoType = dias_5[_a];
-                            elementoComprobarTipo.push(objetoElementoType.elementoType);
-                            elementoComprobarId.push(objetoElementoType.identificador);
-                        }
-                        for (_b = 0, dias_6 = dias; _b < dias_6.length; _b++) {
-                            objetoElementoType = dias_6[_b];
-                            elemento = objetoElementoType;
-                            primerDigito = elemento.identificador.toString()[0];
-                            if (objetoElementoType.identificador.includes("aula")) {
-                                if (grupoAsigPoId[primerDigito]) {
-                                    grupoAsigPoId[primerDigito].push(elemento);
-                                }
-                                else {
-                                    grupoAsigPoId[primerDigito] = [elemento];
-                                }
+                                grupoAsigPoId[primerDigito] = [elemento];
                             }
                         }
-                        _c = 0, dias_7 = dias;
-                        _d.label = 2;
-                    case 2:
-                        if (!(_c < dias_7.length)) return [3 /*break*/, 7];
-                        objeto = dias_7[_c];
-                        if (!objeto.identificador.includes("aula")) return [3 /*break*/, 4];
-                        identificadoresAulas.push(objeto.identificador);
-                        return [4 /*yield*/, this.getAulaId(objeto.item._id)];
-                    case 3:
-                        _d.sent();
-                        _d.label = 4;
-                    case 4:
-                        if (!objeto.identificador.includes("asignatura")) return [3 /*break*/, 6];
-                        this.horario.dia.push(objeto.dayName);
-                        this.horario.horas.push({ horaInicio: objeto.hourStart, horaFin: objeto.hourEnd });
-                        identificadoresAsignaturas.push(objeto.identificador);
-                        return [4 /*yield*/, this.getAsignaturaId(objeto.item._id)];
-                    case 5:
-                        _d.sent();
-                        _d.label = 6;
-                    case 6:
-                        _c++;
-                        return [3 /*break*/, 2];
-                    case 7:
-                        _i++;
-                        return [3 /*break*/, 1];
-                    case 8:
-                        grupoAsigPoId.forEach(function (subArray) {
-                            var isValid = true; // Variable para verificar si el día es válido
-                            var zoomExist = subArray.some(function (element) { return element.item.ubicacion && element.item.ubicacion.toLowerCase() === 'zoom'; });
-                            if (zoomExist) {
-                                var hasOtherThanZoom = subArray.some(function (element) { return element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'zoom'; });
-                                if (hasOtherThanZoom) {
-                                    isValid = false;
+                    }
+                }
+                grupoAsigPoId.forEach(function (subArray) {
+                    var isValid = true; // Variable para verificar si el día es válido
+                    var zoomExist = subArray.some(function (element) { return element.item.ubicacion && element.item.ubicacion.toLowerCase() === 'zoom'; });
+                    if (zoomExist) {
+                        var hasOtherThanZoom = subArray.some(function (element) { return element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'zoom'; });
+                        if (hasOtherThanZoom) {
+                            isValid = false;
+                        }
+                    }
+                    var Dias = {
+                        0: 'Lunes',
+                        1: 'Martes',
+                        2: 'Miércoles',
+                        3: 'Jueves',
+                        4: 'Viernes',
+                        5: 'Sábado'
+                    };
+                    var dia;
+                    // Verificar si el día es válido
+                    if (!_this.verificarDiaPresencialVirtualBolean) {
+                        if (!isValid) {
+                            subArray.forEach(function (element) {
+                                if (element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'zoom') {
+                                    dia = parseInt(element.identificador.toString()[0]);
                                 }
-                            }
-                            var Dias = {
-                                0: 'Lunes',
-                                1: 'Martes',
-                                2: 'Miércoles',
-                                3: 'Jueves',
-                                4: 'Viernes',
-                                5: 'Sábado'
-                            };
-                            var dia;
-                            // Verificar si el día es válido
-                            if (!_this.verificarDiaPresencialVirtualBolean) {
-                                if (!isValid) {
-                                    subArray.forEach(function (element) {
-                                        if (element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'zoom') {
-                                            dia = parseInt(element.identificador.toString()[0]);
-                                        }
-                                    });
-                                    var swalPromise = new Promise(function (resolve, reject) {
+                            });
+                            var swalPromise = new Promise(function (resolve, reject) {
+                                sweetalert2_1["default"].fire({
+                                    title: 'Advertencia',
+                                    text: 'Hay clases presenciales y virtuales en el mismo día: ' + Dias[dia],
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Aceptar',
+                                    cancelButtonText: 'Quitar Advertencia'
+                                }).then(function (result) {
+                                    if (result.isConfirmed) {
+                                        resolve(false);
+                                    }
+                                    else if (result.dismiss === sweetalert2_1["default"].DismissReason.cancel) {
                                         sweetalert2_1["default"].fire({
-                                            title: 'Advertencia',
-                                            text: 'Hay clases presenciales y virtuales en el mismo día en el dia: ' + Dias[dia],
+                                            title: '¿Estás seguro?',
+                                            html: 'Una vez que acepte, la advertencia no volverá a aparecer a menos que actualice la página',
                                             icon: 'warning',
                                             showCancelButton: true,
-                                            confirmButtonText: 'Aceptar',
-                                            cancelButtonText: 'Quitar Advertencia'
+                                            confirmButtonText: 'Cancelar',
+                                            cancelButtonText: 'Aceptar'
                                         }).then(function (result) {
                                             if (result.isConfirmed) {
                                                 resolve(false);
@@ -1909,28 +1946,179 @@ var HorarioNuevoComponent = /** @class */ (function () {
                                                 resolve(true);
                                             }
                                         });
-                                    });
-                                    swalPromise.then(function (value) {
-                                        _this.verificarDiaPresencialVirtualBolean = value;
-                                    });
-                                }
-                            }
-                        });
-                        return [2 /*return*/];
-                }
+                                    }
+                                });
+                            });
+                            swalPromise.then(function (value) {
+                                _this.verificarDiaPresencialVirtualBolean = value;
+                            });
+                        }
+                    }
+                });
+                return [2 /*return*/];
             });
         });
     };
     HorarioNuevoComponent.prototype.verificarAulaUbicacion = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var arreglosHorario, identificadoresAulas, identificadoresAsignaturas, elementoComprobarTipo, elementoComprobarId, asig, aula, grupoAsigPoId, _i, arreglosHorario_4, dias, _a, dias_8, objetoElementoType, _b, dias_9, objetoElementoType, elemento, primerDigito, _c, dias_10, objeto;
+            var arreglosHorario, identificadoresAulas, identificadoresAsignaturas, elementoComprobarTipo, elementoComprobarId, asig, aula, grupoAsigPoId, _i, arreglosHorario_4, dias, _a, dias_7, objetoElementoType, _b, dias_8, objetoElementoType, elemento, primerDigito;
+            var _this = this;
+            return __generator(this, function (_c) {
+                this.aulaHorario = [];
+                this.asignaturaHorario = [];
+                this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
+                arreglosHorario = [];
+                arreglosHorario = [
+                    this.monday,
+                    this.tuesday,
+                    this.wednesday,
+                    this.thursday,
+                    this.friday,
+                    this.saturday
+                ];
+                identificadoresAulas = [];
+                identificadoresAsignaturas = [];
+                if (this.opcion1 == "Horario Diurno") {
+                    this.horario.tipoHorario = "Horario Diurno";
+                }
+                else {
+                    this.horario.tipoHorario = "Horario Nocturno";
+                }
+                this.horario.carrera = this.opcion2;
+                this.horario.semestre = this.opcion3;
+                this.horario.ciclo = this.opcion4;
+                elementoComprobarTipo = [];
+                elementoComprobarId = [];
+                asig = 0;
+                aula = 0;
+                grupoAsigPoId = [];
+                for (_i = 0, arreglosHorario_4 = arreglosHorario; _i < arreglosHorario_4.length; _i++) {
+                    dias = arreglosHorario_4[_i];
+                    dias.sort(function (a, b) {
+                        // Convierte las horas de inicio y fin a objetos Date para poder compararlas
+                        var dateAStart = new Date('1970/01/01 ' + a.hourStart.trim());
+                        var dateBStart = new Date('1970/01/01 ' + b.hourStart.trim());
+                        var dateAEnd = new Date('1970/01/01 ' + a.hourEnd.trim());
+                        var dateBEnd = new Date('1970/01/01 ' + b.hourEnd.trim());
+                        // Compara las horas de inicio y fin y devuelve el resultado de la comparación
+                        if (dateAStart < dateBStart) {
+                            return -1;
+                        }
+                        else if (dateAStart > dateBStart) {
+                            return 1;
+                        }
+                        else if (dateAEnd < dateBEnd) {
+                            return -1;
+                        }
+                        else if (dateAEnd > dateBEnd) {
+                            return 1;
+                        }
+                        else {
+                            return 0;
+                        }
+                    });
+                    for (_a = 0, dias_7 = dias; _a < dias_7.length; _a++) {
+                        objetoElementoType = dias_7[_a];
+                        elementoComprobarTipo.push(objetoElementoType.elementoType);
+                        elementoComprobarId.push(objetoElementoType.identificador);
+                    }
+                    for (_b = 0, dias_8 = dias; _b < dias_8.length; _b++) {
+                        objetoElementoType = dias_8[_b];
+                        elemento = objetoElementoType;
+                        primerDigito = elemento.identificador.toString()[0];
+                        if (objetoElementoType.identificador.includes("aula")) {
+                            if (grupoAsigPoId[primerDigito]) {
+                                grupoAsigPoId[primerDigito].push(elemento);
+                            }
+                            else {
+                                grupoAsigPoId[primerDigito] = [elemento];
+                            }
+                        }
+                    }
+                }
+                grupoAsigPoId.forEach(function (subArray) {
+                    var isValid = true; // Variable para verificar si el día es válido
+                    var zoomExist = subArray.some(function (element) { return element.item.ubicacion && element.item.ubicacion.toLowerCase() === 'zoom'; });
+                    if (!zoomExist) {
+                        var colon = subArray.some(function (element) { return element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus colon'; });
+                        if (colon) {
+                            var norte = subArray.some(function (element) { return element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus norte'; });
+                            if (norte) {
+                                isValid = false;
+                            }
+                        }
+                    }
+                    var Dias = {
+                        0: 'Lunes',
+                        1: 'Martes',
+                        2: 'Miércoles',
+                        3: 'Jueves',
+                        4: 'Viernes',
+                        5: 'Sábado'
+                    };
+                    var dia;
+                    // Verificar si el día es válido
+                    if (!_this.verificarAulaUbicacionBolean) {
+                        if (!isValid) {
+                            subArray.forEach(function (element) {
+                                if (element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'colon') {
+                                    dia = parseInt(element.identificador.toString()[0]);
+                                }
+                            });
+                            var swalPromise = new Promise(function (resolve, reject) {
+                                sweetalert2_1["default"].fire({
+                                    title: 'Advertencia',
+                                    text: 'Hay aulas en diferentes ubicaciones (norte y colon) en el mismo día: ' + Dias[dia] + '.',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Aceptar',
+                                    cancelButtonText: 'Quitar Advertencia'
+                                }).then(function (result) {
+                                    if (result.isConfirmed) {
+                                        resolve(false);
+                                    }
+                                    else if (result.dismiss === sweetalert2_1["default"].DismissReason.cancel) {
+                                        sweetalert2_1["default"].fire({
+                                            title: '¿Estás seguro?',
+                                            html: 'Una vez que acepte, la advertencia no volverá a aparecer a menos que actualice la página',
+                                            icon: 'warning',
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Cancelar',
+                                            cancelButtonText: 'Aceptar'
+                                        }).then(function (result) {
+                                            if (result.isConfirmed) {
+                                                resolve(false);
+                                            }
+                                            else if (result.dismiss === sweetalert2_1["default"].DismissReason.cancel) {
+                                                resolve(true);
+                                            }
+                                        });
+                                    }
+                                });
+                            });
+                            swalPromise.then(function (value) {
+                                _this.verificarAulaUbicacionBolean = value;
+                            });
+                        }
+                    }
+                });
+                return [2 /*return*/];
+            });
+        });
+    };
+    HorarioNuevoComponent.prototype.verificarrProfesor = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var itemsHorarioArray, arreglosHorario, identificadoresAulas, identificadoresAsignaturas, datosIguales, itemHorariosList, elementoComprobarTipo, elementoComprobarId, asig, aula, _i, arreglosHorario_5, dias, _a, dias_9, objetoElementoType, _b, dias_10, objeto, _c, elementoComprobarTipo_3, element, parejas, i, primeraTresLetras, j, index, i, asignatura, aula_3, itemsIdent, index2, i, IdAsignatura, IdAula, itemsBDHorario, itemsHorario, mensaje, i, diaActual, j, k, swalPromise;
             var _this = this;
             return __generator(this, function (_d) {
                 switch (_d.label) {
-                    case 0:
+                    case 0: return [4 /*yield*/, this.getHorarios()];
+                    case 1:
+                        _d.sent();
                         this.aulaHorario = [];
                         this.asignaturaHorario = [];
                         this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
+                        itemsHorarioArray = [];
                         arreglosHorario = [];
                         arreglosHorario = [
                             this.monday,
@@ -1942,6 +2130,8 @@ var HorarioNuevoComponent = /** @class */ (function () {
                         ];
                         identificadoresAulas = [];
                         identificadoresAsignaturas = [];
+                        datosIguales = false;
+                        itemHorariosList = [];
                         if (this.opcion1 == "Horario Diurno") {
                             this.horario.tipoHorario = "Horario Diurno";
                         }
@@ -1950,17 +2140,15 @@ var HorarioNuevoComponent = /** @class */ (function () {
                         }
                         this.horario.carrera = this.opcion2;
                         this.horario.semestre = this.opcion3;
-                        this.horario.ciclo = this.opcion4;
                         elementoComprobarTipo = [];
                         elementoComprobarId = [];
                         asig = 0;
                         aula = 0;
-                        grupoAsigPoId = [];
-                        _i = 0, arreglosHorario_4 = arreglosHorario;
-                        _d.label = 1;
-                    case 1:
-                        if (!(_i < arreglosHorario_4.length)) return [3 /*break*/, 8];
-                        dias = arreglosHorario_4[_i];
+                        _i = 0, arreglosHorario_5 = arreglosHorario;
+                        _d.label = 2;
+                    case 2:
+                        if (!(_i < arreglosHorario_5.length)) return [3 /*break*/, 9];
+                        dias = arreglosHorario_5[_i];
                         dias.sort(function (a, b) {
                             // Convierte las horas de inicio y fin a objetos Date para poder compararlas
                             var dateAStart = new Date('1970/01/01 ' + a.hourStart.trim());
@@ -1984,103 +2172,182 @@ var HorarioNuevoComponent = /** @class */ (function () {
                                 return 0;
                             }
                         });
-                        for (_a = 0, dias_8 = dias; _a < dias_8.length; _a++) {
-                            objetoElementoType = dias_8[_a];
+                        for (_a = 0, dias_9 = dias; _a < dias_9.length; _a++) {
+                            objetoElementoType = dias_9[_a];
                             elementoComprobarTipo.push(objetoElementoType.elementoType);
                             elementoComprobarId.push(objetoElementoType.identificador);
                         }
-                        for (_b = 0, dias_9 = dias; _b < dias_9.length; _b++) {
-                            objetoElementoType = dias_9[_b];
-                            elemento = objetoElementoType;
-                            primerDigito = elemento.identificador.toString()[0];
-                            if (objetoElementoType.identificador.includes("aula")) {
-                                if (grupoAsigPoId[primerDigito]) {
-                                    grupoAsigPoId[primerDigito].push(elemento);
-                                }
-                                else {
-                                    grupoAsigPoId[primerDigito] = [elemento];
-                                }
-                            }
-                        }
-                        _c = 0, dias_10 = dias;
-                        _d.label = 2;
-                    case 2:
-                        if (!(_c < dias_10.length)) return [3 /*break*/, 7];
-                        objeto = dias_10[_c];
-                        if (!objeto.identificador.includes("aula")) return [3 /*break*/, 4];
+                        _b = 0, dias_10 = dias;
+                        _d.label = 3;
+                    case 3:
+                        if (!(_b < dias_10.length)) return [3 /*break*/, 8];
+                        objeto = dias_10[_b];
+                        if (!objeto.identificador.includes("aula")) return [3 /*break*/, 5];
                         identificadoresAulas.push(objeto.identificador);
                         return [4 /*yield*/, this.getAulaId(objeto.item._id)];
-                    case 3:
-                        _d.sent();
-                        _d.label = 4;
                     case 4:
-                        if (!objeto.identificador.includes("asignatura")) return [3 /*break*/, 6];
+                        _d.sent();
+                        _d.label = 5;
+                    case 5:
+                        if (!objeto.identificador.includes("asignatura")) return [3 /*break*/, 7];
                         this.horario.dia.push(objeto.dayName);
                         this.horario.horas.push({ horaInicio: objeto.hourStart, horaFin: objeto.hourEnd });
                         identificadoresAsignaturas.push(objeto.identificador);
+                        console.log(objeto.item._id);
                         return [4 /*yield*/, this.getAsignaturaId(objeto.item._id)];
-                    case 5:
-                        _d.sent();
-                        _d.label = 6;
                     case 6:
-                        _c++;
-                        return [3 /*break*/, 2];
+                        _d.sent();
+                        _d.label = 7;
                     case 7:
-                        _i++;
-                        return [3 /*break*/, 1];
+                        _b++;
+                        return [3 /*break*/, 3];
                     case 8:
-                        grupoAsigPoId.forEach(function (subArray) {
-                            var isValid = true; // Variable para verificar si el día es válido
-                            var zoomExist = subArray.some(function (element) { return element.item.ubicacion && element.item.ubicacion.toLowerCase() === 'zoom'; });
-                            if (!zoomExist) {
-                                var colon = subArray.some(function (element) { return element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus colon'; });
-                                if (colon) {
-                                    var norte = subArray.some(function (element) { return element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus norte'; });
-                                    if (norte) {
-                                        isValid = false;
+                        _i++;
+                        return [3 /*break*/, 2];
+                    case 9:
+                        for (_c = 0, elementoComprobarTipo_3 = elementoComprobarTipo; _c < elementoComprobarTipo_3.length; _c++) {
+                            element = elementoComprobarTipo_3[_c];
+                            if (element === "asignatura") {
+                                asig++;
+                            }
+                            else {
+                                aula++;
+                            }
+                        }
+                        if (asig === aula) {
+                            datosIguales = true;
+                        }
+                        parejas = [];
+                        for (i = 0; i < elementoComprobarId.length; i++) {
+                            primeraTresLetras = elementoComprobarId[i].substring(0, 3);
+                            for (j = i + 1; j < elementoComprobarId.length; j++) {
+                                if (elementoComprobarId[j].substring(0, 3) === primeraTresLetras) {
+                                    parejas.push(j);
+                                    break;
+                                }
+                            }
+                        }
+                        if (parejas.length !== elementoComprobarId.length / 2 && parejas.length !== 0) {
+                            datosIguales = false;
+                        }
+                        itemsHorarioArray = [
+                            this.asignaturaHorario,
+                            this.aulaHorario
+                        ];
+                        index = 0;
+                        this.horario.item = [];
+                        for (i = 0; i < itemsHorarioArray[0].length || i < itemsHorarioArray[1].length; i++) {
+                            if (itemsHorarioArray[0][index]) {
+                                asignatura = void 0;
+                                asignatura = itemsHorarioArray[0][index];
+                                aula_3 = void 0;
+                                aula_3 = itemsHorarioArray[1][index];
+                                this.horario.item.push({ asignatura: asignatura, aula: aula_3 });
+                            }
+                            index = (index + 1) % itemsHorarioArray[0].length;
+                        }
+                        itemsIdent = [];
+                        itemsIdent = [
+                            identificadoresAsignaturas,
+                            identificadoresAulas
+                        ];
+                        index2 = 0;
+                        for (i = 0; i < itemsIdent[0].length || i < itemsIdent[1].length; i++) {
+                            if (itemsIdent[0][index2]) {
+                                IdAsignatura = itemsIdent[0][index2];
+                                IdAula = itemsIdent[1][index2];
+                                this.horario.idTabla.push({ idAsignatura: IdAsignatura, idAula: IdAula });
+                            }
+                            index2 = (index2 + 1) % itemsIdent[0].length;
+                        }
+                        itemsBDHorario = [];
+                        itemsHorario = null;
+                        mensaje = "";
+                        if (!this.existHorarioCarrera) {
+                            itemsBDHorario = this.horarios.map(function (verify) { return ({
+                                carrera: verify.carrera,
+                                semestre: verify.semestre,
+                                ciclo: verify.ciclo,
+                                dia: verify.dia,
+                                paralelo: verify.paralelo,
+                                tipoHorario: verify.tipoHorario,
+                                idAsignaturaTableVerify: verify.idTabla.map(function (idTabla) { return idTabla.idAsignatura; }),
+                                idAulaTableVerify: verify.idTabla.map(function (idTabla) { return idTabla.idAula; }),
+                                itemverifyAsignatura: verify.item.map(function (item) { return item.asignatura._id; }),
+                                itemverifyAsignaturaNombre: verify.item.map(function (item) { return item.asignatura.nombre; }),
+                                itemverifyAula: verify.item.map(function (item) { return item.aula._id; }),
+                                itemverifyAulaNombre: verify.item.map(function (item) { return item.aula.nombre; }),
+                                itemverifyAulaCompartida: verify.item.map(function (item) { return item.aula.compartida; }),
+                                itemHorasInico: verify.horas.map(function (item) { return item.horaInicio; }),
+                                itemHorasFin: verify.horas.map(function (item) { return item.horaFin; }),
+                                itemverifyprofesor: verify.item.map(function (item) { return item.asignatura.profesor[0]._id; }),
+                                itemverifyprofesorCarrera: verify.item.map(function (item) { return item.asignatura.profesor[0].carrera; }),
+                                itemverifyprofesorNombre: verify.item.map(function (item) { return item.asignatura.profesor[0].nombre; })
+                            }); });
+                            itemsBDHorario = itemsBDHorario.filter(function (item) { return !(item.carrera === _this.opcion2 && item.semestre === _this.opcion3 && item.tipoHorario === _this.opcion1 && item.ciclo === _this.opcion4 && item.paralelo === _this.opcion5); });
+                            console.log(itemsBDHorario);
+                            itemsHorario = {
+                                dia: this.horario.dia,
+                                carrera: this.horario.carrera,
+                                idAsignaturaTableVerify: this.horario.idTabla.map(function (idTabla) { return idTabla.idAsignatura; }),
+                                itemverifyAsignatura: this.horario.item.map(function (item) { return item.asignatura._id; }),
+                                itemverifyprofesor: this.horario.item.map(function (item) { return item.asignatura.profesor[0]._id; }),
+                                itemverifyprofesorCarrera: this.horario.item.map(function (item) { return item.asignatura.profesor[0].carrera; }),
+                                itemverifyprofesorNombre: this.horario.item.map(function (item) { return item.asignatura.profesor[0].nombre; })
+                            };
+                            for (i = 0; i < itemsHorario.dia.length; i++) {
+                                diaActual = "";
+                                diaActual = itemsHorario.dia[i];
+                                for (j = 0; j < itemsBDHorario.length; j++) {
+                                    if (itemsBDHorario[j].dia.includes(diaActual)) {
+                                        // Iterar todos los elementos de los arrays que coinciden con el día actual
+                                        for (k = 0; k < itemsBDHorario[j].idAsignaturaTableVerify.length; k++) {
+                                            if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
+                                                itemsBDHorario[j].itemverifyprofesor[k] === itemsHorario.itemverifyprofesor[i]) {
+                                                console.log(itemsBDHorario[j]);
+                                                mensaje += "\n                  <strong>\u00A1Choque de profesor (Misma hora)</strong>!<br>\n                  <strong>Motivo:  </strong> El profesor ya ha sido asignado a la misma hora para impartir otra clase.<br>\n                  <strong>Surgerencia:  </strong> Asegurese si el profesor imparte a otras carreras si es asi, puede omitir la advertencia.<br>\n                  <strong>Carrera:</strong> " + itemsBDHorario[j].carrera + " <br>\n                  <strong>Horario:</strong> " + itemsBDHorario[j].tipoHorario + "<br>\n                  <strong>Paralelo:</strong> " + itemsBDHorario[j].paralelo + "<br>\n                  <strong>Semestre:</strong> " + itemsBDHorario[j].semestre + " <br>\n                  <strong>Ciclo:</strong> " + itemsBDHorario[j].ciclo + "<br>\n                  <strong>Dia:</strong> " + diaActual + "<br>\n                  <strong>Hora:</strong> " + itemsBDHorario[j].itemHorasInico[k] + " - " + itemsBDHorario[j].itemHorasFin[k] + "<br>\n                  <strong>Asignatura:</strong> " + itemsBDHorario[j].itemverifyAsignaturaNombre[k] + "<br>\n                  <strong>Aula:</strong> " + itemsBDHorario[j].itemverifyAulaNombre[k] + "<br>\n                  <strong>Profesor:</strong> " + itemsBDHorario[j].itemverifyprofesorNombre[k] + "<br>\n              ";
+                                            }
+                                        }
                                     }
                                 }
                             }
-                            var Dias = {
-                                0: 'Lunes',
-                                1: 'Martes',
-                                2: 'Miércoles',
-                                3: 'Jueves',
-                                4: 'Viernes',
-                                5: 'Sábado'
-                            };
-                            var dia;
-                            // Verificar si el día es válido
-                            if (!_this.verificarAulaUbicacionBolean) {
-                                if (!isValid) {
-                                    subArray.forEach(function (element) {
-                                        if (element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'colon') {
-                                            dia = parseInt(element.identificador.toString()[0]);
+                            if (!this.verificarProfesorBolean && mensaje !== "") {
+                                swalPromise = new Promise(function (resolve, reject) {
+                                    sweetalert2_1["default"].fire({
+                                        title: 'Advertencia',
+                                        html: "<div style=\"height: 250px; overflow-y: auto\">" + mensaje + "</div>",
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Aceptar',
+                                        cancelButtonText: 'Quitar Advertencia'
+                                    }).then(function (result) {
+                                        if (result.isConfirmed) {
+                                            resolve(false);
+                                        }
+                                        else if (result.dismiss === sweetalert2_1["default"].DismissReason.cancel) {
+                                            sweetalert2_1["default"].fire({
+                                                title: '¿Estás seguro?',
+                                                html: 'Una vez que acepte, la advertencia no volverá a aparecer a menos que actualice la página',
+                                                icon: 'warning',
+                                                showCancelButton: true,
+                                                confirmButtonText: 'Cancelar',
+                                                cancelButtonText: 'Aceptar'
+                                            }).then(function (result) {
+                                                if (result.isConfirmed) {
+                                                    resolve(false);
+                                                }
+                                                else if (result.dismiss === sweetalert2_1["default"].DismissReason.cancel) {
+                                                    resolve(true);
+                                                }
+                                            });
                                         }
                                     });
-                                    var swalPromise = new Promise(function (resolve, reject) {
-                                        sweetalert2_1["default"].fire({
-                                            title: 'Advertencia',
-                                            text: 'Hay aulas en diferentes ubicaciones (norte y colon) en el mismo día: ' + Dias[dia] + '.',
-                                            icon: 'warning',
-                                            showCancelButton: true,
-                                            confirmButtonText: 'Aceptar',
-                                            cancelButtonText: 'Quitar Advertencia'
-                                        }).then(function (result) {
-                                            if (result.isConfirmed) {
-                                                resolve(false);
-                                            }
-                                            else if (result.dismiss === sweetalert2_1["default"].DismissReason.cancel) {
-                                                resolve(true);
-                                            }
-                                        });
-                                    });
-                                    swalPromise.then(function (value) {
-                                        _this.verificarAulaUbicacionBolean = value;
-                                    });
-                                }
+                                });
+                                swalPromise.then(function (value) {
+                                    _this.verificarProfesorBolean = value;
+                                });
                             }
-                        });
+                        }
                         return [2 /*return*/];
                 }
             });

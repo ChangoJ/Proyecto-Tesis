@@ -27,7 +27,7 @@
             <div formArrayName="carreras">
                 <div *ngFor="let carrera of getCarrerasFormControls(); let i = index">
                     <mat-form-field>
-                        <input matInput [formControlName]="i" pattern="[A-Za-z0-9 ]*" required>
+                        <input matInput [formControlName]="i" pattern="[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ ]*" required>
                     </mat-form-field>
                     <button mat-icon-button color="warn" (click)="removerCarreras(i)">
                         <mat-icon>remove</mat-icon>

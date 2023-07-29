@@ -10,7 +10,7 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field *ngIf="selectedCarrera !== 'Ingles' ">
+    <mat-form-field *ngIf="selectedCarrera !== 'Inglés' ">
       <mat-label>Semestres</mat-label>
       <mat-select [(value)]="selectedSemestre">
         <mat-option *ngFor="let semestre of semestres" [value]="semestre.textField">
@@ -18,7 +18,7 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field *ngIf="selectedCarrera !== 'Ingles' && periodoTIpo === 'Ciclo'">
+    <mat-form-field *ngIf="selectedCarrera !== 'Inglés' && periodoTIpo === 'Ciclo'">
       <mat-label>{{periodoTIpo}}</mat-label>
       <mat-select [(value)]="selectedCiclo">
         <mat-option *ngFor="let ciclo of ciclos" [value]="ciclo.textField">
@@ -26,7 +26,7 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-  <mat-form-field *ngIf="selectedCarrera === 'Ingles'">
+  <mat-form-field *ngIf="selectedCarrera === 'Inglés'">
     <mat-label>Nivel</mat-label>
     <mat-select [(value)]="selectedSemestre">
       <mat-option *ngFor="let periodo of periodosIngles" [value]="periodo">

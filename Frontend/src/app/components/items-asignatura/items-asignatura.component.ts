@@ -86,6 +86,11 @@ export class ItemsAsignaturaComponent {
 
   }
 
+  eliminarTildes(palabra: string): string {
+    console.log(palabra.normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
+    return palabra.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
   getAsignaturas() {
     this.asignaturasObtenidos = []
 

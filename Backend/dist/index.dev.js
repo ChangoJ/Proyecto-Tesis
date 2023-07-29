@@ -2,7 +2,9 @@
 
 var mongoose = require('mongoose');
 
-var app = require('./app');
+var _require = require('./app'),
+    app = _require.app,
+    server = _require.server;
 
 var port = 3900;
 
@@ -17,7 +19,7 @@ mongoose.connect('mongodb://localhost:27017/sistema_creacion_horarios', {
 
   app.use(cors()); // Crear servidor y recibir peticiones HTTP
 
-  app.listen(port, function () {
+  server.listen(port, function () {
     console.log("Servidor Exitoso http://localhost:" + port);
   });
 });

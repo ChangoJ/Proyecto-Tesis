@@ -53,6 +53,10 @@ var ItemsAsignaturaComponent = /** @class */ (function () {
             _this.semestres = semestres;
         });
     };
+    ItemsAsignaturaComponent.prototype.eliminarTildes = function (palabra) {
+        console.log(palabra.normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+        return palabra.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    };
     ItemsAsignaturaComponent.prototype.getAsignaturas = function () {
         var _this = this;
         this.asignaturasObtenidos = [];
@@ -144,7 +148,7 @@ var ItemsAsignaturaComponent = /** @class */ (function () {
         }
         if (this.selectedSemestre !== undefined) {
             asignaturasFiltrados = asignaturasFiltrados.filter(function (asignatura) {
-                return asignatura.semestre.some(function (semestre) { return semestre.toLowerCase() === _this.selectedSemestre.toLowerCase(); });
+                return asignatura.semestre.some(function (semestre) { return semestre.toLowerCase() === _this.selectedSemestre.toLowerCase(); }) || asignatura.ciclo.some(function (ciclo) { return ciclo.toLowerCase() === _this.selectedSemestre.toLowerCase(); });
             });
         }
         if (this.selectedHorario !== undefined) {
@@ -168,7 +172,7 @@ var ItemsAsignaturaComponent = /** @class */ (function () {
             if (asignaturasFiltrados.length === 0) {
                 var terminosBusquedaSeparados = terminosBusqueda.split(' ');
                 regexBusqueda_1 = new RegExp("(" + terminosBusquedaSeparados.join('|') + ")", 'gi');
-                asignaturasFiltrados = this.carrerasFiltradas.filter(function (asignaturas) {
+                asignaturasFiltrados = asignaturasFiltrados.filter(function (asignaturas) {
                     return asignaturas.nombre.toString().toLowerCase().match(regexBusqueda_1) ||
                         asignaturas.profesor[0].nombre.toString().toLowerCase().match(regexBusqueda_1) ||
                         asignaturas.creditos.toString().toLowerCase().match(regexBusqueda_1) ||
@@ -191,7 +195,7 @@ var ItemsAsignaturaComponent = /** @class */ (function () {
         core_1.Input()
     ], ItemsAsignaturaComponent.prototype, "asignaturas");
     __decorate([
-        core_1.ViewChild('paginatorAs', { static: true })
+        core_1.ViewChild('paginatorAs', { static: false })
     ], ItemsAsignaturaComponent.prototype, "paginator");
     ItemsAsignaturaComponent = __decorate([
         core_1.Component({

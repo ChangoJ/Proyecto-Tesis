@@ -17,7 +17,7 @@ var AppComponent = /** @class */ (function () {
         this._authService = _authService;
         this.title = 'sistema-web-creacion-de-horarios-unibe';
         this.inactivityTimeout = 5 * 60 * 60 * 1000;
-        this.secondWarningTimeout = 12 * 60 * 60 * 1000;
+        this.secondWarningTimeout = 6 * 60 * 60 * 1000;
         this.firstWarningShown = false;
         this.resetTimeout();
     }

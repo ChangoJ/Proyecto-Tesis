@@ -26,8 +26,7 @@ var controller = {
                 message: 'Faltan datos por enviar'
             });
         }
-        if (validate_nombre && validate_horario && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color) {
-
+        if (validate_nombre && validate_horario && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color && (params.creditos !== null && params.creditos !== undefined && Number.isInteger(params.creditos) && params.creditos !== 0 && params.creditos <= 20)) {
 
             //Crear el objeto a guardar
             var asignatura1 = new asignatura();
@@ -43,6 +42,7 @@ var controller = {
             asignatura1.color = params.color;
             asignatura1.paralelo = params.paralelo;
             asignatura1.ciclo = params.ciclo;
+            asignatura1.creditos = params.creditos;
 
 
 
@@ -97,7 +97,7 @@ var controller = {
 
      
 
-        if (validate_nombre && validate_horario && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color && (params.creditos !== null && params.creditos !== undefined && Number.isInteger(params.creditos) && params.creditos !== 0 && params.creditos < 10)) {
+        if (validate_nombre && validate_horario && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color && (params.creditos !== null && params.creditos !== undefined && Number.isInteger(params.creditos) && params.creditos !== 0 && params.creditos <= 20)) {
 
             var promises = params.profesor.map((profesor) => {
                 return new Promise((resolve, reject) => {
@@ -305,7 +305,7 @@ var controller = {
                     "carrera": { "$regex": searchString, "$options": "i" }
                 },
                 {
-                    "semestre": { "$regex": search2Int, "$options": "i" }
+                    "semestre": { "$regex": "^" + search2Int + "$", "$options": "i" }
                 }
             ]
         })
@@ -339,15 +339,15 @@ var controller = {
                     "carrera": { "$regex": searchString, "$options": "i" }
                 },
                 {
-                    "semestre": { "$regex": search2Int, "$options": "i" }
+                    "semestre": { "$regex": "^" + search2Int + "$", "$options": "i" }
                 },
                 {
                     "$or": [
                         {
-                            "paralelo": { "$regex": search3String, "$options": "i" }
+                            "paralelo": { "$regex": "^" + search3String + "$", "$options": "i" }
                         },
                         {
-                            "ciclo": { "$regex": search3String, "$options": "i" }
+                            "ciclo": { "$regex": "^" +search3String + "$", "$options": "i" }
                         }
                     ]
                 }
@@ -385,13 +385,13 @@ var controller = {
                     "carrera": { "$regex": searchString, "$options": "i" }
                 },
                 {
-                    "semestre": { "$regex": search2Int, "$options": "i" }
+                    "semestre": { "$regex": "^" +search2Int + "$", "$options": "i" }
                 },
                 {
-                    "ciclo": { "$regex": search3String, "$options": "i" }
+                    "ciclo": { "$regex": "^" +search3String + "$", "$options": "i" }
                 },
                 {
-                    "paralelo": { "$regex": search4String, "$options": "i" }
+                    "paralelo": { "$regex": "^" +search4String + "$", "$options": "i" }
                 }
             ]
         })

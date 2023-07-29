@@ -116,9 +116,9 @@ var AsignaturaEditComponent = /** @class */ (function () {
         };
     }
     AsignaturaEditComponent.prototype.ngOnInit = function () {
-        this.getAsignatura();
-        this.getProfesores();
         this.getDataDetalles();
+        this.getProfesores();
+        this.getAsignatura();
     };
     AsignaturaEditComponent.prototype.getDataDetalles = function () {
         var _this = this;
@@ -179,7 +179,6 @@ var AsignaturaEditComponent = /** @class */ (function () {
         if (this.itemHorarioEdit.length !== 0) {
             this.asignatura.horario = this.itemHorarioEdit[0].textField;
         }
-        console.log(this.asignatura);
         if (this.asignatura.nombre === ""
             || this.asignatura.abreviatura === ""
             || this.asignatura.color === ""
@@ -217,9 +216,7 @@ var AsignaturaEditComponent = /** @class */ (function () {
         this.asignatura.abreviatura = this.formatearTexto(this.asignatura.nombre);
     };
     AsignaturaEditComponent.prototype.formatearTexto = function (texto) {
-        console.log(texto);
         var palabras = texto.split(' ');
-        console.log(palabras);
         var resultado = palabras.map(function (palabra) {
             if (palabra.length > 1) {
                 return palabra.substring(0, 2).toUpperCase();
@@ -260,7 +257,7 @@ var AsignaturaEditComponent = /** @class */ (function () {
                     _this.selectedParalelos = _this.paralelos.filter(function (paralelo) { return _this.asignatura.paralelo.includes(paralelo.textField); });
                     _this.selectedSemestres = _this.semestres.filter(function (semestre) { return _this.asignatura.semestre.includes(semestre.textField); });
                     _this.selectedCiclos = _this.ciclos.filter(function (ciclo) { return _this.asignatura.ciclo.includes(ciclo.textField); });
-                    if (_this.selectedCarreras[0].textField === "Ingles" && _this.selectedCarreras.length === 1) {
+                    if (_this.selectedCarreras[0].textField.toLowerCase().includes("inglés") && _this.selectedCarreras.length === 1) {
                         _this.selectedSemestres = _this.periodosIngles.filter(function (semestre) { return _this.asignatura.semestre.includes(semestre.textField); });
                     }
                 }

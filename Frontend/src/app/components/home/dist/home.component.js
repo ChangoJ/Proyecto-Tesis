@@ -48,23 +48,30 @@ var HomeComponent = /** @class */ (function () {
             var opcion4 = params['opcion4'];
             var opcion5 = params['opcion5'];
             if (params['opcion1'] === "Horario_Nocturno") {
-                periodoTipo = "Ciclo";
+                periodoTipo = "ciclo";
                 horario = "Nocturno";
             }
             else {
                 periodoTipo = "semestre";
                 horario = "Diurno";
             }
+            if (opcion2 === "Inglés") {
+                periodoTipo = "nivel";
+            }
             if (opcion2 !== "undefined" && opcion3 !== "undefined") {
                 var opcion2_1 = params['opcion2'];
                 opcion2_1 = opcion2_1.replace(/_/g, " ");
                 var opcion3_1 = params['opcion3'];
                 opcion3_1 = opcion3_1.replace(/_/g, " ");
+                console.log(opcion2_1);
+                console.log(opcion3_1);
                 if (opcion2_1 && opcion3_1 && !opcion4) {
                     _this._asignaturaService.search(opcion2_1, opcion3_1).subscribe(function (response) {
+                        console.log(response);
                         if (response.asignaturas) {
                             var asignaturas = [];
                             asignaturas = response.asignaturas;
+                            console.log(asignaturas);
                             asignaturas.forEach(function (asignatura) {
                                 if (asignatura.horario === horario && asignatura.paralelo.length === 0 && asignatura.ciclo.length === 0) {
                                     _this.is_horario = true;
@@ -123,15 +130,14 @@ var HomeComponent = /** @class */ (function () {
                             });
                             /* this.is_horario = true */
                             if (!_this.is_horario) {
-                                sweetalert2_1["default"].fire('Horario ' + horario + ' de la Carrera de ' + opcion2_1 + ' del ' + periodoTipo + ' ' + opcion3_1 + ' del paralelo ' + opcion5, 'No hay asignaturas para mostrar', 'error');
+                                sweetalert2_1["default"].fire('Horario ' + horario + ' de la Carrera de ' + opcion2_1 + ' del semestre ' + opcion3_1 + ' ' + periodoTipo + ' ' + opcion4 + ' paralelo ' + opcion5, 'No hay asignaturas para mostrar', 'error');
                             }
                         }
                         else {
                             _this.is_horario = false;
                         }
                     }, function (error) {
-                        console.log("her");
-                        sweetalert2_1["default"].fire('Horario ' + horario + ' de la Carrera de ' + opcion2_1 + ' del ' + periodoTipo + ' ' + opcion3_1 + ' del paralelo ' + opcion5, error.error.message, 'error');
+                        sweetalert2_1["default"].fire('Horario ' + horario + ' de la Carrera de ' + opcion2_1 + ' del semestre ' + opcion3_1 + ' ' + periodoTipo + ' ' + opcion4 + ' paralelo ' + opcion5, 'No hay asignaturas para mostrar', 'error');
                     });
                 }
             }

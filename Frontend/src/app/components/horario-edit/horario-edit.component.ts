@@ -49,7 +49,9 @@ export class HorarioEditComponent {
   public isActiveBtnV = false
   public opcionVerHorario = false
   public verificarDiaPresencialVirtualBolean: boolean = false;
+  public verificarAsignaturasBolean: boolean = false;
   public verificarAulaUbicacionBolean: boolean = false;
+  public verificarProfesorBolean: boolean = false;
   public authToken!: any;
   public userData!: any;
   public usuario!: any;
@@ -176,7 +178,7 @@ export class HorarioEditComponent {
           } else {
             this.periodoTipo = "semestre"
           }
-          if (this.opcion2 === "Ingles") {
+          if (this.opcion2 === "Inglés") {
 
             this.periodoTipo = "Nivel"
           }
@@ -639,13 +641,14 @@ export class HorarioEditComponent {
           event.container.data,
           event.previousIndex,
           event.currentIndex,
+
         )
+
       }
-
-
 
       this.verificarDiaPresencialVirtual()
       this.verificarAulaUbicacion()
+      this.verificarrProfesor()
 
       if (this.terminoBusquedaAsignatura === "" && newItem.dayName === undefined && !newItem.item.compartida) {
 
@@ -701,307 +704,6 @@ export class HorarioEditComponent {
 
     }
 
-
-  }
-
-  async verificarDiaPresencialVirtual() {
-    this.aulaHorario = []
-    this.asignaturaHorario = []
-    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
-    let arreglosHorario = []
-    arreglosHorario = [
-      this.monday,
-      this.tuesday,
-      this.wednesday,
-      this.thursday,
-      this.friday,
-      this.saturday
-    ]
-
-    let identificadoresAulas = []
-    let identificadoresAsignaturas = []
-    if (this.opcion1 == "Horario Diurno") {
-      this.horario.tipoHorario = "Horario Diurno"
-    } else {
-      this.horario.tipoHorario = "Horario Nocturno"
-    }
-
-    this.horario.carrera = this.opcion2
-    this.horario.semestre = this.opcion3
-
-    let elementoComprobarTipo: any = []
-    let elementoComprobarId: any = []
-    let asig: number = 0
-    let aula: number = 0
-
-    let grupoAsigPoId: any = []
-    for (const dias of arreglosHorario) {
-      dias.sort(function (a, b) {
-        // Convierte las horas de inicio y fin a objetos Date para poder compararlas
-        const dateAStart = new Date('1970/01/01 ' + a.hourStart.trim());
-        const dateBStart = new Date('1970/01/01 ' + b.hourStart.trim());
-        const dateAEnd = new Date('1970/01/01 ' + a.hourEnd.trim());
-        const dateBEnd = new Date('1970/01/01 ' + b.hourEnd.trim());
-
-        // Compara las horas de inicio y fin y devuelve el resultado de la comparación
-        if (dateAStart < dateBStart) {
-          return -1;
-        } else if (dateAStart > dateBStart) {
-          return 1;
-        } else if (dateAEnd < dateBEnd) {
-          return -1;
-        } else if (dateAEnd > dateBEnd) {
-          return 1;
-        } else {
-          return 0;
-        }
-      });
-
-      for (const objetoElementoType of dias) {
-        elementoComprobarTipo.push(objetoElementoType.elementoType)
-        elementoComprobarId.push(objetoElementoType.identificador)
-      }
-      for (let objetoElementoType of dias) {
-        let elemento = objetoElementoType;
-        let primerDigito = elemento.identificador.toString()[0];
-        if (objetoElementoType.identificador.includes("aula")) {
-
-
-          if (grupoAsigPoId[primerDigito]) {
-            grupoAsigPoId[primerDigito].push(elemento);
-          } else {
-            grupoAsigPoId[primerDigito] = [elemento];
-          }
-        }
-      }
-
-      for (const objeto of dias) {
-        if (objeto.identificador.includes("aula")) {
-          identificadoresAulas.push(objeto.identificador)
-          await this.getAulaId(objeto.item._id)
-        }
-
-        if (objeto.identificador.includes("asignatura")) {
-          this.horario.dia.push(objeto.dayName)
-          this.horario.horas.push({ horaInicio: objeto.hourStart, horaFin: objeto.hourEnd });
-          identificadoresAsignaturas.push(objeto.identificador)
-          await this.getAsignaturaId(objeto.item._id)
-        }
-      }
-    }
-
-
-    grupoAsigPoId.forEach((subArray: any[]) => {
-      let isValid = true; // Variable para verificar si el día es válido
-
-      let zoomExist = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() === 'zoom');
-
-      if (zoomExist) {
-        let hasOtherThanZoom = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'zoom');
-
-        if (hasOtherThanZoom) {
-          isValid = false;
-
-        }
-      }
-
-      let Dias: any = {
-        0: 'Lunes',
-        1: 'Martes',
-        2: 'Miércoles',
-        3: 'Jueves',
-        4: 'Viernes',
-        5: 'Sábado'
-      };
-
-      let dia: any
-      // Verificar si el día es válido
-      if (!this.verificarDiaPresencialVirtualBolean) {
-        if (!isValid) {
-          subArray.forEach(element => {
-            if (element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'zoom') {
-              dia = parseInt(element.identificador.toString()[0])
-            }
-          });
-          let swalPromise = new Promise((resolve, reject) => {
-            Swal.fire({
-              title: 'Advertencia',
-              text: 'Hay clases presenciales y virtuales en el mismo día en el dia: ' + Dias[dia],
-              icon: 'warning',
-              showCancelButton: true,
-              confirmButtonText: 'Aceptar',
-              cancelButtonText: 'Quitar Advertencia'
-            }).then((result) => {
-              if (result.isConfirmed) {
-                resolve(false);
-              } else if (result.dismiss === Swal.DismissReason.cancel) {
-                resolve(true);
-              }
-            });
-          });
-
-          swalPromise.then((value: any) => {
-            this.verificarDiaPresencialVirtualBolean = value;
-          });
-        }
-      }
-
-    });
-
-  }
-
-  async verificarAulaUbicacion() {
-    this.aulaHorario = []
-    this.asignaturaHorario = []
-    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
-    let arreglosHorario = []
-    arreglosHorario = [
-      this.monday,
-      this.tuesday,
-      this.wednesday,
-      this.thursday,
-      this.friday,
-      this.saturday
-    ]
-
-    let identificadoresAulas = []
-    let identificadoresAsignaturas = []
-    if (this.opcion1 == "Horario Diurno") {
-      this.horario.tipoHorario = "Horario Diurno"
-    } else {
-      this.horario.tipoHorario = "Horario Nocturno"
-    }
-
-    this.horario.carrera = this.opcion2
-    this.horario.semestre = this.opcion3
-
-    let elementoComprobarTipo: any = []
-    let elementoComprobarId: any = []
-    let asig: number = 0
-    let aula: number = 0
-
-    let grupoAsigPoId: any = []
-    for (const dias of arreglosHorario) {
-      dias.sort(function (a, b) {
-        // Convierte las horas de inicio y fin a objetos Date para poder compararlas
-        const dateAStart = new Date('1970/01/01 ' + a.hourStart.trim());
-        const dateBStart = new Date('1970/01/01 ' + b.hourStart.trim());
-        const dateAEnd = new Date('1970/01/01 ' + a.hourEnd.trim());
-        const dateBEnd = new Date('1970/01/01 ' + b.hourEnd.trim());
-
-        // Compara las horas de inicio y fin y devuelve el resultado de la comparación
-        if (dateAStart < dateBStart) {
-          return -1;
-        } else if (dateAStart > dateBStart) {
-          return 1;
-        } else if (dateAEnd < dateBEnd) {
-          return -1;
-        } else if (dateAEnd > dateBEnd) {
-          return 1;
-        } else {
-          return 0;
-        }
-      });
-
-      for (const objetoElementoType of dias) {
-        elementoComprobarTipo.push(objetoElementoType.elementoType)
-        elementoComprobarId.push(objetoElementoType.identificador)
-      }
-      for (let objetoElementoType of dias) {
-        let elemento = objetoElementoType;
-        let primerDigito = elemento.identificador.toString()[0];
-        if (objetoElementoType.identificador.includes("aula")) {
-
-
-          if (grupoAsigPoId[primerDigito]) {
-            grupoAsigPoId[primerDigito].push(elemento);
-          } else {
-            grupoAsigPoId[primerDigito] = [elemento];
-          }
-        }
-      }
-
-      for (const objeto of dias) {
-        if (objeto.identificador.includes("aula")) {
-          identificadoresAulas.push(objeto.identificador)
-          await this.getAulaId(objeto.item._id)
-        }
-
-        if (objeto.identificador.includes("asignatura")) {
-          this.horario.dia.push(objeto.dayName)
-          this.horario.horas.push({ horaInicio: objeto.hourStart, horaFin: objeto.hourEnd });
-          identificadoresAsignaturas.push(objeto.identificador)
-          await this.getAsignaturaId(objeto.item._id)
-        }
-      }
-    }
-
-
-
-    grupoAsigPoId.forEach((subArray: any[]) => {
-      let isValid = true; // Variable para verificar si el día es válido
-
-      let zoomExist = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() === 'zoom');
-
-      if (!zoomExist) {
-        let colon = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus colon');
-
-        if (colon) {
-          let norte = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus norte');
-
-          if (norte) {
-            isValid = false;
-
-          }
-
-        }
-      }
-
-      let Dias: any = {
-        0: 'Lunes',
-        1: 'Martes',
-        2: 'Miércoles',
-        3: 'Jueves',
-        4: 'Viernes',
-        5: 'Sábado'
-      };
-
-      let dia: any
-      // Verificar si el día es válido
-      if (!this.verificarAulaUbicacionBolean) {
-        if (!isValid) {
-          subArray.forEach(element => {
-            if (element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'colon') {
-              dia = parseInt(element.identificador.toString()[0])
-            }
-          });
-
-          let swalPromise = new Promise((resolve, reject) => {
-            Swal.fire({
-              title: 'Advertencia',
-              text: 'Hay aulas en diferentes ubicaciones (norte y colon) en el mismo día: ' + Dias[dia] + '.',
-              icon: 'warning',
-              showCancelButton: true,
-              confirmButtonText: 'Aceptar',
-              cancelButtonText: 'Quitar Advertencia'
-            }).then((result) => {
-              if (result.isConfirmed) {
-                resolve(false);
-              } else if (result.dismiss === Swal.DismissReason.cancel) {
-                resolve(true);
-              }
-            });
-          });
-
-          swalPromise.then((value: any) => {
-            this.verificarAulaUbicacionBolean = value;
-
-
-          });
-        }
-      }
-
-    });
 
   }
 
@@ -1085,7 +787,7 @@ export class HorarioEditComponent {
       this.periodoTipo = "ciclo"
     }
 
-    if (this.opcion2 === "Ingles") {
+    if (this.opcion2 === "Inglés") {
 
       this.periodoTipo = "Nivel"
     }
@@ -1399,7 +1101,7 @@ export class HorarioEditComponent {
       periodoTipo = "Semestre"
     }
 
-    if (this.opcion2.toLowerCase() === "ingles") {
+    if (this.opcion2.toLowerCase() === "inglés") {
 
       periodoTipo = "Nivel"
     }
@@ -1652,6 +1354,9 @@ export class HorarioEditComponent {
     });
 
 
+
+    doc.addPage();
+
     autoTable(doc, {
       head: rowDataHead2,
       body: DataAdicional,
@@ -1661,7 +1366,7 @@ export class HorarioEditComponent {
         fontSize: 8,
         textColor: [0, 0, 0]
       },
-      margin: { left: 30 },
+      margin: { left: 20 },
 
     });
 
@@ -1670,7 +1375,6 @@ export class HorarioEditComponent {
 
     let DataFirmas: any = [];
 
-    doc.addPage();
 
     if (this.horario.revisado_por) {
       rowDataHead3.push(['Elaborado por:', 'Revisado por:', 'Aprobado por:'])
@@ -1794,13 +1498,13 @@ export class HorarioEditComponent {
     } else {
       periodoTipo = "Semestre"
     }
-    if (this.opcion2.toLowerCase() === "ingles" && this.opcion1 === "Horario Diurno") {
+    if (this.opcion2.toLowerCase() === "inglés" && this.opcion1 === "Horario Diurno") {
 
       periodoTipo = "Nivel"
 
       indiceCellBorder = 16
       indiceCellList = 19
-    } else if (this.opcion2.toLowerCase() === "ingles" && this.opcion1 === "Horario Nocturno") {
+    } else if (this.opcion2.toLowerCase() === "inglés" && this.opcion1 === "Horario Nocturno") {
       periodoTipo = "Nivel"
       indiceCellBorder = 15
       indiceCellList = 19
@@ -2242,7 +1946,8 @@ export class HorarioEditComponent {
       }
       index2 = (index2 + 1) % itemsIdent[0].length;
     }
-    if (this.asignaturasFiltradas.length === 0 && this.terminoBusquedaAsignatura === "") {
+
+    const realizarVerificacionHorario = () => {
       Swal.fire({
         title: '¿Estás seguro?',
         text: 'Se empezará a verificar el horario',
@@ -2259,10 +1964,10 @@ export class HorarioEditComponent {
           let mensaje = "";
 
           if (datosIguales && parejas.length !== 0) {
-            console.log(this.horario)
             itemsBDHorario = this.horarios.map(verify => ({
               carrera: verify.carrera,
               semestre: verify.semestre,
+              ciclo: verify.ciclo,
               dia: verify.dia,
               paralelo: verify.paralelo,
               tipoHorario: verify.tipoHorario,
@@ -2281,7 +1986,8 @@ export class HorarioEditComponent {
             }));
 
 
-            itemsBDHorario = itemsBDHorario.filter(item => !(item.carrera === this.opcion2 && item.semestre === this.opcion3 && item.tipoHorario === this.opcion1));
+            itemsBDHorario = itemsBDHorario.filter(item => !(item.carrera === this.opcion2 && item.semestre === this.opcion3 && item.tipoHorario === this.opcion1 && item.ciclo === this.opcion4 && item.paralelo === this.opcion5));
+
 
 
             itemsHorario = {
@@ -2312,34 +2018,42 @@ export class HorarioEditComponent {
                     if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
                       itemsBDHorario[j].idAulaTableVerify[k] === itemsHorario.idAulaTableVerify[i] &&
                       itemsBDHorario[j].itemverifyAsignatura[k] === itemsHorario.itemverifyAsignatura[i] &&
-                      itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i]) {
+                      itemsBDHorario[j].itemverifyAula[k] === itemsHorario.itemverifyAula[i] && !this.verificarProfesorBolean) {
 
                       mensaje += `
-                      
                         <strong>¡Choque de aula y asignatura (Misma hora)</strong>!<br>
-                        Motivo: La misma asignatura y aula ya se asignó en esa hora<br>
-                        <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre} - ${itemsBDHorario[j].paralelo}</strong><br>
-                        Dia: ${diaActual}<br>
-                        Hora: ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
-                        Asignatura: ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
-                        Aula: ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
+                        Motivo: El profesor ya ha sido asignado a la misma hora para impartir otra clase<br>
+                        <strong>Carrera:</strong> ${itemsBDHorario[j].carrera} <br>
+                        <strong>Horario:</strong> ${itemsBDHorario[j].tipoHorario}<br>
+                        <strong>Paralelo:</strong> ${itemsBDHorario[j].paralelo}<br>
+                        <strong>Semestre:</strong> ${itemsBDHorario[j].semestre} <br>
+                        <strong>Ciclo:</strong> ${itemsBDHorario[j].ciclo}<br>Dia: ${diaActual}<br>
+                        <strong>Hora:</strong> ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
+                        <strong>Asignatura:</strong> ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
+                        <strong>Aula:</strong> ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
                     `;
 
                     } else if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
-                      itemsBDHorario[j].itemverifyprofesor[k] === itemsHorario.itemverifyprofesor[i]) {
+                      itemsBDHorario[j].itemverifyprofesor[k] === itemsHorario.itemverifyprofesor[i]
+                      && !this.verificarProfesorBolean) {
 
 
 
                       mensaje += `
-                        <strong>¡Choque de profesor (Misma hora)</strong>!<br>
-                        Motivo: El profesor ya se asignó a al misma hora para dar otra clase<br>
-                        <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre} - ${itemsBDHorario[j].paralelo}</strong><br>
-                        Dia: ${diaActual}<br>
-                        Hora: ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
-                        Asignatura: ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
-                        Aula: ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
-                        Profesor: ${itemsBDHorario[j].itemverifyprofesorNombre[k]}<br>
+                        <strong>¡Choque de profesor (Misma hora)</strong>!<br> 
+                        <strong>Motivo:  </strong> El profesor ya ha sido asignado a la misma hora para impartir otra clase.<br>
+                        <strong>Surgerencia:  </strong> Asegurese si el profesor imparte a otras carreras si es asi, puede omitir la advertencia.<br>
+                        <strong>Carrera:</strong> ${itemsBDHorario[j].carrera} <br>
+                        <strong>Horario:</strong> ${itemsBDHorario[j].tipoHorario}<br>
+                        <strong>Paralelo:</strong> ${itemsBDHorario[j].paralelo}<br>
+                        <strong>Semestre:</strong> ${itemsBDHorario[j].semestre} <br>
+                        <strong>Ciclo:</strong> ${itemsBDHorario[j].ciclo}<br> Dia: ${diaActual}<br>
+                        <strong>Hora:</strong> ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
+                        <strong>Asignatura:</strong> ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
+                        <strong>Aula:</strong> ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
+                        <strong>Profesor:</strong> ${itemsBDHorario[j].itemverifyprofesorNombre[k]}<br>
                     `;
+
 
 
 
@@ -2351,13 +2065,16 @@ export class HorarioEditComponent {
 
                       mensaje += `
                   <strong>¡Choque de aula (Misma hora)</strong>!<br>
-                  Motivo: El aula ya se asignó para otra asignatura<br>
-                  <strong>Horario: ${itemsBDHorario[j].carrera}  - ${itemsBDHorario[j].semestre} - ${itemsBDHorario[j].paralelo}</strong><br>
-                  Dia: ${diaActual}<br>
-                  Hora: ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
-                  Asignatura: ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
-                  Aula: ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
-                  Profesor: ${itemsBDHorario[j].itemverifyprofesorNombre[k]}<br>
+                  Motivo: El aula ya ha sido asignada para otra asignatura<br>
+                  <strong>Carrera:</strong> ${itemsBDHorario[j].carrera} <br>
+                  <strong>Horario:</strong> ${itemsBDHorario[j].tipoHorario}<br>
+                  <strong>Paralelo:</strong> ${itemsBDHorario[j].paralelo}<br>
+                  <strong>Semestre:</strong> ${itemsBDHorario[j].semestre} <br>
+                  <strong>Ciclo:</strong> ${itemsBDHorario[j].ciclo}<br> Dia: ${diaActual}<br>
+                  <strong>Hora:</strong> ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
+                  <strong>Asignatura:</strong> ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
+                  <strong>Aula:</strong> ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
+                  <strong>Profesor:</strong> ${itemsBDHorario[j].itemverifyprofesorNombre[k]}<br>
               `;
 
 
@@ -2414,6 +2131,7 @@ export class HorarioEditComponent {
 
 
 
+            this.verificarrProfesor()
             if (datosIguales && parejas.length !== 0 && mensaje === "") {
 
               this.status = 'success'
@@ -2431,32 +2149,601 @@ export class HorarioEditComponent {
           } else if (parejas.length === 0) {
             Swal.fire(
               'Horario Rechazado',
-              'Por favor, rellene las asignaturas y aulas correctamente',
+              'Por favor, complete correctamente las asignaturas y las aulas. Debe haber al menos una asignatura y un aula en la casilla correspondiente.',
+
               'error'
             )
             this.isActiveBtn = false
           } else if (!datosIguales) {
             Swal.fire(
               'Horario no creado',
-              'Por favor, debe contener en cada celda una asignatura y una aula',
+              'Por favor, asegúrese de ingresar una asignatura y un aula en la celda correspondiente.',
               'error'
             )
             this.isActiveBtn = false
           }
 
         } else {
-          Swal.fire('Operación cancelada', 'El horario no ha sido creado', 'warning');
-
+          Swal.fire(
+            'Operación cancelada',
+            'El horario no ha sido verificado',
+            'warning');
         }
       });
-    } else {
-      Swal.fire(
-        'Horario no verificado',
-        'Por favor, debe colocar todas las asignaturas.',
-        'error'
-      )
+
     }
+
+    if (!this.verificarAsignaturasBolean && this.asignaturasFiltradas.length !== 0) {
+      let swalPromise = new Promise((resolve, reject) => {
+        Swal.fire({
+          title: 'Advertencia',
+          text: 'Faltan asignaturas por colocar',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Aceptar',
+          cancelButtonText: 'Omitir'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            resolve(false);
+          } else if (result.dismiss === Swal.DismissReason.cancel) {
+            resolve(true);
+            realizarVerificacionHorario()
+          }
+        });
+      });
+
+      swalPromise.then((value: any) => {
+        this.verificarAsignaturasBolean = value;
+      });
+
+    } else {
+      realizarVerificacionHorario()
+    }
+
   }
 
 
+  async verificarDiaPresencialVirtual() {
+    this.aulaHorario = []
+    this.asignaturaHorario = []
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
+    let arreglosHorario = []
+    arreglosHorario = [
+      this.monday,
+      this.tuesday,
+      this.wednesday,
+      this.thursday,
+      this.friday,
+      this.saturday
+    ]
+
+    let identificadoresAulas = []
+    let identificadoresAsignaturas = []
+    if (this.opcion1 == "Horario Diurno") {
+      this.horario.tipoHorario = "Horario Diurno"
+    } else {
+      this.horario.tipoHorario = "Horario Nocturno"
+    }
+
+    this.horario.carrera = this.opcion2
+    this.horario.semestre = this.opcion3
+
+    let elementoComprobarTipo: any = []
+    let elementoComprobarId: any = []
+    let asig: number = 0
+    let aula: number = 0
+
+    let grupoAsigPoId: any = []
+    for (const dias of arreglosHorario) {
+      dias.sort(function (a, b) {
+        // Convierte las horas de inicio y fin a objetos Date para poder compararlas
+        const dateAStart = new Date('1970/01/01 ' + a.hourStart.trim());
+        const dateBStart = new Date('1970/01/01 ' + b.hourStart.trim());
+        const dateAEnd = new Date('1970/01/01 ' + a.hourEnd.trim());
+        const dateBEnd = new Date('1970/01/01 ' + b.hourEnd.trim());
+
+        // Compara las horas de inicio y fin y devuelve el resultado de la comparación
+        if (dateAStart < dateBStart) {
+          return -1;
+        } else if (dateAStart > dateBStart) {
+          return 1;
+        } else if (dateAEnd < dateBEnd) {
+          return -1;
+        } else if (dateAEnd > dateBEnd) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
+      for (const objetoElementoType of dias) {
+        elementoComprobarTipo.push(objetoElementoType.elementoType)
+        elementoComprobarId.push(objetoElementoType.identificador)
+      }
+      for (let objetoElementoType of dias) {
+        let elemento = objetoElementoType;
+        let primerDigito = elemento.identificador.toString()[0];
+        if (objetoElementoType.identificador.includes("aula")) {
+
+
+          if (grupoAsigPoId[primerDigito]) {
+            grupoAsigPoId[primerDigito].push(elemento);
+          } else {
+            grupoAsigPoId[primerDigito] = [elemento];
+          }
+        }
+      }
+
+
+    }
+
+
+    grupoAsigPoId.forEach((subArray: any[]) => {
+      let isValid = true; // Variable para verificar si el día es válido
+
+      let zoomExist = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() === 'zoom');
+
+      if (zoomExist) {
+        let hasOtherThanZoom = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'zoom');
+
+        if (hasOtherThanZoom) {
+          isValid = false;
+
+        }
+      }
+
+      let Dias: any = {
+        0: 'Lunes',
+        1: 'Martes',
+        2: 'Miércoles',
+        3: 'Jueves',
+        4: 'Viernes',
+        5: 'Sábado'
+      };
+
+      let dia: any
+      // Verificar si el día es válido
+      if (!this.verificarDiaPresencialVirtualBolean) {
+        if (!isValid) {
+          subArray.forEach(element => {
+            if (element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'zoom') {
+              dia = parseInt(element.identificador.toString()[0])
+            }
+          });
+          let swalPromise = new Promise((resolve, reject) => {
+            Swal.fire({
+              title: 'Advertencia',
+              text: 'Hay clases presenciales y virtuales en el mismo día en el dia: ' + Dias[dia],
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Aceptar',
+              cancelButtonText: 'Quitar Advertencia'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                resolve(false);
+              } else if (result.dismiss === Swal.DismissReason.cancel) {
+                resolve(true);
+              }
+            });
+          });
+
+          swalPromise.then((value: any) => {
+            this.verificarDiaPresencialVirtualBolean = value;
+          });
+        }
+      }
+
+    });
+
+  }
+
+  async verificarAulaUbicacion() {
+    this.aulaHorario = []
+    this.asignaturaHorario = []
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
+    let arreglosHorario = []
+    arreglosHorario = [
+      this.monday,
+      this.tuesday,
+      this.wednesday,
+      this.thursday,
+      this.friday,
+      this.saturday
+    ]
+
+    let identificadoresAulas = []
+    let identificadoresAsignaturas = []
+    if (this.opcion1 == "Horario Diurno") {
+      this.horario.tipoHorario = "Horario Diurno"
+    } else {
+      this.horario.tipoHorario = "Horario Nocturno"
+    }
+
+    this.horario.carrera = this.opcion2
+    this.horario.semestre = this.opcion3
+
+    let elementoComprobarTipo: any = []
+    let elementoComprobarId: any = []
+    let asig: number = 0
+    let aula: number = 0
+
+    let grupoAsigPoId: any = []
+    for (const dias of arreglosHorario) {
+      dias.sort(function (a, b) {
+        // Convierte las horas de inicio y fin a objetos Date para poder compararlas
+        const dateAStart = new Date('1970/01/01 ' + a.hourStart.trim());
+        const dateBStart = new Date('1970/01/01 ' + b.hourStart.trim());
+        const dateAEnd = new Date('1970/01/01 ' + a.hourEnd.trim());
+        const dateBEnd = new Date('1970/01/01 ' + b.hourEnd.trim());
+
+        // Compara las horas de inicio y fin y devuelve el resultado de la comparación
+        if (dateAStart < dateBStart) {
+          return -1;
+        } else if (dateAStart > dateBStart) {
+          return 1;
+        } else if (dateAEnd < dateBEnd) {
+          return -1;
+        } else if (dateAEnd > dateBEnd) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
+      for (const objetoElementoType of dias) {
+        elementoComprobarTipo.push(objetoElementoType.elementoType)
+        elementoComprobarId.push(objetoElementoType.identificador)
+      }
+      for (let objetoElementoType of dias) {
+        let elemento = objetoElementoType;
+        let primerDigito = elemento.identificador.toString()[0];
+        if (objetoElementoType.identificador.includes("aula")) {
+
+
+          if (grupoAsigPoId[primerDigito]) {
+            grupoAsigPoId[primerDigito].push(elemento);
+          } else {
+            grupoAsigPoId[primerDigito] = [elemento];
+          }
+        }
+      }
+
+
+    }
+
+
+
+    grupoAsigPoId.forEach((subArray: any[]) => {
+      let isValid = true; // Variable para verificar si el día es válido
+
+      let zoomExist = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() === 'zoom');
+
+      if (!zoomExist) {
+        let colon = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus colon');
+
+        if (colon) {
+          let norte = subArray.some(element => element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'campus norte');
+
+          if (norte) {
+            isValid = false;
+
+          }
+
+        }
+      }
+
+      let Dias: any = {
+        0: 'Lunes',
+        1: 'Martes',
+        2: 'Miércoles',
+        3: 'Jueves',
+        4: 'Viernes',
+        5: 'Sábado'
+      };
+
+      let dia: any
+      // Verificar si el día es válido
+      if (!this.verificarAulaUbicacionBolean) {
+        if (!isValid) {
+          subArray.forEach(element => {
+            if (element.item.ubicacion && element.item.ubicacion.toLowerCase() !== 'colon') {
+              dia = parseInt(element.identificador.toString()[0])
+            }
+          });
+
+          let swalPromise = new Promise((resolve, reject) => {
+            Swal.fire({
+              title: 'Advertencia',
+              text: 'Hay aulas en diferentes ubicaciones (norte y colon) en el mismo día: ' + Dias[dia] + '.',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Aceptar',
+              cancelButtonText: 'Quitar Advertencia'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                resolve(false);
+              } else if (result.dismiss === Swal.DismissReason.cancel) {
+                resolve(true);
+              }
+            });
+          });
+
+          swalPromise.then((value: any) => {
+            this.verificarAulaUbicacionBolean = value;
+
+
+          });
+        }
+      }
+
+    });
+
+  }
+
+
+  async verificarrProfesor() {
+    this.terminoBusquedaAsignatura = ""
+    this.terminoBusquedaAsignaturaStatic = ""
+    this.terminoBusquedaAula = ""
+    await this.getHorarios()
+    this.aulaHorario = []
+    this.asignaturaHorario = []
+    this.horario = new Horario('', '', '', '', '', [], [], [], [], this.usuario)
+    let itemsHorarioArray = []
+    let arreglosHorario = []
+    arreglosHorario = [
+      this.monday,
+      this.tuesday,
+      this.wednesday,
+      this.thursday,
+      this.friday,
+      this.saturday
+    ]
+
+    let identificadoresAulas = []
+    let identificadoresAsignaturas = []
+    let datosIguales: boolean = false
+    let itemHorariosList: any[] = []
+    if (this.opcion1 == "Horario Diurno") {
+      this.horario.tipoHorario = "Horario Diurno"
+    } else {
+      this.horario.tipoHorario = "Horario Nocturno"
+    }
+
+    this.horario.carrera = this.opcion2
+    this.horario.semestre = this.opcion3
+
+    let elementoComprobarTipo: any = []
+    let elementoComprobarId: any = []
+    let asig: number = 0
+    let aula: number = 0
+    for (const dias of arreglosHorario) {
+      dias.sort(function (a, b) {
+        // Convierte las horas de inicio y fin a objetos Date para poder compararlas
+        const dateAStart = new Date('1970/01/01 ' + a.hourStart.trim());
+        const dateBStart = new Date('1970/01/01 ' + b.hourStart.trim());
+        const dateAEnd = new Date('1970/01/01 ' + a.hourEnd.trim());
+        const dateBEnd = new Date('1970/01/01 ' + b.hourEnd.trim());
+
+        // Compara las horas de inicio y fin y devuelve el resultado de la comparación
+        if (dateAStart < dateBStart) {
+          return -1;
+        } else if (dateAStart > dateBStart) {
+          return 1;
+        } else if (dateAEnd < dateBEnd) {
+          return -1;
+        } else if (dateAEnd > dateBEnd) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
+
+      for (const objetoElementoType of dias) {
+        elementoComprobarTipo.push(objetoElementoType.elementoType)
+        elementoComprobarId.push(objetoElementoType.identificador)
+      }
+
+      for (const objeto of dias) {
+        if (objeto.identificador.includes("aula")) {
+          identificadoresAulas.push(objeto.identificador)
+          await this.getAulaId(objeto.item._id)
+        }
+
+        if (objeto.identificador.includes("asignatura")) {
+          this.horario.dia.push(objeto.dayName)
+          this.horario.horas.push({ horaInicio: objeto.hourStart, horaFin: objeto.hourEnd });
+          identificadoresAsignaturas.push(objeto.identificador)
+          await this.getAsignaturaId(objeto.item._id)
+        }
+      }
+    }
+
+    for (const element of elementoComprobarTipo) {
+      if (element === "asignatura") {
+        asig++
+      } else {
+        aula++
+      }
+    }
+
+    if (asig === aula) {
+      datosIguales = true
+    }
+
+    let parejas = [];
+    for (let i = 0; i < elementoComprobarId.length; i++) {
+      let primeraTresLetras = elementoComprobarId[i].substring(0, 3);
+      for (let j = i + 1; j < elementoComprobarId.length; j++) {
+        if (elementoComprobarId[j].substring(0, 3) === primeraTresLetras) {
+          parejas.push(j);
+          break;
+        }
+      }
+    }
+
+    if (parejas.length !== elementoComprobarId.length / 2 && parejas.length !== 0) {
+      datosIguales = false
+    }
+
+    itemsHorarioArray = [
+      this.asignaturaHorario,
+      this.aulaHorario
+    ];
+
+
+    let index = 0;
+    this.horario.item = []
+    for (let i = 0; i < itemsHorarioArray[0].length || i < itemsHorarioArray[1].length; i++) {
+      if (itemsHorarioArray[0][index]) {
+        let asignatura = itemsHorarioArray[0][index] as Asignatura;
+        let aula = itemsHorarioArray[1][index] as Aula;
+        this.horario.item.push({ asignatura: asignatura, aula: aula });
+      }
+      index = (index + 1) % itemsHorarioArray[0].length;
+    }
+
+    let itemsIdent = []
+    itemsIdent = [
+      identificadoresAsignaturas,
+      identificadoresAulas
+    ];
+
+    //agregar items de cada celda
+    let index2 = 0;
+    for (let i = 0; i < itemsIdent[0].length || i < itemsIdent[1].length; i++) {
+      if (itemsIdent[0][index2]) {
+        let IdAsignatura = itemsIdent[0][index2];
+        let IdAula = itemsIdent[1][index2];
+        this.horario.idTabla.push({ idAsignatura: IdAsignatura, idAula: IdAula });
+      }
+      index2 = (index2 + 1) % itemsIdent[0].length;
+    }
+
+
+    let itemsBDHorario = []
+    let itemsHorario = null
+    let mensaje = "";
+
+
+    itemsBDHorario = this.horarios.map(verify => ({
+      carrera: verify.carrera,
+      semestre: verify.semestre,
+      ciclo: verify.ciclo,
+      dia: verify.dia,
+      paralelo: verify.paralelo,
+      tipoHorario: verify.tipoHorario,
+      idAsignaturaTableVerify: verify.idTabla.map(idTabla => idTabla.idAsignatura),
+      idAulaTableVerify: verify.idTabla.map(idTabla => idTabla.idAula),
+      itemverifyAsignatura: verify.item.map(item => item.asignatura._id),
+      itemverifyAsignaturaNombre: verify.item.map(item => item.asignatura.nombre),
+      itemverifyAula: verify.item.map(item => item.aula._id),
+      itemverifyAulaNombre: verify.item.map(item => item.aula.nombre),
+      itemverifyAulaCompartida: verify.item.map(item => item.aula.compartida),
+      itemHorasInico: verify.horas.map(item => item.horaInicio),
+      itemHorasFin: verify.horas.map(item => item.horaFin),
+      itemverifyprofesor: verify.item.map(item => item.asignatura.profesor[0]._id),
+      itemverifyprofesorNombre: verify.item.map(item => item.asignatura.profesor[0].nombre),
+
+    }));
+
+    itemsBDHorario = itemsBDHorario.filter(item => !(item.carrera === this.opcion2 && item.semestre === this.opcion3 && item.tipoHorario === this.opcion1 && item.ciclo === this.opcion4 && item.paralelo === this.opcion5));
+
+
+    itemsHorario = {
+      dia: this.horario.dia,
+      carrera: this.horario.carrera,
+      idAsignaturaTableVerify: this.horario.idTabla.map(idTabla => idTabla.idAsignatura),
+      itemverifyAsignatura: this.horario.item.map(item => item.asignatura._id),
+      itemverifyprofesor: this.horario.item.map(item => item.asignatura.profesor[0]._id),
+      itemverifyprofesorCarrera: this.horario.item.map(item => item.asignatura.profesor[0].carrera),
+      itemverifyprofesorNombre: this.horario.item.map(item => item.asignatura.profesor[0].nombre),
+    };
+
+
+
+    for (let i = 0; i < itemsHorario.dia.length; i++) {
+      const diaActual = itemsHorario.dia[i];
+      for (let j = 0; j < itemsBDHorario.length; j++) {
+        if (itemsBDHorario[j].dia.includes(diaActual)) {
+
+          // Iterar todos los elementos de los arrays que coinciden con el día actual
+          for (let k = 0; k < itemsBDHorario[j].idAsignaturaTableVerify.length; k++) {
+
+            if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
+              itemsBDHorario[j].itemverifyprofesor[k] === itemsHorario.itemverifyprofesor[i]) {
+
+
+
+              mensaje += `
+                  <strong>¡Choque de profesor (Misma hora)</strong>!<br>
+                  <strong>Motivo:  </strong> El profesor ya ha sido asignado a la misma hora para impartir otra clase.<br>
+                  <strong>Surgerencia:  </strong> Asegurese si el profesor imparte a otras carreras si es asi, puede omitir la advertencia.<br>
+                  <strong>Carrera:</strong> ${itemsBDHorario[j].carrera} <br>
+                  <strong>Horario:</strong> ${itemsBDHorario[j].tipoHorario}<br>
+                  <strong>Paralelo:</strong> ${itemsBDHorario[j].paralelo}<br>
+                  <strong>Semestre:</strong> ${itemsBDHorario[j].semestre} <br>
+                  <strong>Ciclo:</strong> ${itemsBDHorario[j].ciclo}<br>
+                  <strong>Dia:</strong> ${diaActual}<br>
+                  <strong>Hora:</strong> ${itemsBDHorario[j].itemHorasInico[k]} - ${itemsBDHorario[j].itemHorasFin[k]}<br>
+                  <strong>Asignatura:</strong> ${itemsBDHorario[j].itemverifyAsignaturaNombre[k]}<br>
+                  <strong>Aula:</strong> ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
+                  <strong>Profesor:</strong> ${itemsBDHorario[j].itemverifyprofesorNombre[k]}<br>
+              `;
+            }
+
+
+          }
+        }
+
+
+      }
+    }
+
+
+    if (!this.verificarProfesorBolean && mensaje !== "") {
+      let swalPromise = new Promise((resolve, reject) => {
+        Swal.fire({
+          title: 'Advertencia',
+          html: `<div style="height: 250px; overflow-y: auto">${mensaje}</div>`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Aceptar',
+          cancelButtonText: 'Quitar Advertencia'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            resolve(false);
+          } else if (result.dismiss === Swal.DismissReason.cancel) {
+            Swal.fire({
+              title: '¿Estás seguro?',
+              html: 'Una vez que acepte, la advertencia no volverá a aparecer a menos que actualice la página',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Cancelar',
+              cancelButtonText: 'Aceptar'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                resolve(false);
+              } else if (result.dismiss === Swal.DismissReason.cancel) {
+                resolve(true);
+              }
+            });
+          }
+        });
+      });
+
+      swalPromise.then((value: any) => {
+        this.verificarProfesorBolean = value;
+
+
+      });
+    }
+
+  }
+
+
+
+
 }
+

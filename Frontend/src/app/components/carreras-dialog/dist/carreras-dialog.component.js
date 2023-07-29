@@ -130,28 +130,39 @@ var CarrerasDialogComponent = /** @class */ (function () {
         if (this.selectedParalelo === undefined) {
             this.selectedParalelo = "";
         }
+        if (this.selectedCiclo === undefined) {
+            this.selectedCiclo = "";
+        }
         for (var _i = 0, _a = this.horarios; _i < _a.length; _i++) {
             var horario = _a[_i];
             if (horario.paralelo === undefined) {
                 horario.paralelo = "";
             }
-            if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre && horario.tipoHorario === this.datoRecibido && horario.paralelo === this.selectedParalelo) {
+            if (horario.ciclo === undefined) {
+                horario.ciclo = "";
+            }
+            if (horario.carrera === this.selectedCarrera && horario.semestre === this.selectedSemestre && horario.tipoHorario === this.datoRecibido && horario.ciclo === this.selectedCiclo && horario.paralelo === this.selectedParalelo) {
                 existHorarioCarrera = true;
             }
         }
         var ruta = "";
         var rutaEnviar = "";
+        var title = "";
         if (this.datoRecibido === "Horario Diurno" && this.selectedOpcionPregunta === "si") {
             rutaEnviar = rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedParalelo;
+            title = 'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + this.periodoTIpo + ' - ' + 'paralelo ' + this.selectedParalelo + ' ' + ' ya fue creado.';
         }
         else if (this.datoRecibido === "Horario Diurno") {
             rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre;
+            title = 'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + this.periodoTIpo + ' ya fue creado.';
         }
         if (this.datoRecibido === "Horario Nocturno" && this.selectedOpcionPregunta === "si") {
             rutaEnviar = rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedCiclo + '/' + this.selectedParalelo;
+            title = 'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + 'semestre' + this.selectedCiclo + ' ' + this.periodoTIpo + ' - ' + 'paralelo ' + this.selectedParalelo + ' ' + ' ya fue creado.';
         }
         else if (this.datoRecibido === "Horario Nocturno") {
             rutaEnviar = 'home/creacion/' + this.datoRecibido + '/' + this.selectedCarrera + '/' + this.selectedSemestre + '/' + this.selectedCiclo;
+            title = 'EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + 'semestre' + this.selectedCiclo + ' ' + this.periodoTIpo + ' ya fue creado.';
         }
         if (!existHorarioCarrera) {
             ruta = rutaEnviar;
@@ -162,7 +173,7 @@ var CarrerasDialogComponent = /** @class */ (function () {
             }, 350);
         }
         else {
-            sweetalert2_1["default"].fire('EL Horario de ' + this.selectedCarrera + ' del ' + this.selectedSemestre + ' ' + this.periodoTIpo + ' ya fue creado.', 'Por favor, si desea modificar vaya a la sección de horarios', 'error');
+            sweetalert2_1["default"].fire(title, 'Por favor, si desea modificar vaya a la sección de horarios', 'error');
         }
     };
     CarrerasDialogComponent = __decorate([

@@ -68,12 +68,15 @@ export class HomeComponent {
 
 
       if (params['opcion1'] === "Horario_Nocturno") {
-        periodoTipo = "Ciclo"
+        periodoTipo = "ciclo"
         horario = "Nocturno"
       } else {
 
         periodoTipo = "semestre"
         horario = "Diurno"
+      }
+      if(opcion2 === "Inglés"){
+        periodoTipo = "nivel"
       }
 
       if (opcion2 !== "undefined" && opcion3 !== "undefined") {
@@ -81,13 +84,18 @@ export class HomeComponent {
         opcion2 = opcion2.replace(/_/g, " ");
         let opcion3 = params['opcion3'];
         opcion3 = opcion3.replace(/_/g, " ");
+        console.log(opcion2)
+
+        console.log(opcion3)
 
         if (opcion2 && opcion3 && !opcion4) {
           this._asignaturaService.search(opcion2, opcion3).subscribe(
             response => {
+              console.log(response)
               if (response.asignaturas) {
                 let asignaturas = []
                 asignaturas = response.asignaturas
+                console.log(asignaturas)
                 asignaturas.forEach((asignatura: any) => {
                   if (asignatura.horario === horario && asignatura.paralelo!.length === 0 && asignatura.ciclo!.length === 0) {
 
@@ -175,7 +183,7 @@ export class HomeComponent {
                 /* this.is_horario = true */
                 if (!this.is_horario) {
                   Swal.fire(
-                    'Horario ' + horario + ' de la Carrera de ' + opcion2 + ' del ' + periodoTipo + ' ' + opcion3 + ' del paralelo ' + opcion5,
+                    'Horario ' + horario + ' de la Carrera de ' + opcion2 + ' del semestre ' + opcion3 + ' '+ periodoTipo + ' ' + opcion4 + ' paralelo ' + opcion5,
                     'No hay asignaturas para mostrar',
                     'error'
                   )
@@ -186,10 +194,9 @@ export class HomeComponent {
 
             },
             error => {
-              console.log("her")
               Swal.fire(
-                'Horario ' + horario + ' de la Carrera de ' + opcion2 + ' del ' + periodoTipo + ' ' + opcion3 + ' del paralelo ' + opcion5,
-                error.error.message,
+                'Horario ' + horario + ' de la Carrera de ' + opcion2 + ' del semestre ' + opcion3 + ' '+ periodoTipo + ' ' + opcion4 + ' paralelo ' + opcion5,
+                'No hay asignaturas para mostrar',
                 'error'
               )
             }

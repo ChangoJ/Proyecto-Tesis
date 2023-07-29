@@ -241,10 +241,10 @@ var controller = {
                     "carrera": { "$regex": searchString, "$options": "i" }
                 },
                 {
-                    "semestre": { "$regex": searchString, "$options": "i" }
+                    "semestre": { "$regex": "^" +searchString  + "$", "$options": "i" }
                 },
                 {
-                    "ciclo": { "$regex": searchString, "$options": "i" }
+                    "ciclo": { "$regex": "^" +searchString  + "$", "$options": "i" }
                 },
                 {
                     "estado": { "$regex": searchString, "$options": "i" }

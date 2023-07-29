@@ -28,7 +28,7 @@ var controller = {
       });
     }
 
-    if (validate_nombre && validate_horario && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color) {
+    if (validate_nombre && validate_horario && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color && params.creditos !== null && params.creditos !== undefined && Number.isInteger(params.creditos) && params.creditos !== 0 && params.creditos <= 20) {
       //Crear el objeto a guardar
       var asignatura1 = new asignatura(); //asignar valores
 
@@ -40,7 +40,8 @@ var controller = {
       asignatura1.abreviatura = params.abreviatura;
       asignatura1.color = params.color;
       asignatura1.paralelo = params.paralelo;
-      asignatura1.ciclo = params.ciclo; //guardar el articulo
+      asignatura1.ciclo = params.ciclo;
+      asignatura1.creditos = params.creditos; //guardar el articulo
 
       asignatura1.save().then(function (asignaturaStored) {
         if (!asignaturaStored) {
@@ -84,7 +85,7 @@ var controller = {
       });
     }
 
-    if (validate_nombre && validate_horario && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color && params.creditos !== null && params.creditos !== undefined && Number.isInteger(params.creditos) && params.creditos !== 0 && params.creditos < 10) {
+    if (validate_nombre && validate_horario && params.carrera.length !== 0 && params.semestre.length !== 0 && params.profesor.length !== 0 && validate_abreviatura && validate_color && params.creditos !== null && params.creditos !== undefined && Number.isInteger(params.creditos) && params.creditos !== 0 && params.creditos <= 20) {
       var promises = params.profesor.map(function (profesor) {
         return new Promise(function (resolve, reject) {
           //Crear el objeto a guardar
@@ -264,7 +265,7 @@ var controller = {
         }
       }, {
         "semestre": {
-          "$regex": search2Int,
+          "$regex": "^" + search2Int + "$",
           "$options": "i"
         }
       }]
@@ -296,18 +297,18 @@ var controller = {
         }
       }, {
         "semestre": {
-          "$regex": search2Int,
+          "$regex": "^" + search2Int + "$",
           "$options": "i"
         }
       }, {
         "$or": [{
           "paralelo": {
-            "$regex": search3String,
+            "$regex": "^" + search3String + "$",
             "$options": "i"
           }
         }, {
           "ciclo": {
-            "$regex": search3String,
+            "$regex": "^" + search3String + "$",
             "$options": "i"
           }
         }]
@@ -341,17 +342,17 @@ var controller = {
         }
       }, {
         "semestre": {
-          "$regex": search2Int,
+          "$regex": "^" + search2Int + "$",
           "$options": "i"
         }
       }, {
         "ciclo": {
-          "$regex": search4String,
+          "$regex": "^" + search3String + "$",
           "$options": "i"
         }
       }, {
         "paralelo": {
-          "$regex": search3String,
+          "$regex": "^" + search4String + "$",
           "$options": "i"
         }
       }]
