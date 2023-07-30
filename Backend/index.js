@@ -7,6 +7,7 @@ const cors = require('cors');
 
 
 
+
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/sistema_creacion_horarios', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {

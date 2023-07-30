@@ -76,8 +76,10 @@ var FileSaver = require("file-saver");
 var uuid_1 = require("uuid");
 var detalle_service_1 = require("../services/detalle.service");
 var usuario_service_1 = require("../services/usuario.service");
+var socket_io_client_1 = require("socket.io-client");
 var HorarioNuevoComponent = /** @class */ (function () {
     function HorarioNuevoComponent(_route, _router, _asignaturaService, _aulasService, _horarioService, _detalleService, _usuarioService) {
+        var _this = this;
         this._route = _route;
         this._router = _router;
         this._asignaturaService = _asignaturaService;
@@ -121,18 +123,45 @@ var HorarioNuevoComponent = /** @class */ (function () {
         this.aprobador = [];
         this.arrastreAsignaturas = [];
         this.horarioHoras = "";
+        this.estadoHorarioCreacion = false;
+        this.usuariosConectados = [];
         this.horario = new horario_1.Horario('', '', '', '', '', [], [], [], [], this.usuario);
         this.existHorarioCarrera = false;
         this.getHorarios();
         this.authToken = this._detalleService.authToken;
         this.userData = this._detalleService.userData;
+        this.url = this._detalleService.Global.url;
+        this.socket = socket_io_client_1.io('http://localhost:3900', {
+            transports: ['websocket']
+        });
+        this.socket.emit('crearHorario');
+        this.socket.on('usuariosConectados', function (usuarios) {
+            _this.usuariosConectados = usuarios;
+        });
     }
     HorarioNuevoComponent.prototype.ngOnInit = function () {
-        this.getHorarios();
-        this.getAulas();
-        this.getUsuarios();
-        this.getDataDetalles();
-        this.getAsignaturas();
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                this.getHorarios();
+                this.getAulas();
+                this.getUsuarios();
+                this.getDataDetalles();
+                this.getAsignaturas();
+                setTimeout(function () {
+                    console.log(_this.socket.id);
+                    console.log(_this.usuariosConectados);
+                    if (_this.usuariosConectados.length > 1 && _this.socket.id !== _this.usuariosConectados[0]) {
+                        sweetalert2_1["default"].fire('No puede crear el horario en este momento', 'Otro usuario ya está creando o modificando un horario, por favor, inténtalo más tarde.', 'error');
+                        _this._router.navigate(['/home']);
+                    }
+                }, 1200);
+                return [2 /*return*/];
+            });
+        });
+    };
+    HorarioNuevoComponent.prototype.ngOnDestroy = function () {
+        this.socket.disconnect();
     };
     HorarioNuevoComponent.prototype.getDataDetalles = function () {
         var _this = this;
@@ -663,7 +692,6 @@ var HorarioNuevoComponent = /** @class */ (function () {
                         else {
                             _this.horarios = _this.horarios.filter(function (horario) { return horario.tipoHorario === _this.opcion1; });
                         }
-                        console.log(_this.horarios);
                         if (_this.existHorarioCarrera) {
                             sweetalert2_1["default"].fire({
                                 title: title,

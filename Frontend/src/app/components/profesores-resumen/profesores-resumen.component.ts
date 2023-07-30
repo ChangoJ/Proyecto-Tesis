@@ -67,9 +67,9 @@ export class ProfesoresResumenComponent {
   public revisador: any = [];
   public aprobador: any = [];
 
-  @ViewChild('paginator', { static: false }) paginator!: MatPaginator;
-  @ViewChild('paginator2', { static: false }) paginator2!: MatPaginator;
-  @ViewChild('paginator3', { static: false }) paginator3!: MatPaginator;
+  @ViewChild('paginator', { static: true }) paginator!: MatPaginator;
+  @ViewChild('paginator2', { static: true }) paginator2!: MatPaginator;
+  @ViewChild('paginator3', { static: true }) paginator3!: MatPaginator;
 
   constructor(private _asignaturaService: AsignaturaService,
     private _aulasService: AulaService,
@@ -581,7 +581,6 @@ export class ProfesoresResumenComponent {
         ciclo: profesor.ciclo
       }
 
-
       let asignaturasDelProfesor = asignaturasPorProfesor.find(
         (item: any) => item.profesorId === profeId
       );
@@ -611,7 +610,6 @@ export class ProfesoresResumenComponent {
         asignaturasPorProfesorTiempoParcial.push(asigPro);
       }
     }
-
 
 
     this.asignaturasPorProfesorTiempoCompleto = new MatTableDataSource<any>(asignaturasPorProfesorTiempoCompleto);

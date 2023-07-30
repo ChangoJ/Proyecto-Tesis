@@ -29,14 +29,13 @@
             </small>
         </div>
 
-       <div class="form-group" *ngIf="!is_edit">
-  <label for="aula">Ubicacion: </label>
-  <mat-form-field>
-    <mat-select placeholder="Seleccione la Ubicacion" >
-      <mat-option *ngFor="let ubicacion of ubicaciones" [value]="ubicacion">{{ ubicacion }}</mat-option>
-    </mat-select>
-  </mat-form-field>
-</div>
+        <div class="form-group" *ngIf="!is_edit">
+            <label for="aula">Ubicacion: </label>
+            <ng-multiselect-dropdown [placeholder]="'Seleccione la Ubicacion'" [settings]="dropdownUbicacion"
+                [data]="ubicaciones" [(ngModel)]="selectedUbicacion" [ngModelOptions]="{standalone: true}">
+            </ng-multiselect-dropdown>
+        </div>
+
         <div class="form-group" *ngIf="is_edit">
             <label for="aula">Ubicacion: </label>
             <ng-multiselect-dropdown [placeholder]="'Seleccione la Ubicacion'" [settings]="dropdownUbicacion"

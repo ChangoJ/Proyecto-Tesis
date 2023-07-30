@@ -69,7 +69,6 @@ var detalle_edit_component_1 = require("./components/detalle-edit/detalle-edit.c
 var detalle_nuevo_component_1 = require("./components/detalle-nuevo/detalle-nuevo.component");
 var items_detalle_component_1 = require("./components/items-detalle/items-detalle.component");
 var detalle_service_1 = require("./components/services/detalle.service");
-var progress_spinner_1 = require("@angular/material/progress-spinner");
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -136,8 +135,7 @@ var AppModule = /** @class */ (function () {
                 divider_1.MatDividerModule,
                 paginator_1.MatPaginatorModule,
                 card_1.MatCardModule,
-                forms_2.ReactiveFormsModule,
-                progress_spinner_1.MatProgressSpinnerModule
+                forms_2.ReactiveFormsModule
             ],
             providers: [auth_service_1.AuthService, detalle_service_1.DetalleService],
             bootstrap: [app_component_1.AppComponent]

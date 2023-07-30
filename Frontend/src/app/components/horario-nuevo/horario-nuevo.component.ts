@@ -17,6 +17,8 @@ import * as FileSaver from 'file-saver';
 import { v4 as uuidv4 } from 'uuid';
 import { DetalleService } from '../services/detalle.service';
 import { UsuarioService } from '../services/usuario.service';
+import { io, Socket } from 'socket.io-client';
+
 
 
 @Component({
@@ -77,7 +79,10 @@ export class HorarioNuevoComponent {
   public aprobador: any = [];
   public arrastreAsignaturas: any[] = [];
   public horarioHoras: string = "";
-
+  public url!: string
+  private socket!: Socket;
+  public estadoHorarioCreacion: boolean = false
+  public usuariosConectados: any = []
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
@@ -92,19 +97,54 @@ export class HorarioNuevoComponent {
     this.getHorarios()
     this.authToken = this._detalleService.authToken
     this.userData = this._detalleService.userData
+    this.url = this._detalleService.Global.url
+
+    this.socket = io('http://localhost:3900', {
+      transports: ['websocket'],
+    });
+
+    this.socket.emit('crearHorario');
+
+    this.socket.on('usuariosConectados', (usuarios: string[]) => {
+      this.usuariosConectados = usuarios;
+    });
   }
 
 
-  ngOnInit() {
+  async ngOnInit() {
     this.getHorarios()
     this.getAulas()
     this.getUsuarios()
     this.getDataDetalles()
 
     this.getAsignaturas()
+
+    setTimeout(() => {
+      
+      console.log(this.socket.id)
+      
+      console.log(this.usuariosConectados)
+     
+      if (this.usuariosConectados.length > 1 && this.socket.id !== this.usuariosConectados[0]) {
+        Swal.fire(
+          'No puede crear el horario en este momento',
+          'Otro usuario ya está creando o modificando un horario, por favor, inténtalo más tarde.',
+          'error'
+        );
+        this._router.navigate(['/home']);
+      }
+
+
+    }, 1200);
+
   }
 
-  
+
+  ngOnDestroy() {
+    this.socket.disconnect();
+
+  }
+
 
   getDataDetalles() {
 
@@ -247,6 +287,7 @@ export class HorarioNuevoComponent {
 
 
   getAsignaturas() {
+
     this._route.params.subscribe(params => {
       this.opcion2 = params['opcion2'];
       this.opcion1 = params['opcion1'];
@@ -727,7 +768,6 @@ export class HorarioNuevoComponent {
 
           }
 
-          console.log(this.horarios)
 
           if (this.existHorarioCarrera) {
             Swal.fire({
@@ -1948,7 +1988,7 @@ export class HorarioNuevoComponent {
 
 
 
-                        mensaje += `
+                      mensaje += `
                         <strong>¡Choque de aula y asignatura (Misma hora)</strong>!<br>
                         Motivo: El profesor ya ha sido asignado a la misma hora para impartir otra clase<br>
                         <strong>Carrera:</strong> ${itemsBDHorario[j].carrera} <br>
@@ -1968,7 +2008,7 @@ export class HorarioNuevoComponent {
 
 
 
-                        mensaje += `
+                      mensaje += `
                         <strong>¡Choque de profesor (Misma hora)</strong>!<br> 
                         <strong>Motivo:  </strong> El profesor ya ha sido asignado a la misma hora para impartir otra clase.<br>
                         <strong>Surgerencia:  </strong> Asegurese si el profesor imparte a otras carreras si es asi, puede omitir la advertencia.<br>
@@ -1991,7 +2031,7 @@ export class HorarioNuevoComponent {
 
 
 
-                        mensaje += `
+                      mensaje += `
                         <strong>¡Choque de aula (Misma hora)</strong>!<br>
                         Motivo: El aula ya ha sido asignada para otra asignatura<br>
                         <strong>Carrera:</strong> ${itemsBDHorario[j].carrera} <br>
@@ -2645,10 +2685,10 @@ export class HorarioNuevoComponent {
 
               if (itemsBDHorario[j].idAsignaturaTableVerify[k] === itemsHorario.idAsignaturaTableVerify[i] &&
                 itemsBDHorario[j].itemverifyprofesor[k] === itemsHorario.itemverifyprofesor[i]) {
-                  console.log(itemsBDHorario[j])
+                console.log(itemsBDHorario[j])
 
 
-                  mensaje += `
+                mensaje += `
                   <strong>¡Choque de profesor (Misma hora)</strong>!<br>
                   <strong>Motivo:  </strong> El profesor ya ha sido asignado a la misma hora para impartir otra clase.<br>
                   <strong>Surgerencia:  </strong> Asegurese si el profesor imparte a otras carreras si es asi, puede omitir la advertencia.<br>
@@ -2663,7 +2703,7 @@ export class HorarioNuevoComponent {
                   <strong>Aula:</strong> ${itemsBDHorario[j].itemverifyAulaNombre[k]}<br>
                   <strong>Profesor:</strong> ${itemsBDHorario[j].itemverifyprofesorNombre[k]}<br>
               `;
-            }
+              }
 
 
             }

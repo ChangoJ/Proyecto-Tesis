@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as ExcelJS from 'exceljs';
 import { UsuarioService } from '../services/usuario.service';
 import { DetalleService } from '../services/detalle.service';
+import { io, Socket } from 'socket.io-client';
 
 @Component({
   selector: 'app-horario-edit',
@@ -78,6 +79,9 @@ export class HorarioEditComponent {
   public asignaturasColocadas: any[] = [];
   public aulasFiltradas: any[] = [];
   public is_Paralelo: boolean = false;
+  private socket!: Socket;
+  public estadoHorarioCreacion: boolean = false
+  public usuariosConectados: any = []
 
 
 
@@ -94,6 +98,16 @@ export class HorarioEditComponent {
     this.existHorarioCarrera = false
     this.authToken = this._detalleService.authToken
     this.userData = this._detalleService.userData
+
+    this.socket = io('http://localhost:3900', {
+      transports: ['websocket'],
+    });
+
+    this.socket.emit('crearHorario');
+
+    this.socket.on('usuariosConectados', (usuarios: string[]) => {
+      this.usuariosConectados = usuarios;
+    });
   }
 
 
@@ -103,6 +117,33 @@ export class HorarioEditComponent {
     this.getHorarios()
     this.verHorario()
     this.getUsuarios()
+
+    setTimeout(() => {
+      
+      console.log(this.socket.id)
+      
+      console.log(this.usuariosConectados)
+     
+      if (this.usuariosConectados.length > 1 && this.socket.id !== this.usuariosConectados[0]) {
+        Swal.fire(
+          'No puede modificar el horario',
+          'Otro usuario ya está creando o modificando un horario, por favor, inténtalo más tarde.',
+          'error'
+        );
+        
+        this._router.navigate(['/home']);
+      }
+
+
+    }, 1200);
+
+
+  }
+
+  
+  ngOnDestroy() {
+    this.socket.disconnect();
+
   }
 
   getDataDetalles() {

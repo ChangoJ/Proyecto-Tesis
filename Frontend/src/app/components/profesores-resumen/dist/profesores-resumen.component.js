@@ -2144,13 +2144,13 @@ var ProfesoresResumenComponent = /** @class */ (function () {
         this._router.navigate(['/especificacion/profesores/editarProfesor/', id]);
     };
     __decorate([
-        core_1.ViewChild('paginator', { static: false })
+        core_1.ViewChild('paginator', { static: true })
     ], ProfesoresResumenComponent.prototype, "paginator");
     __decorate([
-        core_1.ViewChild('paginator2', { static: false })
+        core_1.ViewChild('paginator2', { static: true })
     ], ProfesoresResumenComponent.prototype, "paginator2");
     __decorate([
-        core_1.ViewChild('paginator3', { static: false })
+        core_1.ViewChild('paginator3', { static: true })
     ], ProfesoresResumenComponent.prototype, "paginator3");
     ProfesoresResumenComponent = __decorate([
         core_1.Component({

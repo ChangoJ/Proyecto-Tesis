@@ -29,6 +29,7 @@ import { ItemsAulaComponent } from './components/items-aula/items-aula.component
 import { ItemsProfesorComponent } from './components/items-profesor/items-profesor.component';
 import { ItemsAsignaturaComponent } from './components/items-asignatura/items-asignatura.component';
 import { HttpClientModule } from '@angular/common/http';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HorarioDialogComponent } from './components/horario-dialog/horario-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -60,7 +61,6 @@ import { DetalleEditComponent } from './components/detalle-edit/detalle-edit.com
 import { DetalleNuevoComponent } from './components/detalle-nuevo/detalle-nuevo.component';
 import { ItemsDetalleComponent } from './components/items-detalle/items-detalle.component';
 import { DetalleService } from './components/services/detalle.service';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @NgModule({
   
@@ -111,6 +111,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     BrowserAnimationsModule,
     HttpClientModule,
     MatIconModule,
+    NgMultiSelectDropDownModule,
     DragDropModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -124,8 +125,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     MatDividerModule,
     MatPaginatorModule,
     MatCardModule,
-    ReactiveFormsModule,
-    MatProgressSpinnerModule
+    ReactiveFormsModule
   ],
   providers: [AuthService, DetalleService],
   bootstrap: [AppComponent]
