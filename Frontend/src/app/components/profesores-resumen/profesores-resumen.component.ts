@@ -67,9 +67,7 @@ export class ProfesoresResumenComponent {
   public revisador: any = [];
   public aprobador: any = [];
 
-  @ViewChild('paginator', { static: true }) paginator!: MatPaginator;
-  @ViewChild('paginator2', { static: true }) paginator2!: MatPaginator;
-  @ViewChild('paginator3', { static: true }) paginator3!: MatPaginator;
+  
 
   constructor(private _asignaturaService: AsignaturaService,
     private _aulasService: AulaService,
@@ -95,6 +93,10 @@ export class ProfesoresResumenComponent {
     this.getUsuarios()
   }
 
+
+  @ViewChild('paginator', { static: true }) paginator!: MatPaginator;
+  @ViewChild('paginator2', { static: true }) paginator2!: MatPaginator;
+  @ViewChild('paginator3', { static: true }) paginator3!: MatPaginator;
   getDataDetalles() {
     this._detalleService.getRolesCarrera().subscribe(roles => {
       this.rolesCarreras = roles

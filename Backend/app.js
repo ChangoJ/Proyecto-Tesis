@@ -49,10 +49,9 @@ var usuariosConectados = []
 io.on('connection', (socket) => {
   console.log('Nuevo cliente conectado:', socket.id);
   // Manejar evento cuando el cliente crea un horario
-  socket.on('crearHorario', () => {
-    console.log('Usuario', socket.id, 'está creando un horario:');
+  socket.on('crearHorario', () => {/* 
+    console.log('Usuario', socket.id, 'está creando un horario:'); */
     usuariosConectados.push(socket.id)
-    console.log(usuariosConectados)
 
     // Enviamos los datos actualizados de usuariosConectados a todos los clientes
     io.emit('usuariosConectados', usuariosConectados);
@@ -60,8 +59,8 @@ io.on('connection', (socket) => {
   });
 
   // Manejar evento cuando el cliente se desconecta
-  socket.on('disconnect', () => {
-    console.log('Cliente desconectado:', socket.id);
+  socket.on('disconnect', () => {/* 
+    console.log('Cliente desconectado:', socket.id); */
     usuariosConectados = usuariosConectados.filter((elemento) => elemento !== socket.id);
 
   });
