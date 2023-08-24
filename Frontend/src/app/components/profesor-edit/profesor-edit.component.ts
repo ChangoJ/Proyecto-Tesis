@@ -92,7 +92,7 @@ export class ProfesorEditComponent {
       || controles.includes("INVALID")
     ) {
       Swal.fire(
-        'Profesor no se ha modificada',
+        'Profesor no se ha modificado',
         'Por favor, rellene los datos correctamente',
         'error'
       )
@@ -106,7 +106,7 @@ export class ProfesorEditComponent {
           this.profesor = response.profesor
 
           Swal.fire(
-            'Profesor modificada',
+            'Profesor modificado',
             'El profesor se ha modificado correctamente',
             'success'
           )

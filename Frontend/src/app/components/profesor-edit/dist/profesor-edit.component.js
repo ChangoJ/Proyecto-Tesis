@@ -70,14 +70,14 @@ var ProfesorEditComponent = /** @class */ (function () {
             || this.profesor.nombre === ""
             || this.profesor.contrato.length === 0
             || controles.includes("INVALID")) {
-            sweetalert2_1["default"].fire('Profesor no se ha modificada', 'Por favor, rellene los datos correctamente', 'error');
+            sweetalert2_1["default"].fire('Profesor no se ha modificado', 'Por favor, rellene los datos correctamente', 'error');
         }
         else {
             this._profesorService.update(this.profesor._id, this.profesor).subscribe(function (response) {
                 if (response.status == 'success') {
                     _this.status = 'success';
                     _this.profesor = response.profesor;
-                    sweetalert2_1["default"].fire('Profesor modificada', 'El profesor se ha modificado correctamente', 'success');
+                    sweetalert2_1["default"].fire('Profesor modificado', 'El profesor se ha modificado correctamente', 'success');
                     setTimeout(function () {
                         _this._router.navigate(['/especificacion/profesores']);
                     }, 1200);

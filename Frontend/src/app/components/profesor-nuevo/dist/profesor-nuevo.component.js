@@ -79,20 +79,20 @@ var ProfesorNuevoComponent = /** @class */ (function () {
             || this.profesor.nombre === ""
             || this.profesor.contrato.length === 0
             || controles.includes("INVALID")) {
-            sweetalert2_1["default"].fire('Profesor no creada', 'Por favor, rellene los datos correctamente.', 'error');
+            sweetalert2_1["default"].fire('Profesor no creado', 'Por favor, rellene los datos correctamente.', 'error');
         }
         else {
             this._profesorService.create(this.profesor).subscribe(function (response) {
                 if (response.status == 'success') {
                     _this.status = 'success';
                     _this.profesor = response.profesor;
-                    sweetalert2_1["default"].fire('Profesor creada', 'El profesor se ha creado correctamente.', 'success');
+                    sweetalert2_1["default"].fire('Profesor creado', 'El profesor se ha creado correctamente.', 'success');
                     setTimeout(function () {
                         _this._router.navigate(['/especificacion/profesores']);
                     }, 1200);
                 }
                 else {
-                    sweetalert2_1["default"].fire('Profesor no creada', 'Por favor, rellene los datos correctamente.', 'error');
+                    sweetalert2_1["default"].fire('Profesor no creado', 'Por favor, rellene los datos correctamente.', 'error');
                     _this.status = 'error';
                 }
             }, function (error) {

@@ -100,7 +100,7 @@ export class ProfesorNuevoComponent {
       || controles.includes("INVALID")
     ) {
       Swal.fire(
-        'Profesor no creada',
+        'Profesor no creado',
         'Por favor, rellene los datos correctamente.',
         'error'
       )
@@ -114,7 +114,7 @@ export class ProfesorNuevoComponent {
           this.profesor = response.profesor
 
           Swal.fire(
-            'Profesor creada',
+            'Profesor creado',
             'El profesor se ha creado correctamente.',
             'success'
           )
@@ -124,7 +124,7 @@ export class ProfesorNuevoComponent {
           }, 1200);
         } else {
           Swal.fire(
-            'Profesor no creada',
+            'Profesor no creado',
             'Por favor, rellene los datos correctamente.',
             'error'
           )
